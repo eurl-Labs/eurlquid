@@ -1,0 +1,5 @@
+export { FeaturesSection } from './FeaturesSection'
+export { ComparisonSection } from './ComparisonSection'
+export { ExampleSection } from './ExampleSection'
+export { CTASection } from './CTASection'
+export { FooterSection } from './FooterSection'
