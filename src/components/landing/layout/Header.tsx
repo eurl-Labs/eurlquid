@@ -16,7 +16,7 @@ export function Header() {
           <span className="text-2xl font-bold ml-2">eurlquid</span>
         </div>
 
-        <ul className="flex space-x-6">
+        <ul className="hidden sm:flex space-x-6">
           <li>
             <a href="#" className="hover:text-gray-300">
               Docs
@@ -32,8 +32,14 @@ export function Header() {
               Github
             </a>
           </li>
-
         </ul>
+        
+        {/* Mobile menu button */}
+        <button className="sm:hidden flex flex-col space-y-1">
+          <div className="w-6 h-0.5 bg-white"></div>
+          <div className="w-6 h-0.5 bg-white"></div>
+          <div className="w-6 h-0.5 bg-white"></div>
+        </button>
       </nav>
     </header>
   );

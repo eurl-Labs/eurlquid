@@ -13,7 +13,7 @@ export default function Home() {
     <div className={`relative w-full bg-black text-white ${manrope.className}`}>
       <div className="relative w-full h-screen overflow-hidden">
         <Header />
-        <HeroSection />
+        <HeroSection/>
         <Canvas shadows camera={{ position: [30, 30, 30], fov: 50 }} className="absolute inset-0">
           <Scene />
         </Canvas>
