@@ -1,367 +1,671 @@
-LiquidityOracle Interface: Enhancement vs Replacement
-Yang Kamu Tunjukkan = Current State (Reactive) 📊
-Analisis Screenshot:
-Problems dengan Interface Ini:
-LiquidityOracle = 3 Bentuk Different 🚀
-1. Enhanced Aggregator Interface (B2C)
-Seperti interface kamu, tapi SUPER
-UPGRADED:
-Interface Aggregator Biasa:
-Interface Aggregator Biasa:
-├── Input: 0.0001 WETH →
-USDC
-├── Input: 0.0001 WETH →
-USDC
-├── Routes: 8 different options
-├── Routes: 8 different options
-├── Best Rate: 0.354422 USDC via Icecreamswap
-├── Best Rate: 0.354422 USDC via Icecreamswap
-├── Worst Rate: 0.348039 USDC via 0x v
-2
-├── Worst Rate: 0.348039 USDC via 0x v
-2
-└── Range: ~1.8% difference between best/worst
-└── Range: ~1.8% difference between best/worst
-❌ Data ini SNAPSHOT saat kamu buka page
-❌ Data ini SNAPSHOT saat kamu buka page
-❌ Dalam 10-30 detik, ranking bisa berubah total
-❌ Dalam 10-30 detik, ranking bisa berubah total
-❌ "Best" route mungkin sudah tidak best lagi
-❌ "Best" route mungkin sudah tidak best lagi
-❌ Tidak ada info KENAPA satu route lebih baik
-❌ Tidak ada info KENAPA satu route lebih baik
-❌ Tidak ada prediksi kondisi 5-10 menit ke depan
-❌ Tidak ada prediksi kondisi 5-10 menit ke depan
-2. Professional Analytics Dashboard (B2B)
-For Market Makers, Whales, Institutions:
-🔥 ENHANCED SWAP INTERFACE:
-🔥 ENHANCED SWAP INTERFACE:
-┌───────────────────────────────────────────────────
-┌───────────────────────────────────────────────────
-│ 🤖 LiquidityOracle Smart Swap │
-│ 🤖 LiquidityOracle Smart Swap │
-├───────────────────────────────────────────────────
-├───────────────────────────────────────────────────
-│ From: 0.0001 WETH ($0.35) │
-│ From: 0.0001 WETH ($0.35) │
-│ To: ✨ 0.354987 USDC (🚀 +0.16% vs market) │
-│ To: ✨ 0.354987 USDC (🚀 +0.16% vs market) │
-├───────────────────────────────────────────────────
-├───────────────────────────────────────────────────
-│ 🧠 SMART INSIGHTS: │
-│ 🧠 SMART INSIGHTS: │
-│ ⏰ Execute NOW - Uniswap V3 liquidity dropping in 8min │
-│ ⏰ Execute NOW - Uniswap V3 liquidity dropping in 8min │
-│ 💡
-Large whale transaction detected in mempool │
-│ 💡
-Large whale transaction detected in mempool │
-│ 🎯 Predicted slippage: 0.12% (vs market 0.18%) │
-│ 🎯 Predicted slippage: 0.12% (vs market 0.18%) │
-├───────────────────────────────────────────────────
-├───────────────────────────────────────────────────
-│ 📊 LIVE R
-OUTE INTELLIGENCE: │
-│ 📊 LIVE R
-OUTE INTELLIGENCE: │
-│ │
-│ │
-│ 🥇 IceCreamSwap 0.354987 USDC ✅ EXECUTE NOW │
-│ 🥇 IceCreamSwap 0.354987 USDC ✅ EXECUTE NOW │
-│ 💚 Liquidity: Strong (+95% depth available) │
-│ 💚 Liquidity: Strong (+95% depth available) │
-│ ⚡ Speed: 2.3s avg confirmation │
-│ ⚡ Speed: 2.3s avg confirmation │
-│ 🛡️ MEV Risk: Low (private pool) │
-│ 🛡️ MEV Risk: Low (private pool) │
-│ │
-│ │
-│ 🥈 Velora 0.354801 USDC ⏳ WAIT 5 MIN │
-│ 🥈 Velora 0.354801 USDC ⏳ WAIT 5 MIN │
-│ 🟡 Liquidity: Declining (rebalancing detected) │
-│ 🟡 Liquidity: Declining (rebalancing detected) │
-│ 📈 Predicted: +0.05% improvement in 5 min │
-│ 📈 Predicted: +0.05% improvement in 5 min │
-│ 🔮 AI Confidence: 78% │
-│ 🔮 AI Confidence: 78% │
-│ │
-│ │
-│ 🥉 Uniswap V3 0.354612 USDC ⚠️ AVOID │
-│ 🥉 Uniswap V3 0.354612 USDC ⚠️ AVOID │
-│ 🔴 Liquidity: Draining (whale exit in progress) │
-│ 🔴 Liquidity: Draining (whale exit in progress) │
-│ 📉 Slippage risk: High (2.1% vs quoted 0.3%) │
-│ 📉 Slippage risk: High (2.1% vs quoted 0.3%) │
-│ ⏰ Better timing: 12 minutes │
-│ ⏰ Better timing: 12 minutes │
-├───────────────────────────────────────────────────
-├───────────────────────────────────────────────────
-│ 🎯 OPTIMAL STRATEGY SUGGESTION: │
-│ 🎯 OPTIMAL STRATEGY SUGGESTION: │
-│ 70% Now
-via IceCreamSwap (0.000070 WETH) │
-│ 70% Now
-via IceCreamSwap (0.000070 WETH) │
-│ 30% Wait 5min via Velora (0.000030 WETH) │
-│ 30% Wait 5min via Velora (0.000030 WETH) │
-│ Expected gain: +$0.08 (22% better than instant swap) │
-│ Expected gain: +$0.08 (22% better than instant swap) │
-├───────────────────────────────────────────────────
-├───────────────────────────────────────────────────
-│ [ 🚀 Execute Smart Strategy ] [ 📊 View Analysis ] │
-│ [ 🚀 Execute Smart Strategy ] [ 📊 View Analysis ] │
-└───────────────────────────────────────────────────
-└───────────────────────────────────────────────────
-3. API Service (B2B Infrastructure)
-Yang Integrate ke Interface Seperti Gambar Kamu:
-📈
-LIQUIDITYO
-RACLE PR
-O DASHBOARD:
-📈
-LIQUIDITYO
-RACLE PR
-O DASHBOARD:
-┌───────────────────────────────────────────────────
-┌───────────────────────────────────────────────────
-│ 🌊 REAL-TIME LIQUIDITY INTELLIGENCE │
-│ 🌊 REAL-TIME LIQUIDITY INTELLIGENCE │
-├───────────────────────────────────────────────────
-├───────────────────────────────────────────────────
-│ WETH/USDC Pair Analysis │
-│ WETH/USDC Pair Analysis │
-│ │
-│ │
-│ 📊 DEPTH DISTRIBUTION: │
-│ 📊 DEPTH DISTRIBUTION: │
-│ ████████████████████████████████████████ │
-│ ████████████████████████████████████████ │
-│ Uniswap V3 $2.1M ████████████████████ │
-│ Uniswap V3 $2.1M ████████████████████ │
-│ Curve $1.8M ████████████████ │
-│ Curve $1.8M ████████████████ │
-│ Balancer $0.9M ████████ │
-│ Balancer $0.9M ████████ │
-│ Others $0.7M ██████ │
-│ Others $0.7M ██████ │
-│ │
-│ │
-│ 🔮 LIQUIDITY PREDICTIONS (Next 2 Hours): │
-│ 🔮 LIQUIDITY PREDICTIONS (Next 2 Hours): │
-│ ┌─────────────────────────────────────────────┐ │
-│ ┌─────────────────────────────────────────────┐ │
-│ │ Predicted Available Liquidity │ │
-│ │ Predicted Available Liquidity │ │
-│ │ 5M
-┌─┐ ┌─┐ │ │
-│ │ 5M
-┌─┐ ┌─┐ │ │
-│ │ 4M │ │ ┌─┐ │ │ │ │
-│ │ 4M │ │ ┌─┐ │ │ │ │
-│ │ 3M │ │ ┌─┐ │ │ ┌─┐ │ │ │ │
-│ │ 3M │ │ ┌─┐ │ │ ┌─┐ │ │ │ │
-│ │ 2
-M │ │ ┌─┐ │ │ │ │ ┌─┐ │ │ │ │ │ │
-│ │ 2
-M │ │ ┌─┐ │ │ │ │ ┌─┐ │ │ │ │ │ │
-│ │ 1M │ │ ┌─│ │ │ │ │ │ ┌─┐ │ │ │ │ │ │ │ │
-│ │ 1M │ │ ┌─│ │ │ │ │ │ ┌─┐ │ │ │ │ │ │ │ │
-│ │ └─┴─┘ └─┘ └─┘ └─┘ ┌─┐ │ │ │ │ └─┘ └─┘ │ │
-│ │ └─┴─┘ └─┘ └─┘ └─┘ ┌─┐ │ │ │ │ └─┘ └─┘ │ │
-│ │ Now 15m 30m 45m 1h │ 1h15 1h30 1h45 2h │ │
-│ │ Now 15m 30m 45m 1h │ 1h15 1h30 1h45 2h │ │
-│ └─────────────────────────────────────────────┘ │
-│ └─────────────────────────────────────────────┘ │
-│ │
-│ │
-│ ⚠️
-RISK ALERTS: │
-│ ⚠️
-RISK ALERTS: │
-│ • Whale wallet (0x1234...) moving $50M in 15 min │
-│ • Whale wallet (0x1234...) moving $50M in 15 min │
-│ • Curve rebalancing event starting in 22 min │
-│ • Curve rebalancing event starting in 22 min │
-│ • MEV activity spike detected (+340% vs normal) │
-│ • MEV activity spike detected (+340% vs normal) │
-│ │
-│ │
-│ 💰 ARBITRAGE OPPO
-RTUNITIES: │
-│ 💰 ARBITRAGE OPPO
-RTUNITIES: │
-│ • Cross-chain: ETH price 0.3% higher on Arbitrum │
-│ • Cross-chain: ETH price 0.3% higher on Arbitrum │
-│ • Temporal: Uniswap rate will improve in 8 minutes │
-│ • Temporal: Uniswap rate will improve in 8 minutes │
-│ • Structural: Balancer offering premium for large size │
-│ • Structural: Balancer offering premium for large size │
-└───────────────────────────────────────────────────
-└───────────────────────────────────────────────────
-typescript
-Bagaimana LiquidityOracle Akan Enhance Interface Kamu
-Before (Current Screenshot):
-After (LiquidityOracle Enhanced):
-// LiquidityOra
-cle API Integra
-tion
-// LiquidityOra
-cle API Integra
-tion
-interface
-interface LiquidityOracleAPILiquidityOracleAPI {{
-// Enh
-ance existing aggrega
-tor quotes
-// Enh
-ance existing aggrega
-tor quotes
-enhanceRoutes
-enhanceRoutes((routes
-routes::RouteRoute[[]])):: Promise
-Promise< <EnhancedRoute
-EnhancedRoute[[]]> >
-// Real-time liquidity intelligence
-// Real-time liquidity intelligence
-getLiquidityIntelligence
-getLiquidityIntelligence((pair
-pair:: TokenPair
-TokenPair)):: Promise
-Promise< <LiquidityIntelLiquidityIntel> >
-// Optimal execution stra
-tegy
-// Optimal execution stra
-tegy
-getExecutionStrategy
-getExecutionStrategy((trade
-trade:: Trade
-Trade)):: Promise
-Promise< <Strategy
-Strategy> >
-// Risk a
-ssessment
-// Risk a
-ssessment
-assessRisks
-assessRisks((routes
-routes::RouteRoute[[]])):: Promise
-Promise< <RiskAssessmentRiskAssessment> >
-}}
-// Enh
-anced route da
-ta
-// Enh
-anced route da
-ta
-interface
-interface EnhancedRoute
-EnhancedRoute extends
-extendsRouteRoute {{
-liquidityDepth
-liquidityDepth:: number
-number
-drainRisk
-drainRisk::RiskLevelRiskLevel
-predictedSlippage
-predictedSlippage:: number
-number
-optimalTiming
-optimalTiming:: TimingAdvice
-TimingAdvice
-mev
-Risk
-mev
-Risk::RiskLevelRiskLevel
-confidenceScore
-confidenceScore:: number
-number
-}}
-❌ Route ranking berdasarkan data stale
-❌ Route ranking berdasarkan data stale
-❌ User tidak tau WHY satu route lebih baik
-❌ User tidak tau WHY satu route lebih baik
-❌ No context tentang liquidity conditions
-❌ No context tentang liquidity conditions
-❌ Gambling - execute blind tanpa insight
-❌ Gambling - execute blind tanpa insight
-❌ Reactive - cuma lihat kondisi sekarang
-❌ Reactive - cuma lihat kondisi sekarang
-✅
-Route ranking berdasarkan real-time + prediction
-✅
-Route ranking berdasarkan real-time + prediction
-✅ Clear explanation WHY route recommended
-✅ Clear explanation WHY route recommended
-✅ Full context tentang liquidity health ✅ Full context tentang liquidity health
-✅ Strategic - execute dengan perfect timing✅ Strategic - execute dengan perfect timing
-✅ Proactive - antisipasi kondisi masa depan
-✅ Proactive - antisipasi kondisi masa depan
-Practical Example: Interface Enhancement
-Scenario: User Mau Swap $10,000 USDC → ETH
-Current Interface (Seperti Screenshot):
-LiquidityOracle Enhanced Interface:
-Three-Tier Market Strategy
-Tier 1: Free Enhancement Layer
-API yang upgrade existing aggregators
-Routes shown:Routes shown:
-1. Uniswap: 2.847 ETH (Best rate)
-1. Uniswap: 2.847 ETH (Best rate)
-2. Curve: 2.845 ETH (-0.07%)
-2. Curve: 2.845 ETH (-0.07%)
-3. Balancer: 2.843 ETH (-0.14%)
-3. Balancer: 2.843 ETH (-0.14%)
-4. 1inch: 2.841 ETH (-0.21%)
-4. 1inch: 2.841 ETH (-0.21%)
-User clicks "Uniswap" karena highest number
-User clicks "Uniswap" karena highest number
-Result: Gets sandwich attacked, actual receive 2.831 ETHResult: Gets sandwich attacked, actual receive 2.831 ETH
-Loss: $48 vs expectedLoss: $48 vs expected
-🤖 SMART ANALYSIS:
-🤖 SMART ANALYSIS:
-Routes with Intelligence:Routes with Intelligence:
-1. 🥇 Curve: 2.845 ETH [✨ RECO
-MMENDED]
-1. 🥇 Curve: 2.845 ETH [✨ RECO
-MMENDED]
-💡 Stable liquidity, MEV-protected pool💡 Stable liquidity, MEV-protected pool
-⏱️ Execute within 3 minutes for best rate
-⏱️ Execute within 3 minutes for best rate
-🛡️ Sandwich risk: Very Low
-🛡️ Sandwich risk: Very Low
-2. 🥈 Balancer: 2.843 ETH [⏳ WAIT 8 MIN]
-2. 🥈 Balancer: 2.843 ETH [⏳ WAIT 8 MIN]
-📈 Predicted improvement: +0.12% in 8 minutes📈 Predicted improvement: +0.12% in 8 minutes
-🔮 Whale exit completing, liquidity recovering
-🔮 Whale exit completing, liquidity recovering
-3. 🚫 Uniswap: 2.847 ETH [⚠️ HIGH RISK]
-3. 🚫 Uniswap: 2.847 ETH [⚠️ HIGH RISK]
-⚠️ MEV bot activity detected⚠️ MEV bot activity detected
-📉 Large pending transactions in mempool
-📉 Large pending transactions in mempool
-🎯 Actual expected: 2.831 ETH (sandwich risk)
-🎯 Actual expected: 2.831 ETH (sandwich risk)
-🎯 OPTIMAL STRATEGY:
-🎯 OPTIMAL STRATEGY:
-Execute 70% via Curve now, 30% via Balancer in 8min
-Execute 70% via Curve now, 30% via Balancer in 8min
-Expected result: 2.849 ETH (+$12
-vs best single route)
-Expected result: 2.849 ETH (+$12
-vs best single route)
-Revenue dari aggregators ($5k-20k/month per integration)
-Tier 2: Professional Interface
-Advanced analytics untuk whales/institutions
-Subscription model ($500-5k/month per user)
-Tier 3: Direct Consumer App
-Best-in-class swap interface
-Revenue dari transaction fees (0.05-0.1%)
-Bottom Line:
-LiquidityOracle tidak replace interface seperti screenshot kamu - tapi transform semua
-aggregator interface menjadi 10x lebih pintar!
-Bayangkan interface yang sama, tapi:
-✨ Real-time intelligence
-🔮 Predictive insights
-🛡️ Risk warnings
-🎯 Strategic timing
-💰 Money-saving suggestions
-That's the power of LiquidityOracle! 🚀
+Buat navbar swap dan buat di pages /swap dengan interface yang bisa memunculkan banyak DEX Agregator sesuai case ketika ingin swap nanti,
+Lalu gunakan icon dari icon library popular, install dengan pnpm
+Setelah itu, cocokkan nama dan gambar dex agregator dengan yang ada di folder logo
+
+
+
+{
+  "designSystem": {
+    "name": "LiquidityOracle Custom Interface",
+    "version": "1.0.0",
+    "description": "Alternative modern DeFi interface design system with multiple theme options",
+    
+    "themeOptions": {
+      "lightGlass": {
+        "name": "Light Glassmorphism",
+        "primary": {
+          "50": "#f0f9ff",
+          "100": "#e0f2fe", 
+          "500": "#0ea5e9",
+          "600": "#0284c7",
+          "700": "#0369a1",
+          "900": "#0c4a6e"
+        },
+        "background": {
+          "primary": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          "secondary": "rgba(255, 255, 255, 0.25)",
+          "tertiary": "rgba(255, 255, 255, 0.35)",
+          "card": "rgba(255, 255, 255, 0.2)",
+          "elevated": "rgba(255, 255, 255, 0.3)"
+        },
+        "text": {
+          "primary": "#1a202c",
+          "secondary": "#2d3748",
+          "tertiary": "#4a5568",
+          "disabled": "#a0aec0"
+        },
+        "blur": "backdrop-filter: blur(10px)"
+      },
+      
+      "neonCyber": {
+        "name": "Neon Cyber",
+        "primary": {
+          "50": "#f0fff4",
+          "100": "#c6f6d5", 
+          "500": "#00ff88",
+          "600": "#00e574",
+          "700": "#00cc66",
+          "900": "#00a355"
+        },
+        "background": {
+          "primary": "linear-gradient(145deg, #0a0a0a 0%, #1a0033 50%, #000000 100%)",
+          "secondary": "rgba(0, 255, 136, 0.05)",
+          "tertiary": "rgba(0, 255, 136, 0.1)",
+          "card": "rgba(0, 0, 0, 0.7)",
+          "elevated": "rgba(0, 255, 136, 0.08)"
+        },
+        "text": {
+          "primary": "#ffffff",
+          "secondary": "#00ff88",
+          "tertiary": "#a0aec0",
+          "disabled": "#4a5568"
+        },
+        "glow": "box-shadow: 0 0 20px rgba(0, 255, 136, 0.3)"
+      },
+
+      "oceanBreeze": {
+        "name": "Ocean Breeze",
+        "primary": {
+          "50": "#f0fdfa",
+          "100": "#ccfbf1", 
+          "500": "#14b8a6",
+          "600": "#0d9488",
+          "700": "#0f766e",
+          "900": "#134e4a"
+        },
+        "background": {
+          "primary": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          "secondary": "rgba(20, 184, 166, 0.1)",
+          "tertiary": "rgba(20, 184, 166, 0.15)",
+          "card": "rgba(255, 255, 255, 0.9)",
+          "elevated": "rgba(255, 255, 255, 0.95)"
+        },
+        "text": {
+          "primary": "#0f172a",
+          "secondary": "#475569",
+          "tertiary": "#64748b",
+          "disabled": "#94a3b8"
+        }
+      },
+
+      "warmSunset": {
+        "name": "Warm Sunset",
+        "primary": {
+          "50": "#fff7ed",
+          "100": "#ffedd5", 
+          "500": "#f97316",
+          "600": "#ea580c",
+          "700": "#c2410c",
+          "900": "#9a3412"
+        },
+        "background": {
+          "primary": "linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)",
+          "secondary": "rgba(249, 115, 22, 0.1)",
+          "tertiary": "rgba(249, 115, 22, 0.15)",
+          "card": "rgba(255, 255, 255, 0.8)",
+          "elevated": "rgba(255, 255, 255, 0.9)"
+        },
+        "text": {
+          "primary": "#431407",
+          "secondary": "#9a3412",
+          "tertiary": "#c2410c",
+          "disabled": "#fdba74"
+        }
+      },
+
+      "purpleHaze": {
+        "name": "Purple Haze",
+        "primary": {
+          "50": "#faf5ff",
+          "100": "#f3e8ff", 
+          "500": "#a855f7",
+          "600": "#9333ea",
+          "700": "#7c3aed",
+          "900": "#581c87"
+        },
+        "background": {
+          "primary": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          "secondary": "rgba(168, 85, 247, 0.1)",
+          "tertiary": "rgba(168, 85, 247, 0.15)",
+          "card": "rgba(255, 255, 255, 0.15)",
+          "elevated": "rgba(255, 255, 255, 0.25)"
+        },
+        "text": {
+          "primary": "#ffffff",
+          "secondary": "#e2e8f0",
+          "tertiary": "#cbd5e1",
+          "disabled": "#64748b"
+        },
+        "blur": "backdrop-filter: blur(15px)"
+      }
+    },
+
+    "selectedTheme": "lightGlass",
+
+    "semanticColors": {
+      "success": "#10b981",
+      "warning": "#f59e0b", 
+      "error": "#ef4444",
+      "info": "#3b82f6",
+      "positive": "#10b981",
+      "negative": "#ef4444",
+      "neutral": "#6b7280",
+      "highlight": "#fbbf24"
+    },
+
+    "typography": {
+      "fontFamily": {
+        "primary": "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+        "mono": "JetBrains Mono, Consolas, monospace"
+      },
+      "fontSize": {
+        "xs": "0.75rem",
+        "sm": "0.875rem", 
+        "base": "1rem",
+        "lg": "1.125rem",
+        "xl": "1.25rem",
+        "2xl": "1.5rem",
+        "3xl": "1.875rem"
+      },
+      "fontWeight": {
+        "normal": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      },
+      "lineHeight": {
+        "tight": 1.25,
+        "normal": 1.5,
+        "relaxed": 1.75
+      }
+    },
+
+    "spacing": {
+      "xs": "0.25rem",
+      "sm": "0.5rem",
+      "md": "0.75rem", 
+      "lg": "1rem",
+      "xl": "1.5rem",
+      "2xl": "2rem",
+      "3xl": "3rem"
+    },
+
+    "borderRadius": {
+      "none": "0",
+      "sm": "0.25rem",
+      "md": "0.375rem",
+      "lg": "0.5rem",
+      "xl": "0.75rem",
+      "2xl": "1rem",
+      "full": "9999px"
+    },
+
+    "shadows": {
+      "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+      "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+      "glow": "0 0 20px rgba(14, 165, 233, 0.3)"
+    },
+
+    "components": {
+      "card": {
+        "base": {
+          "backgroundColor": "background.card",
+          "borderRadius": "xl",
+          "padding": "xl",
+          "border": "1px solid rgba(255, 255, 255, 0.2)",
+          "backdropFilter": "blur(10px)",
+          "boxShadow": "0 8px 32px rgba(0, 0, 0, 0.1)"
+        },
+        "variants": {
+          "glass": {
+            "backgroundColor": "background.elevated",
+            "backdropFilter": "blur(15px)",
+            "border": "1px solid rgba(255, 255, 255, 0.3)",
+            "boxShadow": "0 8px 32px rgba(0, 0, 0, 0.12)"
+          },
+          "floating": {
+            "backgroundColor": "background.card",
+            "boxShadow": "0 20px 40px rgba(0, 0, 0, 0.15)",
+            "transform": "translateY(0)",
+            "transition": "all 0.3s ease",
+            "hover": {
+              "transform": "translateY(-4px)",
+              "boxShadow": "0 25px 50px rgba(0, 0, 0, 0.2)"
+            }
+          },
+          "neon": {
+            "backgroundColor": "background.card",
+            "border": "1px solid rgba(0, 255, 136, 0.3)",
+            "boxShadow": "0 0 20px rgba(0, 255, 136, 0.1)",
+            "hover": {
+              "boxShadow": "0 0 30px rgba(0, 255, 136, 0.2)"
+            }
+          }
+        }
+      },
+
+      "button": {
+        "base": {
+          "fontFamily": "primary",
+          "fontWeight": "medium",
+          "borderRadius": "xl",
+          "padding": "lg xl",
+          "transition": "all 0.3s ease",
+          "cursor": "pointer",
+          "border": "none",
+          "fontSize": "base",
+          "position": "relative",
+          "overflow": "hidden"
+        },
+        "variants": {
+          "glassmorphism": {
+            "backgroundColor": "rgba(255, 255, 255, 0.2)",
+            "backdropFilter": "blur(10px)",
+            "border": "1px solid rgba(255, 255, 255, 0.3)",
+            "color": "text.primary",
+            "hover": {
+              "backgroundColor": "rgba(255, 255, 255, 0.3)",
+              "transform": "translateY(-2px)",
+              "boxShadow": "0 10px 25px rgba(0, 0, 0, 0.15)"
+            }
+          },
+          "gradient": {
+            "background": "linear-gradient(135deg, primary.500, primary.700)",
+            "color": "#ffffff",
+            "boxShadow": "0 4px 15px rgba(0, 0, 0, 0.2)",
+            "hover": {
+              "transform": "translateY(-2px)",
+              "boxShadow": "0 8px 25px rgba(0, 0, 0, 0.3)"
+            }
+          },
+          "neon": {
+            "backgroundColor": "transparent",
+            "border": "2px solid primary.500",
+            "color": "primary.500",
+            "boxShadow": "0 0 10px rgba(0, 255, 136, 0.3)",
+            "hover": {
+              "backgroundColor": "primary.500",
+              "color": "#000000",
+              "boxShadow": "0 0 20px rgba(0, 255, 136, 0.6)"
+            }
+          },
+          "floating": {
+            "backgroundColor": "background.elevated",
+            "color": "text.primary",
+            "boxShadow": "0 8px 25px rgba(0, 0, 0, 0.15)",
+            "hover": {
+              "transform": "translateY(-3px)",
+              "boxShadow": "0 15px 35px rgba(0, 0, 0, 0.2)"
+            }
+          }
+        },
+        "sizes": {
+          "sm": {
+            "padding": "sm md",
+            "fontSize": "sm",
+            "borderRadius": "lg"
+          },
+          "md": {
+            "padding": "md lg", 
+            "fontSize": "base",
+            "borderRadius": "xl"
+          },
+          "lg": {
+            "padding": "lg 2xl",
+            "fontSize": "lg",
+            "borderRadius": "2xl"
+          }
+        }
+      },
+
+      "input": {
+        "base": {
+          "backgroundColor": "background.secondary",
+          "border": "1px solid rgba(255, 255, 255, 0.1)",
+          "borderRadius": "lg",
+          "padding": "lg",
+          "color": "text.primary",
+          "fontSize": "base",
+          "transition": "all 0.2s ease",
+          "outline": "none"
+        },
+        "states": {
+          "focus": {
+            "borderColor": "primary.500",
+            "boxShadow": "0 0 0 3px rgba(14, 165, 233, 0.1)"
+          },
+          "error": {
+            "borderColor": "accent.error"
+          },
+          "disabled": {
+            "backgroundColor": "background.primary",
+            "color": "text.disabled",
+            "cursor": "not-allowed"
+          }
+        }
+      },
+
+      "badge": {
+        "base": {
+          "fontSize": "xs",
+          "fontWeight": "medium", 
+          "padding": "xs sm",
+          "borderRadius": "md",
+          "display": "inline-flex",
+          "alignItems": "center"
+        },
+        "variants": {
+          "success": {
+            "backgroundColor": "rgba(16, 185, 129, 0.1)",
+            "color": "accent.success"
+          },
+          "error": {
+            "backgroundColor": "rgba(239, 68, 68, 0.1)",
+            "color": "accent.error"
+          },
+          "warning": {
+            "backgroundColor": "rgba(245, 158, 11, 0.1)",
+            "color": "accent.warning"
+          },
+          "neutral": {
+            "backgroundColor": "rgba(107, 114, 128, 0.1)",
+            "color": "text.secondary"
+          }
+        }
+      },
+
+      "dataRow": {
+        "base": {
+          "display": "flex",
+          "alignItems": "center",
+          "justifyContent": "space-between",
+          "padding": "md lg",
+          "borderRadius": "lg",
+          "transition": "all 0.2s ease"
+        },
+        "variants": {
+          "default": {
+            "backgroundColor": "transparent",
+            "hover": {
+              "backgroundColor": "background.secondary"
+            }
+          },
+          "highlighted": {
+            "backgroundColor": "background.elevated",
+            "border": "1px solid rgba(14, 165, 233, 0.3)"
+          },
+          "best": {
+            "backgroundColor": "rgba(16, 185, 129, 0.05)",
+            "border": "1px solid rgba(16, 185, 129, 0.2)"
+          }
+        }
+      },
+
+      "navigation": {
+        "tab": {
+          "base": {
+            "padding": "md lg",
+            "fontSize": "base",
+            "fontWeight": "medium",
+            "borderRadius": "lg",
+            "transition": "all 0.2s ease",
+            "cursor": "pointer"
+          },
+          "states": {
+            "active": {
+              "backgroundColor": "primary.600",
+              "color": "text.primary"
+            },
+            "inactive": {
+              "backgroundColor": "transparent",
+              "color": "text.secondary",
+              "hover": {
+                "backgroundColor": "background.tertiary",
+                "color": "text.primary"
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "layout": {
+      "container": {
+        "maxWidth": "1200px",
+        "margin": "0 auto",
+        "padding": "0 xl"
+      },
+      "grid": {
+        "columns": {
+          "2": "repeat(2, 1fr)",
+          "3": "repeat(3, 1fr)",
+          "auto": "repeat(auto-fit, minmax(300px, 1fr))"
+        },
+        "gap": {
+          "sm": "md",
+          "md": "lg", 
+          "lg": "xl"
+        }
+      },
+      "flexbox": {
+        "center": {
+          "display": "flex",
+          "alignItems": "center",
+          "justifyContent": "center"
+        },
+        "between": {
+          "display": "flex",
+          "alignItems": "center", 
+          "justifyContent": "space-between"
+        },
+        "start": {
+          "display": "flex",
+          "alignItems": "flex-start"
+        }
+      }
+    },
+
+    "patterns": {
+      "liquidityInterface": {
+        "structure": "Floating card layout with glassmorphism effects",
+        "mainPanel": {
+          "components": ["glass input cards", "floating action buttons", "gradient overlays"],
+          "layout": "centered with breathing space and soft shadows"
+        },
+        "routesPanel": {
+          "components": ["frosted glass cards", "animated hover states", "subtle glow effects"],
+          "layout": "flowing grid with smooth transitions"
+        }
+      },
+      
+      "visualEffects": {
+        "glassmorphism": {
+          "backdrop": "blur(10px) saturate(200%)",
+          "background": "rgba(255, 255, 255, 0.2)",
+          "border": "1px solid rgba(255, 255, 255, 0.3)",
+          "boxShadow": "0 8px 32px rgba(0, 0, 0, 0.1)"
+        },
+        "neonGlow": {
+          "textShadow": "0 0 10px currentColor",
+          "boxShadow": "0 0 20px currentColor",
+          "animation": "pulse 2s infinite"
+        },
+        "floatingAnimation": {
+          "transform": "translateY(0px)",
+          "animation": "float 3s ease-in-out infinite",
+          "keyframes": {
+            "0%, 100%": "translateY(0px)",
+            "50%": "translateY(-10px)"
+          }
+        },
+        "gradientShift": {
+          "background": "linear-gradient(-45deg, color1, color2, color3, color4)",
+          "backgroundSize": "400% 400%",
+          "animation": "gradientShift 4s ease infinite"
+        }
+      },
+
+      "microInteractions": {
+        "hoverLift": {
+          "transform": "translateY(-4px) scale(1.02)",
+          "transition": "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        },
+        "pressDown": {
+          "transform": "translateY(1px) scale(0.98)",
+          "transition": "all 0.1s ease"
+        },
+        "glowPulse": {
+          "animation": "glowPulse 2s ease-in-out infinite alternate"
+        },
+        "shimmer": {
+          "background": "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+          "animation": "shimmer 2s infinite"
+        }
+      },
+      
+      "dataVisualization": {
+        "percentageDisplay": {
+          "positive": "accent.success with + prefix",
+          "negative": "accent.error with - prefix", 
+          "neutral": "text.secondary"
+        },
+        "currencyDisplay": {
+          "primary": "text.primary with medium weight",
+          "secondary": "text.secondary with normal weight",
+          "format": "consistent decimal places"
+        }
+      },
+
+      "interactiveStates": {
+        "hover": {
+          "duration": "0.2s",
+          "easing": "ease",
+          "backgroundShift": "lighter shade",
+          "borderGlow": "primary color with opacity"
+        },
+        "active": {
+          "backgroundShift": "primary color",
+          "textContrast": "high contrast text"
+        },
+        "disabled": {
+          "opacity": "0.5",
+          "cursor": "not-allowed"
+        }
+      },
+
+      "spacing": {
+        "componentGaps": "lg",
+        "sectionGaps": "2xl", 
+        "contentPadding": "xl",
+        "listItemSpacing": "md"
+      }
+    },
+
+    "breakpoints": {
+      "mobile": "640px",
+      "tablet": "768px", 
+      "desktop": "1024px",
+      "wide": "1280px"
+    },
+
+    "animations": {
+      "duration": {
+        "fast": "0.15s",
+        "normal": "0.3s",
+        "slow": "0.6s",
+        "ultra": "1.2s"
+      },
+      "easing": {
+        "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+        "smooth": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "sharp": "cubic-bezier(0.4, 0, 0.6, 1)",
+        "elastic": "cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+      },
+      "keyframes": {
+        "float": {
+          "0%, 100%": { "transform": "translateY(0px)" },
+          "50%": { "transform": "translateY(-10px)" }
+        },
+        "glow": {
+          "0%, 100%": { "opacity": "0.5" },
+          "50%": { "opacity": "1" }
+        },
+        "shimmer": {
+          "0%": { "transform": "translateX(-100%)" },
+          "100%": { "transform": "translateX(100%)" }
+        },
+        "gradientShift": {
+          "0%": { "backgroundPosition": "0% 50%" },
+          "50%": { "backgroundPosition": "100% 50%" },
+          "100%": { "backgroundPosition": "0% 50%" }
+        }
+      }
+    },
+
+    "responsiveDesign": {
+      "mobile": {
+        "cardPadding": "md",
+        "fontSize": "sm",
+        "buttonHeight": "48px",
+        "spacing": "md"
+      },
+      "tablet": {
+        "cardPadding": "lg", 
+        "fontSize": "base",
+        "buttonHeight": "52px",
+        "spacing": "lg"
+      },
+      "desktop": {
+        "cardPadding": "xl",
+        "fontSize": "base", 
+        "buttonHeight": "56px",
+        "spacing": "xl"
+      }
+    },
+
+    "themeCustomization": {
+      "userPreferences": {
+        "backgroundIntensity": "0.1 to 1.0",
+        "blurStrength": "5px to 20px", 
+        "animationSpeed": "0.5x to 2x",
+        "colorSaturation": "0.5 to 1.5",
+        "contrastLevel": "normal | high | low"
+      },
+      "seasonalModes": {
+        "spring": "light greens and fresh colors",
+        "summer": "bright blues and warm tones",
+        "autumn": "warm oranges and deep reds", 
+        "winter": "cool blues and silver accents"
+      },
+      "accessibilityModes": {
+        "highContrast": "increased text contrast ratios",
+        "reducedMotion": "disabled animations and transitions",
+        "largeText": "increased font sizes throughout",
+        "colorBlind": "colorblind-friendly palette adjustments"
+      }
+    }
+  }
+}
+
+json:
+{
+  "prediction": {
+    "timeframe": "1h",
+    "liquidityChange": -0.22,
+    "riskScore": 0.78,
+    "confidence": 0.85
+  },
+  "advice": "Execute 60% on Curve now, wait 40% for Uniswap in 5 minutes",
+  "expectedSlippage": "0.15%",
+  "expectedSavingsUSD": 640,
+  "optimalRoute": [
+    {"dex": "Curve", "allocation": 0.6, "status": "execute_now"},
+    {"dex": "UniswapV3", "allocation": 0.4, "status": "wait_5m"}
+  ],
+  "riskAlerts": [
+    "Whale wallet 0xWhale123 may impact Uniswap liquidity in 2 minutes",
+    "Uniswap V3 slippage risk increasing"
+  ]
+}

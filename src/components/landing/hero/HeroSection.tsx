@@ -10,9 +10,9 @@ export function HeroSection() {
         Choose your DEX aggregator wisely. Get real-time liquidity insights, MEV protection, and optimal execution timing across all major DEXs.
       </h2>
       <div className="flex gap-4 justify-center">
-        <button className="bg-white text-black font-bold py-3 px-6 rounded-md hover:bg-gray-200 transition duration-300">
-          Launch App
-        </button>
+        <a href="/swap" className="bg-white text-black font-bold py-3 px-6 rounded-md hover:bg-gray-200 transition duration-300 inline-block">
+          Swap Now
+        </a>
         <button className="border border-white text-white font-bold py-3 px-6 rounded-md hover:bg-white hover:text-black transition duration-300">
           See How It Works
         </button>
