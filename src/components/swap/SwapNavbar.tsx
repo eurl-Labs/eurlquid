@@ -1,10 +1,15 @@
 'use client'
 
-import { ArrowLeft, Settings, HelpCircle } from 'lucide-react'
+import { ArrowLeft, Settings, HelpCircle, Clock, Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 export function SwapNavbar() {
+  const pathname = usePathname()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-lg bg-black/20 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,9 +34,36 @@ export function SwapNavbar() {
               />
               <span className="text-xl font-bold text-white">eurlquid</span>
               <span className="px-2 py-1 text-xs bg-white/10 text-white/80 rounded-full">
-                Swap
+                {
+                  pathname === '/swap' ? 'Swap' : 'History'
+                }
               </span>
             </div>
+          </div>
+
+          {/* Center - Navigation Menu (Desktop) */}
+          <div className="hidden md:flex items-center space-x-1">
+            <Link
+              href="/swap"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname === '/swap'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-white/80 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              Swap
+            </Link>
+            <Link
+              href="/history"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                pathname === '/history'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-white/80 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              <span>History</span>
+            </Link>
           </div>
 
           {/* Right side - Actions */}
@@ -42,8 +74,47 @@ export function SwapNavbar() {
             <button className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
               <HelpCircle className="w-5 h-5" />
             </button>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/10">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/swap"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === '/swap'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Swap
+              </Link>
+              <Link
+                href="/history"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                  pathname === '/history'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Clock className="w-4 h-4" />
+                <span>History</span>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )
