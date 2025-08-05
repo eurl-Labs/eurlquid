@@ -14,79 +14,129 @@ const mockHistoryData = [
     id: 1,
     date: '2024-01-15T10:30:00Z',
     pair: 'ETH/USDC',
+    fromToken: 'ETH',
+    toToken: 'USDC',
+    fromLogo: '/images/logoCoin/ethLogo.png',
+    toLogo: '/images/logoCoin/usdcLogo.png',
     amount: '2.5 ETH',
     value: '$4,250.00',
     slippage: 0.15,
     dexAggregator: '1inch',
     dexLogo: '/images/logo/1inchLogo.png',
-    status: 'success',
     profitLoss: 12.50,
     txHash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
   },
   {
     id: 2,
     date: '2024-01-14T15:45:00Z',
-    pair: 'USDC/ETH',
+    pair: 'USDC/SONIC',
+    fromToken: 'USDC',
+    toToken: 'SONIC',
+    fromLogo: '/images/logoCoin/usdcLogo.png',
+    toLogo: '/images/logoCoin/sonicLogo.png',
     amount: '1,000 USDC',
     value: '$1,000.00',
     slippage: -0.08,
     dexAggregator: 'Uniswap',
     dexLogo: '/images/logo/uniLogo.svg.png',
-    status: 'success',
     profitLoss: -5.20,
     txHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
   },
   {
     id: 3,
     date: '2024-01-13T09:20:00Z',
-    pair: 'WBTC/ETH',
+    pair: 'WBTC/PEPE',
+    fromToken: 'WBTC',
+    toToken: 'PEPE',
+    fromLogo: '/images/logoCoin/wbtcLogo.png',
+    toLogo: '/images/logoCoin/pepeLogo.png',
     amount: '0.1 WBTC',
     value: '$3,200.00',
     slippage: 0.25,
     dexAggregator: 'Curve',
     dexLogo: '/images/logo/curveLogo.png',
-    status: 'failed',
     profitLoss: 0,
     txHash: '0x9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba'
   },
   {
     id: 4,
     date: '2024-01-12T14:10:00Z',
-    pair: 'ETH/USDT',
+    pair: 'ETH/POPCAT',
+    fromToken: 'ETH',
+    toToken: 'POPCAT',
+    fromLogo: '/images/logoCoin/ethLogo.png',
+    toLogo: '/images/logoCoin/popcatLogo.png',
     amount: '1.8 ETH',
     value: '$3,060.00',
     slippage: 0.12,
     dexAggregator: 'Balancer',
     dexLogo: '/images/logo/balancerLogo.png',
-    status: 'pending',
     profitLoss: 0,
     txHash: '0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321'
   },
   {
     id: 5,
     date: '2024-01-11T11:20:00Z',
-    pair: 'USDC/USDT',
-    amount: '5,000 USDC',
+    pair: 'PEPE/USDT',
+    fromToken: 'PEPE',
+    toToken: 'USDT',
+    fromLogo: '/images/logoCoin/pepeLogo.png',
+    toLogo: '/images/logoCoin/usdtLogo.png',
+    amount: '5,000,000 PEPE',
     value: '$5,000.00',
     slippage: 0.05,
     dexAggregator: 'SushiSwap',
     dexLogo: '/images/logo/sushiLogo.png',
-    status: 'success',
     profitLoss: 8.75,
     txHash: '0x5555555555555555555555555555555555555555555555555555555555555555'
   },
   {
     id: 6,
     date: '2024-01-10T16:30:00Z',
-    pair: 'ETH/DAI',
-    amount: '3.2 ETH',
+    pair: 'SONIC/PENGU',
+    fromToken: 'SONIC',
+    toToken: 'PENGU',
+    fromLogo: '/images/logoCoin/sonicLogo.png',
+    toLogo: '/images/logoCoin/penguLogo.png',
+    amount: '10,000 SONIC',
     value: '$5,440.00',
     slippage: 0.18,
     dexAggregator: 'Matcha',
     dexLogo: '/images/logo/matchaLogo.png',
-    status: 'success',
     profitLoss: -2.10,
     txHash: '0x6666666666666666666666666666666666666666666666666666666666666666'
+  },
+  {
+    id: 7,
+    date: '2024-01-09T12:15:00Z',
+    pair: 'POPCAT/ETH',
+    fromToken: 'POPCAT',
+    toToken: 'ETH',
+    fromLogo: '/images/logoCoin/popcatLogo.png',
+    toLogo: '/images/logoCoin/ethLogo.png',
+    amount: '50,000 POPCAT',
+    value: '$2,800.00',
+    slippage: 0.22,
+    dexAggregator: '1inch',
+    dexLogo: '/images/logo/1inchLogo.png',
+    profitLoss: 15.30,
+    txHash: '0x7777777777777777777777777777777777777777777777777777777777777777'
+  },
+  {
+    id: 8,
+    date: '2024-01-08T08:45:00Z',
+    pair: 'USDC/PEPE',
+    fromToken: 'USDC',
+    toToken: 'PEPE',
+    fromLogo: '/images/logoCoin/usdcLogo.png',
+    toLogo: '/images/logoCoin/pepeLogo.png',
+    amount: '2,500 USDC',
+    value: '$2,500.00',
+    slippage: 0.08,
+    dexAggregator: 'Uniswap',
+    dexLogo: '/images/logo/uniLogo.svg.png',
+    profitLoss: 3.45,
+    txHash: '0x8888888888888888888888888888888888888888888888888888888888888888'
   }
 ];
 
@@ -95,7 +145,7 @@ const calculateStats = (data: typeof mockHistoryData) => {
   const totalSwaps = data.length;
   const volume = data.reduce((sum, item) => sum + parseFloat(item.value.replace('$', '').replace(',', '')), 0);
   const netProfit = data.reduce((sum, item) => sum + item.profitLoss, 0);
-  const successRate = (data.filter(item => item.status === 'success').length / totalSwaps) * 100;
+  const successRate = (data.filter(item => item.profitLoss >= 0).length / totalSwaps) * 100;
 
   return { totalSwaps, volume, netProfit, successRate };
 };
@@ -106,7 +156,6 @@ export default function HistoryPage() {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedDex, setSelectedDex] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -115,32 +164,6 @@ export default function HistoryPage() {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'failed':
-        return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'pending':
-        return <Loader2 className="w-4 h-4 text-yellow-500 animate-spin" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success':
-        return 'text-green-500';
-      case 'failed':
-        return 'text-red-500';
-      case 'pending':
-        return 'text-yellow-500';
-      default:
-        return 'text-gray-400';
-    }
   };
 
   const getProfitLossColor = (value: number) => {
@@ -241,24 +264,6 @@ export default function HistoryPage() {
                 ))}
               </div>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <div className="flex space-x-1">
-                {['all', 'success', 'failed', 'pending'].map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => setSelectedStatus(status)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      selectedStatus === status
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
-                    }`}
-                  >
-                    {status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -275,7 +280,6 @@ export default function HistoryPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Slippage</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">DEX Aggregator</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Profit/Loss</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Transaction</th>
                 </tr>
@@ -291,7 +295,33 @@ export default function HistoryPage() {
                       {formatDate(item.date)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                      {item.pair}
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
+                            <Image
+                              src={item.fromLogo}
+                              alt={`${item.fromToken} logo`}
+                              width={24}
+                              height={24}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <span>{item.fromToken}</span>
+                        </div>
+                        <span className="text-white/60">→</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
+                            <Image
+                              src={item.toLogo}
+                              alt={`${item.toToken} logo`}
+                              width={24}
+                              height={24}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <span>{item.toToken}</span>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
                       <div>{item.amount}</div>
@@ -314,14 +344,6 @@ export default function HistoryPage() {
                           />
                         </div>
                         <span className="text-white/80">{item.dexAggregator}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex items-center space-x-2">
-                        {getStatusIcon(item.status)}
-                        <span className={`capitalize ${getStatusColor(item.status)}`}>
-                          {item.status}
-                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
