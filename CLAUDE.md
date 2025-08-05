@@ -1,0 +1,1 @@
+pada page /swap tampilkan animasi dengan framer motion pada saat memunculkan dex aggregator, lalu dex aggregator hanya muncul ketika kita sedang input token di swap card saja.

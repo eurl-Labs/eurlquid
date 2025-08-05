@@ -10,6 +10,8 @@ interface SwapCardProps {
   setFromToken: (token: string) => void;
   toToken: string;
   setToToken: (token: string) => void;
+  onInputFocus?: () => void;
+  onInputBlur?: () => void;
 }
 
 export function SwapCard({
@@ -19,6 +21,8 @@ export function SwapCard({
   setFromToken,
   toToken,
   setToToken,
+  onInputFocus,
+  onInputBlur,
 }: SwapCardProps) {
   const [toAmount, setToAmount] = useState("0.354987");
 
@@ -56,6 +60,8 @@ export function SwapCard({
               type="text"
               value={fromAmount}
               onChange={(e) => setFromAmount(e.target.value)}
+              onFocus={onInputFocus}
+              onBlur={onInputBlur}
               placeholder="0.0"
               className="w-full bg-transparent text-2xl font-semibold text-white outline-none placeholder-white/30"
             />
