@@ -327,31 +327,6 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
           </div>
         ))}
       </div>
-
-      {/* Optimal Strategy */}
-      <div className="backdrop-blur-lg bg-white/10 border border-white/30 rounded-2xl p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <TrendingUp className="w-6 h-6 text-white" />
-          <h3 className="text-lg font-bold text-white">🎯 Optimal Strategy Recommendation</h3>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="text-white/90">
-            <span className="font-semibold">70%</span> Execute now via <span className="text-white font-semibold">Curve</span> (0.000070 {fromToken})
-          </div>
-          <div className="text-white/90">
-            <span className="font-semibold">30%</span> Wait 5 minutes via <span className="text-white font-semibold">Balancer</span> (0.000030 {fromToken})
-          </div>
-          <div className="flex items-center justify-between pt-3 border-t border-white/20">
-            <span className="text-white/80">Expected total gain:</span>
-            <span className="text-white font-bold text-lg">+$0.24 (32% better than single route)</span>
-          </div>
-        </div>
-        
-        <button className="w-full mt-6 bg-white hover:bg-gray-200 text-black font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
-          Execute Smart Strategy
-        </button>
-      </div>
     </div>
   )
 }
