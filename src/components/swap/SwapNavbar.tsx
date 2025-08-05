@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Settings, HelpCircle, Clock, Menu, X } from 'lucide-react'
+import { ArrowLeft, Settings, HelpCircle, Clock, Menu, X, Search } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -35,7 +35,9 @@ export function SwapNavbar() {
               <span className="text-xl font-bold text-white">eurlquid</span>
               <span className="px-2 py-1 text-xs bg-white/10 text-white/80 rounded-full">
                 {
-                  pathname === '/swap' ? 'Swap' : 'History'
+                  pathname === '/swap' ? 'Swap' : 
+                  pathname === '/history' ? 'History' : 
+                  pathname === '/liquidity' ? 'Liquidity Explorer' : 'App'
                 }
               </span>
             </div>
@@ -63,6 +65,17 @@ export function SwapNavbar() {
             >
               <Clock className="w-4 h-4" />
               <span>History</span>
+            </Link>
+            <Link
+              href="/liquidity"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                pathname === '/liquidity'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-white/80 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Search className="w-4 h-4" />
+              <span>Liquidity Explorer</span>
             </Link>
           </div>
 
@@ -111,6 +124,18 @@ export function SwapNavbar() {
               >
                 <Clock className="w-4 h-4" />
                 <span>History</span>
+              </Link>
+              <Link
+                href="/liquidity"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                  pathname === '/liquidity'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Search className="w-4 h-4" />
+                <span>Liquidity Explorer</span>
               </Link>
             </div>
           </div>

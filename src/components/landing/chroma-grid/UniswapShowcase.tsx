@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChromaGrid, ChromaItem } from './';
 import Image from 'next/image';
-
+import Link from 'next/link';
 const UniswapShowcase: React.FC = () => {
   const uniswapItems: ChromaItem[] = [
     {
@@ -126,7 +126,9 @@ const UniswapShowcase: React.FC = () => {
         </p>
         <div className="mt-4 sm:mt-6 md:mt-8">
           <button className="bg-white hover:bg-gray-100 text-black font-bold py-2.5 sm:py-3 md:py-4 px-5 sm:px-6 md:px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-white/25 border-2 border-gray-300 hover:border-gray-400 text-xs sm:text-sm md:text-base w-full sm:w-auto max-w-xs sm:max-w-none">
-            Start Trading Now
+           <Link href='/swap'>
+           Start Trading Now
+           </Link> 
           </button>
         </div>
       </div>
