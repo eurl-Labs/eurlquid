@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { ArrowDownUp, ChevronDown } from 'lucide-react'
+import { useState } from "react";
+import { ArrowDownUp, ChevronDown, Brain } from "lucide-react";
 
 interface SwapCardProps {
-  fromAmount: string
-  setFromAmount: (amount: string) => void
-  fromToken: string
-  setFromToken: (token: string) => void
-  toToken: string
-  setToToken: (token: string) => void
+  fromAmount: string;
+  setFromAmount: (amount: string) => void;
+  fromToken: string;
+  setFromToken: (token: string) => void;
+  toToken: string;
+  setToToken: (token: string) => void;
 }
 
 export function SwapCard({
@@ -18,16 +18,16 @@ export function SwapCard({
   fromToken,
   setFromToken,
   toToken,
-  setToToken
+  setToToken,
 }: SwapCardProps) {
-  const [toAmount, setToAmount] = useState('0.354987')
+  const [toAmount, setToAmount] = useState("0.354987");
 
   const handleSwapTokens = () => {
-    setFromToken(toToken)
-    setToToken(fromToken)
-    setFromAmount(toAmount)
-    setToAmount(fromAmount || '0')
-  }
+    setFromToken(toToken);
+    setToToken(fromToken);
+    setFromAmount(toAmount);
+    setToAmount(fromAmount || "0");
+  };
 
   return (
     <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
@@ -44,14 +44,14 @@ export function SwapCard({
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-white/60">From</span>
-              <span className="text-sm text-white/60">Balance: 2.5 ETH</span>
-            </div>
-            <div className="flex items-center justify-end mb-2">
               <button className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 rounded-lg px-2 py-1 transition-colors">
-                <span className="text-sm text-white font-medium">{fromToken}</span>
+                <span className="text-sm text-white font-medium">
+                  {fromToken}
+                </span>
                 <ChevronDown className="w-3 h-3 text-white/60" />
               </button>
             </div>
+
             <input
               type="text"
               value={fromAmount}
@@ -61,6 +61,9 @@ export function SwapCard({
             />
             <div className="mt-2">
               <span className="text-sm text-white/60">≈ $3,549.87</span>
+            </div>
+            <div className="flex justify-end">
+              <span className="text-sm text-white/60">Balance: 2.5 ETH</span>
             </div>
           </div>
         </div>
@@ -80,11 +83,10 @@ export function SwapCard({
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-white/60">To</span>
-              <span className="text-sm text-white/60">Balance: 15,420 USDC</span>
-            </div>
-            <div className="flex items-center justify-end mb-2">
               <button className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 rounded-lg px-2 py-1 transition-colors">
-                <span className="text-sm text-white font-medium">{toToken}</span>
+                <span className="text-sm text-white font-medium">
+                  {toToken}
+                </span>
                 <ChevronDown className="w-3 h-3 text-white/60" />
               </button>
             </div>
@@ -97,19 +99,31 @@ export function SwapCard({
             <div className="mt-2">
               <span className="text-sm text-white/60">≈ $354.99</span>
             </div>
+            <div className="flex justify-end">
+              <span className="text-sm text-white/60">
+                Balance: 15,420 USDC
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Smart Analysis */}
         <div className="bg-white/10 border border-white/30 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-white">🎯 Smart Analysis</span>
+            <div className="flex items-center space-x-2">
+              <Brain className="w-4 h-4 text-white" />
+              <span className="text-sm font-medium text-white">Smart Analysis</span>
+            </div>
             <span className="text-xs text-white/60">85% Confidence</span>
           </div>
           <div className="space-y-1 text-sm">
             <div className="text-white/90">Execute via Curve for best rate</div>
-            <div className="text-white/60">MEV risk: Low • Expected slippage: 0.12%</div>
-            <div className="text-white">Potential savings: +$0.16 vs market</div>
+            <div className="text-white/60">
+              MEV risk: Low • Expected slippage: 0.12%
+            </div>
+            <div className="text-white">
+              Potential savings: +$0.16 vs market
+            </div>
           </div>
         </div>
 
@@ -119,5 +133,5 @@ export function SwapCard({
         </button>
       </div>
     </div>
-  )
+  );
 }
