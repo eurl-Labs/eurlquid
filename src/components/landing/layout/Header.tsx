@@ -27,6 +27,12 @@ export function Header() {
               API
             </a>
           </li>
+          <li>
+            <a href="#" className="hover:text-gray-300">
+              Github
+            </a>
+          </li>
+
         </ul>
       </nav>
     </header>

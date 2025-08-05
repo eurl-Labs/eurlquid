@@ -14,7 +14,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "eurlquid - Smart DEX Aggregator with AI Intelligence",
-  description: "Stop gambling with stale data. Get real-time liquidity insights, MEV protection, and optimal execution timing across all major DEXs with advanced AI predictions.",
+  description:
+    "Stop gambling with stale data. Get real-time liquidity insights, MEV protection, and optimal execution timing across all major DEXs with advanced AI predictions.",
+  icons: {
+    icon: `/favicon.ico?v=${Date.now()}`,
+    shortcut: `/favicon.ico?v=${Date.now()}`,
+    apple: `/favicon.ico?v=${Date.now()}`,
+  },
 };
 
 export default function RootLayout({
