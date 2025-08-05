@@ -30,7 +30,7 @@ export function SwapCard({
   };
 
   return (
-    <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
+    <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-white">Smart Swap</h2>
         <div className="flex items-center space-x-2">
@@ -72,7 +72,7 @@ export function SwapCard({
         <div className="flex justify-center">
           <button
             onClick={handleSwapTokens}
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-colors"
+            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 transition-colors"
           >
             <ArrowDownUp className="w-5 h-5 text-white" />
           </button>
@@ -108,7 +108,7 @@ export function SwapCard({
         </div>
 
         {/* Smart Analysis */}
-        <div className="bg-white/10 border border-white/30 rounded-xl p-4">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <Brain className="w-4 h-4 text-white" />

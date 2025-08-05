@@ -162,13 +162,13 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
   const getStatusColor = (status: DexRoute['status']) => {
     switch (status) {
       case 'recommended':
-        return 'border-white/30 bg-white/10'
+        return 'border-white/10 bg-white/5'
       case 'wait':
-        return 'border-white/20 bg-white/5'
+        return 'border-white/10 bg-white/5'
       case 'avoid':
         return 'border-white/10 bg-white/5'
       case 'executing':
-        return 'border-white/30 bg-white/10'
+        return 'border-white/10 bg-white/5'
     }
   }
 
@@ -191,7 +191,7 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl p-6">
+      <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-white">Smart Route Analysis</h3>
           <div className="flex items-center space-x-4 text-sm text-white/60">
@@ -204,19 +204,19 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="bg-white/5 rounded-lg p-3">
+          <div className="bg-white/5 rounded-lg p-3 border border-white/10">
             <div className="text-2xl font-bold text-white">+$0.16</div>
             <div className="text-sm text-white/60">Best Savings</div>
           </div>
-          <div className="bg-white/5 rounded-lg p-3">
+          <div className="bg-white/5 rounded-lg p-3 border border-white/10">
             <div className="text-2xl font-bold text-white">0.12%</div>
             <div className="text-sm text-white/60">Min Slippage</div>
           </div>
-          <div className="bg-white/5 rounded-lg p-3">
+          <div className="bg-white/5 rounded-lg p-3 border border-white/10">
             <div className="text-2xl font-bold text-white">95%</div>
             <div className="text-sm text-white/60">AI Confidence</div>
           </div>
-          <div className="bg-white/5 rounded-lg p-3">
+          <div className="bg-white/5 rounded-lg p-3 border border-white/10">
             <div className="text-2xl font-bold text-white">3</div>
             <div className="text-sm text-white/60">Risk Alerts</div>
           </div>
@@ -229,7 +229,7 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
           <div
             key={route.id}
             className={`backdrop-blur-lg bg-white/5 border-2 rounded-xl p-6 transition-all duration-200 hover:bg-white/10 cursor-pointer ${
-              selectedRoute === route.id ? 'border-white/50' : getStatusColor(route.status)
+              selectedRoute === route.id ? 'border-white/10' : getStatusColor(route.status)
             }`}
             onClick={() => setSelectedRoute(route.id)}
           >
@@ -251,7 +251,7 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
                     <div className="flex items-center space-x-2">
                       {getStatusIcon(route.status)}
                       {index === 0 && (
-                        <span className="px-2 py-1 bg-white/20 text-white text-xs rounded-full">
+                        <span className="px-2 py-1 bg-white/10 text-white text-xs rounded-full border border-white/10">
                           Best Rate
                         </span>
                       )}
@@ -309,7 +309,7 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
                 )}
                 
                 {route.status === 'wait' && (
-                  <button className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition-all duration-200">
+                  <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10">
                     Set Alert
                   </button>
                 )}
@@ -317,7 +317,7 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
             </div>
 
             {route.warning && (
-              <div className="mt-4 p-3 bg-white/10 border border-white/30 rounded-lg">
+              <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="w-4 h-4 text-white" />
                   <span className="text-white text-sm font-medium">{route.warning}</span>
