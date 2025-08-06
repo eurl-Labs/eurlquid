@@ -150,7 +150,7 @@ export default function LiquidityExplorer() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-black border border-white/10 rounded-lg p-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
               <h2 className="text-lg font-medium mb-4 flex items-center space-x-2">
                 <Search className="w-5 h-5 text-blue-400" />
                 <span>Pool Intelligence Explorer</span>
@@ -175,13 +175,13 @@ export default function LiquidityExplorer() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Featured Insights */}
-            <div className="bg-black border border-white/10 rounded-lg p-6 mb-8">
+            <div className="bg-white/5  border border-white/10 rounded-lg p-6 mb-8">
               <h3 className="text-lg font-medium mb-6">Featured Insights</h3>
               <div className="space-y-4">
                 {featuredInsights.map((insight, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-black border border-white/10 rounded-lg hover:border-white/20 transition-colors"
+                    className="flex items-center justify-between p-4 bg-white/2 border border-white/10 rounded-lg hover:border-white/20 transition-colors"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
@@ -208,7 +208,7 @@ export default function LiquidityExplorer() {
 
             {/* Pool Analytics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-black border border-white/10 rounded-lg p-6">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <Activity className="w-5 h-5 text-green-400" />
                   <h4 className="font-medium">Pool Health Analytics</h4>
@@ -229,7 +229,7 @@ export default function LiquidityExplorer() {
                 </div>
               </div>
 
-              <div className="bg-black border border-white/10 rounded-lg p-6">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <Users className="w-5 h-5 text-blue-400" />
                   <h4 className="font-medium">Top Liquidity Providers</h4>
@@ -250,7 +250,7 @@ export default function LiquidityExplorer() {
                 </div>
               </div>
 
-              <div className="bg-black border border-white/10 rounded-lg p-6">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <BarChart3 className="w-5 h-5 text-purple-400" />
                   <h4 className="font-medium">Protocol Comparison</h4>
@@ -298,7 +298,7 @@ export default function LiquidityExplorer() {
                 </div>
               </div>
 
-              <div className="bg-black border border-white/10 rounded-lg p-6">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <Target className="w-5 h-5 text-orange-400" />
                   <h4 className="font-medium">Market Timing</h4>
@@ -321,7 +321,7 @@ export default function LiquidityExplorer() {
             </div>
 
             {/* DEX Aggregators by Liquidity */}
-            <div className="mt-8 bg-black border border-white/10 rounded-lg p-6">
+            <div className="mt-8 bg-white/5 border border-white/10 rounded-lg p-6">
               <div className="flex items-center space-x-2 mb-6">
                 <TrendingUp className="w-5 h-5 text-blue-400" />
                 <h3 className="text-lg font-medium">DEX Aggregators by Total Value Locked (TVL)</h3>
@@ -331,7 +331,7 @@ export default function LiquidityExplorer() {
                 {dexAggregatorsByLiquidity.map((dex, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-black border border-white/10 rounded-lg hover:border-white/20 transition-colors"
+                    className="flex items-center justify-between p-4 bg-white/2 border border-white/10 rounded-lg hover:border-white/20 transition-colors"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-3">
