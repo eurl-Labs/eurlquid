@@ -16,30 +16,37 @@ export function Header() {
           <span className="text-2xl font-bold ml-2">eurlquid</span>
         </div>
 
-        <ul className="hidden sm:flex space-x-6">
-          <li>
-            <a href="#" className="hover:text-gray-300">
-              Docs
-            </a>
-          </li>
-          <li>
-            <a href="#" className="hover:text-gray-300">
-              API
-            </a>
-          </li>
-          <li>
-            <a href="#" className="hover:text-gray-300">
-              Github
-            </a>
-          </li>
-        </ul>
-        
-        {/* Mobile menu button */}
-        <button className="sm:hidden flex flex-col space-y-1">
-          <div className="w-6 h-0.5 bg-white"></div>
-          <div className="w-6 h-0.5 bg-white"></div>
-          <div className="w-6 h-0.5 bg-white"></div>
-        </button>
+        <div className="flex items-center space-x-6">
+          <ul className="hidden sm:flex space-x-6">
+            <li>
+              <a href="#" className="hover:text-gray-300">
+                Docs
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-gray-300">
+                API
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-gray-300">
+                Github
+              </a>
+            </li>
+            <li>
+              <a href="/swap" className="hover:text-gray-300">
+                Swap
+              </a>
+            </li>
+          </ul>
+          
+          {/* Mobile menu button */}
+          <button className="sm:hidden flex flex-col space-y-1">
+            <div className="w-6 h-0.5 bg-white"></div>
+            <div className="w-6 h-0.5 bg-white"></div>
+            <div className="w-6 h-0.5 bg-white"></div>
+          </button>
+        </div>
       </nav>
     </header>
   );
