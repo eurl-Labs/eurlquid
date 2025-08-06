@@ -1,1 +1,10 @@
-pada page /swap tampilkan animasi dengan framer motion pada saat memunculkan dex aggregator, lalu dex aggregator hanya muncul ketika kita sedang input token di swap card saja.
+add wagmi and rainbowkit with pnpm, integrate with connect wallet custom button and add network sonic blaze testnet
+Network Details
+Network name
+Sonic Blaze Testnet 
+RPC URL
+https://rpc.blaze.soniclabs.com
+Chain ID
+57054 
+Currency symbol
+S 

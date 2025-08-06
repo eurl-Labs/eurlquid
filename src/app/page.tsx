@@ -5,6 +5,8 @@ import { Manrope } from 'next/font/google'
 import { Header, HeroSection, Scene } from '@/components/landing'
 import { DexScrollSection } from '@/components/landing/infinite-scroll'
 import { UniswapShowcase } from '@/components/landing/chroma-grid'
+import { SwapSmartSection } from '@/components/landing/sections/SwapSmartSection'
+import { SimpleFooter } from '@/components/landing/layout/SimpleFooter'
 
 const manrope = Manrope({ subsets: ['latin'] })
 
@@ -20,6 +22,8 @@ export default function Home() {
       </div>
       <UniswapShowcase />
       <DexScrollSection />
+      <SwapSmartSection />
+      <SimpleFooter />
     </div>
   )
 }

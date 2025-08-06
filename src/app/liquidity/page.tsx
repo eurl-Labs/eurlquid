@@ -139,10 +139,10 @@ export default function LiquidityExplorer() {
       {/* Header */}
       <header className="border-b border-white/10 px-4 py-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3 mb-2">
-            <h1 className="text-2xl font-bold">Liquidity Explorer</h1>
+          <div className="flex items-center space-x-3 mb-2 ml-5">
+            <h1 className="text-3xl font-bold">Liquidity Explorer</h1>
           </div>
-          <p className="text-gray-400 text-sm">Deep dive into liquidity pools</p>
+          <p className="text-white/60 text-sm ml-5">Deep dive into liquidity pools</p>
         </div>
       </header>
 
