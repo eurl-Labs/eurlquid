@@ -94,7 +94,7 @@ export function SwapNavbar() {
           <div className="flex items-center space-x-3">
             {/* Connect Wallet Button */}
 
-            <ConnectWalletButton />
+            <span className="md:block hidden"><ConnectWalletButton /></span>
 
             {/* Mobile menu button */}
             <button
@@ -114,6 +114,7 @@ export function SwapNavbar() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-white/10">
             <div className="px-2 pt-2 pb-3 space-y-1">
+            <ConnectWalletButton />
               <Link
                 href="/swap"
                 onClick={() => setMobileMenuOpen(false)}
