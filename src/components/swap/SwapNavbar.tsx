@@ -96,13 +96,6 @@ export function SwapNavbar() {
 
             <ConnectWalletButton />
 
-            <button className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-              <Settings className="w-5 h-5" />
-            </button>
-            <button className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-              <HelpCircle className="w-5 h-5" />
-            </button>
-
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownUp, ChevronDown, Brain } from "lucide-react";
+import { ArrowDownUp, ChevronDown, Brain, HelpCircle } from "lucide-react";
+import { SwapHelpModal } from "./SwapHelpModal";
 
 interface SwapCardProps {
   fromAmount: string;
@@ -25,6 +26,7 @@ export function SwapCard({
   onInputBlur,
 }: SwapCardProps) {
   const [toAmount, setToAmount] = useState("0.354987");
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
 
   const handleSwapTokens = () => {
     setFromToken(toToken);
@@ -39,6 +41,13 @@ export function SwapCard({
         <h2 className="text-xl font-bold text-white">Smart Swap</h2>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-white/60">Slippage: 0.5%</span>
+          <button
+            onClick={() => setHelpModalOpen(true)}
+            className="cursor-pointer p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="How to swap"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
@@ -138,6 +147,11 @@ export function SwapCard({
           Execute Smart Swap
         </button>
       </div>
+      {/* Help Modal */}
+      <SwapHelpModal 
+        isOpen={helpModalOpen} 
+        onClose={() => setHelpModalOpen(false)} 
+      />
     </div>
   );
 }
