@@ -48,7 +48,9 @@ export function SwapNavbar() {
                   : pathname === "/history"
                   ? "History"
                   : pathname === "/liquidity"
-                  ? "Liquidity Explorer"
+                  ? "Liquidity Explorer" :
+                  pathname === "/bridge"
+                  ? "Bridge"
                   : "App"}
               </span>
             </div>
@@ -66,6 +68,18 @@ export function SwapNavbar() {
             >
               Swap
             </Link>
+
+            <Link
+              href="/bridge"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname === "/bridge"
+                  ? "bg-blue-600 text-white"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              Bridge
+            </Link>
+
             <Link
               href="/history"
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
@@ -94,7 +108,9 @@ export function SwapNavbar() {
           <div className="flex items-center space-x-3">
             {/* Connect Wallet Button */}
 
-            <span className="md:block hidden"><ConnectWalletButton /></span>
+            <span className="md:block hidden">
+              <ConnectWalletButton />
+            </span>
 
             {/* Mobile menu button */}
             <button
@@ -114,7 +130,7 @@ export function SwapNavbar() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-white/10">
             <div className="px-2 pt-2 pb-3 space-y-1">
-            <ConnectWalletButton />
+              <ConnectWalletButton />
               <Link
                 href="/swap"
                 onClick={() => setMobileMenuOpen(false)}

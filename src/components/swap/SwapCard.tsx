@@ -84,13 +84,14 @@ export function SwapCard({
         </div>
 
         {/* Swap Button */}
-        <div className="flex justify-center">
+        <div className="flex justify-center relative">
           <button
             onClick={handleSwapTokens}
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 transition-colors"
+            className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 transition-all duration-200 hover:scale-110 group"
           >
-            <ArrowDownUp className="w-5 h-5 text-white" />
+            <ArrowDownUp className="w-6 h-6 text-white group-hover:rotate-180 transition-transform duration-300" />
           </button>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur-lg -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
         </div>
 
         {/* To Token */}

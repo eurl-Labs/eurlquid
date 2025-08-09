@@ -1,0 +1,312 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SwapNavbar } from "../swap/SwapNavbar";
+import { BridgeCard } from "./BridgeCard";
+import { RoutesList } from "./RoutesList";
+import { Shield, Search, Network, Clock } from "lucide-react";
+import Image from "next/image";
+
+export function BridgeInterface() {
+  const [fromAmount, setFromAmount] = useState("");
+  const [fromToken, setFromToken] = useState("ETH");
+  const [toToken, setToToken] = useState("USDC");
+  const [isInputActive, setIsInputActive] = useState(false);
+
+  return (
+    <div className="min-h-screen">
+      <SwapNavbar />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Swap Panel */}
+          <div className="lg:col-span-1">
+            <BridgeCard
+              fromAmount={fromAmount}
+              setFromAmount={setFromAmount}
+              fromToken={fromToken}
+              setFromToken={setFromToken}
+              toToken={toToken}
+              setToToken={setToToken}
+              onInputFocus={() => setIsInputActive(true)}
+              onInputBlur={() => setIsInputActive(false)}
+            />
+
+            {/* Bridge Features */}
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="flex items-center space-x-3">
+                  <Network className="w-5 h-5 text-white" />
+                  <span className="text-white/90 text-sm">
+                    Cross-Chain Intelligence
+                  </span>
+                </div>
+                <span className="text-white text-sm font-medium">Active</span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="flex items-center space-x-3">
+                  <Shield className="w-5 h-5 text-white" />
+                  <span className="text-white/90 text-sm">Security Audit</span>
+                </div>
+                <span className="text-white text-sm font-medium">Verified</span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="flex items-center space-x-3">
+                  <Clock className="w-5 h-5 text-white" />
+                  <span className="text-white/90 text-sm">Fast Transfer</span>
+                </div>
+                <span className="text-white text-sm font-medium">~2-15 min</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Routes Panel - DEX Aggregator */}
+          <div className="lg:col-span-2">
+            <AnimatePresence>
+              {isInputActive ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  {fromAmount ? (
+                    <RoutesList
+                      fromAmount={fromAmount}
+                      fromToken={fromToken}
+                      toToken={toToken}
+                    />
+                  ) : (
+                    <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-8">
+                      <div className="flex flex-col items-center justify-center space-y-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex space-x-1">
+                            <motion.div
+                              className="w-2 h-2 bg-white rounded-full"
+                              animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.6, 1, 0.6],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: 0,
+                              }}
+                            />
+                            <motion.div
+                              className="w-2 h-2 bg-white rounded-full"
+                              animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.6, 1, 0.6],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: 0.2,
+                              }}
+                            />
+                            <motion.div
+                              className="w-2 h-2 bg-white rounded-full"
+                              animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.6, 1, 0.6],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: 0.4,
+                              }}
+                            />
+                          </div>
+                          <span className="text-white font-medium text-lg">
+                            Finding bridge routes
+                          </span>
+                        </div>
+
+                        <div className="text-center space-y-2">
+                          <p className="text-white/60">
+                            Enter an amount to discover the best bridge routes
+                          </p>
+                          <div className="flex items-center justify-center space-x-4 text-sm text-white/40">
+                            <span>• Cross-chain routing</span>
+                            <span>• Low fees</span>
+                            <span>• Fast transfers</span>
+                          </div>
+                        </div>
+
+                        <div className="w-full max-w-md">
+                          <motion.div
+                            className="h-1 bg-white/10 rounded-full overflow-hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
+                          >
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-white/20 to-white/60 rounded-full"
+                              animate={{
+                                x: ["-100%", "100%"],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                              }}
+                            />
+                          </motion.div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-8"
+                >
+                  <div className="flex flex-col items-center justify-center space-y-8 min-h-[400px]">
+                    <div className="text-center space-y-4">
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.05, 1],
+                          rotate: [0, 5, -5, 0],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="mb-4 flex justify-center"
+                      >
+                        <Search className="w-16 h-16 text-white" />
+                      </motion.div>
+                      <h3 className="text-2xl font-bold text-white">
+                        Start Cross-Chain Bridge
+                      </h3>
+                      <p className="text-white/60 text-lg max-w-md">
+                        Select networks and enter an amount to discover
+                        the best bridge routes
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Image
+                              src="/images/logo/layerzeroLogo.jpeg"
+                              alt="LayerZero logo"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                          </div>
+                          <span className="text-white text-sm font-medium">
+                            LayerZero
+                          </span>
+                          <span className="text-white/60 text-xs">
+                            Omnichain
+                          </span>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Image
+                              src="/images/logo/wormholeLogo.png"
+                              alt="Wormhole logo"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                          </div>
+                          <span className="text-white text-sm font-medium">
+                            Wormhole
+                          </span>
+                          <span className="text-white/60 text-xs">
+                            Multichain
+                          </span>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Image
+                              src="/images/logo/stargateLogo.png"
+                              alt="Stargate logo"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                          </div>
+                          <span className="text-white text-sm font-medium">
+                            Stargate
+                          </span>
+                          <span className="text-white/60 text-xs">
+                            Fast Bridge
+                          </span>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Image
+                              src="/images/logo/hyperlaneLogo.avif"
+                              alt="Hyperlane logo"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                          </div>
+                          <span className="text-white text-sm font-medium">
+                            Hyperlane
+                          </span>
+                          <span className="text-white/60 text-xs">
+                            Secure Bridge
+                          </span>
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    <span>Choose your preferred bridge protocol for cross-chain transfers.</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
