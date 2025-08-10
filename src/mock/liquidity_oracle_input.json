@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-08-10T12:00:00Z",
+  "user": {
+    "address": "0xUser123456789abcdef",
+    "intendedSwap": {
+      "fromToken": "USDC",
+      "toToken": "ETH",
+      "amount": 10000,
+      "preferredDex": ["Curve", "UniswapV3"]
+    }
+  },
+  "dexLiquidity": [
+    {
+      "dex": "Curve",
+      "pair": "USDC/ETH",
+      "liquidityUSD": 12000000,
+      "volume24h": 3500000,
+      "slippageEstimate": "0.12%",
+      "contractAddress": "0xcurvepair123"
+    },
+    {
+      "dex": "UniswapV3",
+      "pair": "USDC/ETH",
+      "liquidityUSD": 8000000,
+      "volume24h": 4200000,
+      "slippageEstimate": "0.18%",
+      "contractAddress": "0xuniV3pair456"
+    },
+    {
+      "dex": "Balancer",
+      "pair": "USDC/ETH",
+      "liquidityUSD": 5000000,
+      "volume24h": 1200000,
+      "slippageEstimate": "0.22%",
+      "contractAddress": "0xbalancerpair789"
+    }
+  ],
+  "whaleMovements": [
+    {
+      "address": "0xWhale123",
+      "action": "deposit",
+      "dex": "UniswapV3",
+      "amountUSD": 2000000,
+      "timestamp": "2025-08-10T11:58:00Z"
+    },
+    {
+      "address": "0xWhale999",
+      "action": "withdraw",
+      "dex": "Curve",
+      "amountUSD": 1500000,
+      "timestamp": "2025-08-10T11:59:00Z"
+    }
+  ],
+  "mempoolSignals": [
+    {
+      "type": "pendingSwap",
+      "from": "0xTraderABC",
+      "dex": "Balancer",
+      "amountUSD": 500000,
+      "fromToken": "USDC",
+      "toToken": "ETH"
+    }
+  ],
+  "bridgeFlows": [
+    {
+      "fromChain": "Ethereum",
+      "toChain": "Arbitrum",
+      "token": "USDC",
+      "amount": 300000,
+      "timestamp": "2025-08-10T11:55:00Z"
+    }
+  ],
+  "marketContext": {
+    "ethPriceUSD": 3400,
+    "usdcPeg": 1.00,
+    "volatilityIndex": 0.18,
+    "governanceNews": [
+      "Curve proposal to increase USDC/ETH pool rewards",
+      "Uniswap V3 fee tier adjustment scheduled"
+    ]
+  }
+}
