@@ -1,5 +1,6 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { defineChain } from 'viem';
+import { mainnet, arbitrum, base } from 'viem/chains';
 
 // Define Sonic Blaze Testnet
 export const sonicBlazeTestnet = defineChain({
@@ -27,6 +28,6 @@ export const sonicBlazeTestnet = defineChain({
 export const config = getDefaultConfig({
   appName: 'Eurlquid',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default-project-id',
-  chains: [sonicBlazeTestnet],
+  chains: [mainnet, arbitrum, base, sonicBlazeTestnet],
   ssr: true,
 });
