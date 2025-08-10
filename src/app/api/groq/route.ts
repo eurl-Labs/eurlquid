@@ -27,29 +27,25 @@ Output Format (must follow exactly):
 
 {
   "prediction": {
-    "timeframe": "string (e.g. '15m', '1h')",
-    "liquidityChange": "number (percentage change, -0.25 = -25%)",
-    "riskScore": "number (0 to 1)",
-    "confidence": "number (0 to 1)"
+    "timeframe": "1h",
+    "liquidityChange": -0.22,
+    "riskScore": 0.78,
+    "confidence": 0.85
   },
-  "advice": "string (actionable recommendation)",
-  "expectedSlippage": "string (e.g. '0.12%')",
-  "expectedSavingsUSD": "number (in USD)",
+  "advice": "Execute 60% on Curve now, wait 40% for Uniswap in 5 minutes",
+  "expectedSlippage": "0.15%",
+  "expectedSavingsUSD": 640,
   "optimalRoute": [
-    {
-      "dex": "string (e.g. 'Curve')",
-      "allocation": "number (0 to 1)",
-      "status": "string (e.g. 'execute_now', 'wait_5m', 'avoid')"
-    }
+    {"dex": "Curve", "allocation": 0.6, "status": "execute_now"},
+    {"dex": "UniswapV3", "allocation": 0.4, "status": "wait_5m"}
   ],
   "riskAlerts": [
-    "string (human-readable alert)"
+    "Whale wallet 0xWhale123 may impact Uniswap liquidity in 2 minutes",
+    "Uniswap V3 slippage risk increasing"
   ],
-  "explanation": {
-    "liquidityPredictionReason": "string (reasoning for liquidity change prediction)",
-    "riskAssessmentReason": "string (reasoning for risk score)",
-    "routeRecommendationReason": "string (reasoning for the suggested route and timing)"
-  }
+"ContractAddress" : [
+"0xadajdajsdjsajd",
+]
 }`;
 
 export async function POST(req: NextRequest) {

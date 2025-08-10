@@ -15,6 +15,7 @@ export interface GroqLiquidityOracleResponse {
     status: string;
   }>;
   riskAlerts: string[];
+  ContractAddress: string[];
   explanation: {
     liquidityPredictionReason: string;
     riskAssessmentReason: string;
