@@ -52,8 +52,8 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
       ]
     },
        {
-      id: 'dbridge',
-      name: 'dBridge',
+      id: 'debridge',
+      name: 'debridge',
       logo: '/images/logo/debridgeLogo.svg',
       rate: '0.99401',
       usdValue: '$994.01',
