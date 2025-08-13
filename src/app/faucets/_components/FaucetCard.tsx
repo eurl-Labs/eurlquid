@@ -1,82 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  ChevronDown, 
-  Droplets, 
-  HelpCircle, 
+import {
+  ChevronDown,
+  Droplets,
+  HelpCircle,
   Settings,
   Wallet,
-  ExternalLink
+  ExternalLink,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { useAccount } from "wagmi";
+import {
+  useFaucet,
+  FAUCET_TOKENS,
+  type TokenSymbol,
+} from "../../hooks/query/contracts/use-faucet-tokens";
+import Link from "next/link";
 
 interface FaucetCardProps {
-  selectedToken: string | null;
-  setSelectedToken: (token: string | null) => void;
-  onClaim: (tokenSymbol: string) => void;
-  claimHistory: string[];
+  selectedToken: TokenSymbol | null;
+  setSelectedToken: (token: TokenSymbol | null) => void;
+  onClaim: (tokenSymbol: TokenSymbol) => void;
+  claimHistory: TokenSymbol[];
 }
-
-const faucetTokens = {
-  ETH: { 
-    name: "Ethereum", 
-    symbol: "ETH", 
-    amount: "0.1", 
-    logo: "/images/logoCoin/ethLogo.png",
-    cooldown: "24h",
-    network: "Sonic Blaze Testnet"
-  },
-  USDC: { 
-    name: "USD Coin", 
-    symbol: "USDC", 
-    amount: "1000", 
-    logo: "/images/logoCoin/usdcLogo.png",
-    cooldown: "12h",
-    network: "Sonic Blaze Testnet"
-  },
-  POLLY: { 
-    name: "Polly", 
-    symbol: "POLLY", 
-    amount: "1000000", 
-    logo: "/images/logoCoin/pollyLogo.jpg",
-    cooldown: "6h",
-    network: "Sonic Blaze Testnet"
-  },
-  USDT: { 
-    name: "Tether", 
-    symbol: "USDT", 
-    amount: "1000", 
-    logo: "/images/logoCoin/usdtLogo.png",
-    cooldown: "12h",
-    network: "Sonic Blaze Testnet"
-  },
-  WBTC: { 
-    name: "Wrapped Bitcoin", 
-    symbol: "WBTC", 
-    amount: "0.01", 
-    logo: "/images/logoCoin/wbtcLogo.png",
-    cooldown: "24h",
-    network: "Sonic Blaze Testnet"
-  },
-  PENGU: { 
-    name: "Pudgy Penguins", 
-    symbol: "PENGU", 
-    amount: "10000", 
-    logo: "/images/logoCoin/penguLogo.png",
-    cooldown: "6h",
-    network: "Sonic Blaze Testnet"
-  },
-  PEPE: { 
-    name: "Pepe", 
-    symbol: "PEPE", 
-    amount: "1000000", 
-    logo: "/images/logoCoin/pepeLogo.png",
-    cooldown: "6h",
-    network: "Sonic Blaze Testnet"
-  },
-};
 
 export function FaucetCard({
   selectedToken,
@@ -85,25 +34,41 @@ export function FaucetCard({
   claimHistory,
 }: FaucetCardProps) {
   const [showTokenSelect, setShowTokenSelect] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const { address, isConnected } = useAccount();
 
-  const selectedTokenData = selectedToken ? faucetTokens[selectedToken as keyof typeof faucetTokens] : null;
-  const canClaim = selectedToken && isConnected && address && !claimHistory.includes(selectedToken);
+  const { address, isConnected } = useAccount();
+  const { claimToken, isLoading, isSuccess, isError, error, txHash, reset } =
+    useFaucet();
+
+  const selectedTokenData = selectedToken ? FAUCET_TOKENS[selectedToken] : null;
+  const canClaim =
+    selectedToken &&
+    isConnected &&
+    address &&
+    !claimHistory.includes(selectedToken);
 
   const handleClaim = async () => {
     if (!selectedToken || !canClaim) return;
-    
-    setIsLoading(true);
-    // Simulate claim process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    onClaim(selectedToken);
-    setIsLoading(false);
+
+    try {
+      await claimToken(selectedToken);
+      // Wait for success before updating claim history
+      if (isSuccess) {
+        onClaim(selectedToken);
+      }
+    } catch (err) {
+      console.error("Claim failed:", err);
+    }
   };
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  // Reset error/success state when changing tokens
+  const handleTokenSelect = (token: TokenSymbol) => {
+    setSelectedToken(token);
+    setShowTokenSelect(false);
+    reset();
   };
 
   return (
@@ -135,13 +100,18 @@ export function FaucetCard({
                   <Wallet className="w-4 h-4 text-green-400" />
                 </div>
                 <div>
-                  <div className="font-medium text-white">{formatAddress(address)}</div>
+                  <div className="font-medium text-white">
+                    {formatAddress(address)}
+                  </div>
                   <div className="text-xs text-green-400">Connected</div>
                 </div>
               </div>
-              <button className="p-2 text-white/60 hover:text-white transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </button>
+              <Link
+                href={`https://testnet.sonicscan.org/address/${address}`}
+                target="_blank"
+              >
+                <ExternalLink className="w-4 h-4 cursor-pointer" />
+              </Link>
             </div>
           ) : (
             <div className="flex items-center justify-between p-4 bg-white/5 border border-red-500/20 rounded-xl">
@@ -150,8 +120,12 @@ export function FaucetCard({
                   <Wallet className="w-4 h-4 text-red-400" />
                 </div>
                 <div>
-                  <div className="font-medium text-white">No Wallet Connected</div>
-                  <div className="text-xs text-red-400">Please connect your wallet</div>
+                  <div className="font-medium text-white">
+                    No Wallet Connected
+                  </div>
+                  <div className="text-xs text-red-400">
+                    Please connect your wallet
+                  </div>
                 </div>
               </div>
             </div>
@@ -159,13 +133,13 @@ export function FaucetCard({
         </div>
 
         {/* Token Selection */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 ">
           <label className="block text-sm text-white/60 font-medium mb-3">
             Select Token
           </label>
           <button
             onClick={() => setShowTokenSelect(!showTokenSelect)}
-            className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+            className="cursor-pointer w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
           >
             {selectedTokenData ? (
               <div className="flex items-center space-x-3">
@@ -179,8 +153,12 @@ export function FaucetCard({
                   />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-white">{selectedTokenData.symbol}</div>
-                  <div className="text-xs text-white/60">{selectedTokenData.name}</div>
+                  <div className="font-medium text-white cursor-pointer">
+                    {selectedTokenData.symbol}
+                  </div>
+                  <div className="text-xs text-white/60">
+                    {selectedTokenData.name}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -192,14 +170,11 @@ export function FaucetCard({
           {/* Token Dropdown */}
           {showTokenSelect && (
             <div className="mt-2 space-y-1 bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-2 max-h-60 overflow-y-auto">
-              {Object.entries(faucetTokens).map(([symbol, token]) => (
+              {Object.entries(FAUCET_TOKENS).map(([symbol, token]) => (
                 <button
                   key={symbol}
-                  onClick={() => {
-                    setSelectedToken(symbol);
-                    setShowTokenSelect(false);
-                  }}
-                  className="w-full flex items-center space-x-3 p-3 hover:bg-white/10 rounded-lg transition-colors text-left"
+                  onClick={() => handleTokenSelect(symbol as TokenSymbol)}
+                  className="cursor-pointer w-full flex items-center space-x-3 p-3 hover:bg-white/10 rounded-lg transition-colors text-left"
                 >
                   <div className="w-6 h-6 rounded-full overflow-hidden">
                     <Image
@@ -211,8 +186,12 @@ export function FaucetCard({
                     />
                   </div>
                   <div>
-                    <div className="font-medium text-white text-sm">{token.symbol}</div>
-                    <div className="text-xs text-white/60">{token.amount} {token.symbol}</div>
+                    <div className="font-medium text-white text-sm">
+                      {token.symbol}
+                    </div>
+                    <div className="text-xs text-white/60">
+                      {token.amount} {token.symbol}
+                    </div>
                   </div>
                 </button>
               ))}
@@ -220,12 +199,74 @@ export function FaucetCard({
           )}
         </div>
 
+        {/* Transaction Status */}
+        {(isSuccess || isError || txHash) && (
+          <div
+            className={`bg-white/5 border rounded-xl p-4 ${
+              isError
+                ? "border-red-500/20"
+                : isSuccess
+                ? "border-green-500/20"
+                : "border-white/10"
+            }`}
+          >
+            <div className="flex items-center space-x-2 mb-2">
+              {isError ? (
+                <AlertCircle className="w-5 h-5 text-red-400" />
+              ) : isSuccess ? (
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              ) : (
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              )}
+              <span
+                className={`text-sm font-medium ${
+                  isError
+                    ? "text-red-400"
+                    : isSuccess
+                    ? "text-green-400"
+                    : "text-white"
+                }`}
+              >
+                {isError
+                  ? "Transaction Failed"
+                  : isSuccess
+                  ? "Claim Successful!"
+                  : "Processing..."}
+              </span>
+            </div>
+            {error && (
+              <p className="text-xs text-red-400 mb-2">{error.message}</p>
+            )}
+            {txHash && (
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-white/60">Tx Hash:</span>
+                <code className="text-xs text-white/80 font-mono">
+                  {formatAddress(txHash)}
+                </code>
+                <button
+                  onClick={() =>
+                    window.open(
+                      `https://testnet.sonicscan.org/tx/${txHash}`,
+                      "_blank"
+                    )
+                  }
+                  className="p-1 text-white/60 hover:text-white transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3 cursor-pointer" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Claim Information */}
         {selectedTokenData && (
           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
             <div className="flex items-center space-x-2 mb-3">
               <Droplets className="w-5 h-5 text-white" />
-              <span className="text-sm font-medium text-white">Claim Details</span>
+              <span className="text-sm font-medium text-white">
+                Claim Details
+              </span>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
@@ -235,21 +276,23 @@ export function FaucetCard({
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/60">Network:</span>
-                <span className="text-white">{selectedTokenData.network}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white/60">Cooldown:</span>
-                <span className="text-white">{selectedTokenData.cooldown}</span>
+                <span className="text-white/60">Contract:</span>
+                <code className="text-white/80 text-xs font-mono">
+                  {formatAddress(selectedTokenData.address)}
+                </code>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/60">Status:</span>
-                <span className={`font-medium ${
-                  selectedToken && claimHistory.includes(selectedToken) 
-                    ? "text-red-400" 
-                    : "text-green-400"
-                }`}>
-                  {selectedToken && claimHistory.includes(selectedToken) ? "Claimed" : "Available"}
+                <span
+                  className={`font-medium ${
+                    selectedToken && claimHistory.includes(selectedToken)
+                      ? "text-red-400"
+                      : "text-green-400"
+                  }`}
+                >
+                  {selectedToken && claimHistory.includes(selectedToken)
+                    ? "Claimed"
+                    : "Available"}
                 </span>
               </div>
             </div>
@@ -262,24 +305,39 @@ export function FaucetCard({
           disabled={!canClaim || isLoading}
           className="w-full bg-white hover:bg-gray-200 disabled:bg-white/20 text-black disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
-          <div className="flex items-center justify-center space-x-2">
-            {isLoading ? (
+          <div className="flex items-center justify-center space-x-2 cursor-pointer">
+            {isLoading && !isSuccess ? (
               <>
                 <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                 <span>Claiming...</span>
               </>
             ) : (
               <>
-                <Droplets className="w-5 h-5" />
-                <span>
-                  {!isConnected 
-                    ? "Connect Wallet First"
-                    : !selectedToken 
-                    ? "Select Token" 
-                    : selectedToken && claimHistory.includes(selectedToken)
-                    ? "Already Claimed"
-                    : `Claim ${selectedTokenData?.amount} ${selectedToken}`
-                  }
+                <span className="flex items-center space-x-2">
+                  {!isConnected ? (
+                    "Connect Wallet First"
+                  ) : !selectedToken ? (
+                    "Select Token"
+                  ) : selectedToken && claimHistory.includes(selectedToken) ? (
+                    "Already Claimed"
+                  ) : (
+                    <span className="flex items-center space-x-2">
+                      <span>
+                        Claim {selectedTokenData?.amount} {selectedToken}
+                      </span>
+                      {selectedTokenData && (
+                        <div className="w-5 h-5 rounded-full overflow-hidden border border-black/20">
+                          <Image
+                            src={selectedTokenData.logo}
+                            alt={selectedTokenData.symbol}
+                            width={20}
+                            height={20}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </span>
+                  )}
                 </span>
               </>
             )}
