@@ -1,39 +1,30 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Droplets, TrendingUp, ExternalLink } from "lucide-react";
+import { Droplets, TrendingUp, ExternalLink, Plus } from "lucide-react";
 import Image from "next/image";
+import { EXISTING_POOLS, POOL_TOKENS } from "../../hooks/query/contracts/use-pool";
 
 interface PoolListProps {
   activeTab: "create" | "existing";
 }
 
-const mockPools = [
+// Mock popular pools data with existing pool IDs
+const popularPools = [
   {
-    id: 1,
-    token1: "PENGU",
-    token0: "ETH",
+    id: EXISTING_POOLS["WBTC/USDT"],
+    token0: "WBTC",
+    token1: "USDT",
     fee: 0.3,
-    tvl: "$8.7M",
-    volume24h: "$2.1M",
-    apr: "45.2%",
-    userLiquidity: "$1,250",
-    isActive: true,
-  },
-    {
-    id: 2,
-    token0: "PENGU",
-    token1: "POLLY",
-    fee: 0.3,
-    tvl: "$8.7M",
-    volume24h: "$2.1M",
-    apr: "45.2%",
-    userLiquidity: "$1,250",
+    tvl: "$123.4M",
+    volume24h: "$23.1M",
+    apr: "8.2%",
+    userLiquidity: "$2,450",
     isActive: true,
   },
   {
-    id: 6,
-    token0: "ETH",
+    id: EXISTING_POOLS["WETH/USDC"],
+    token0: "WETH",
     token1: "USDC",
     fee: 0.3,
     tvl: "$45.2M",
@@ -42,11 +33,10 @@ const mockPools = [
     userLiquidity: "$0",
     isActive: false,
   },
-
   {
-    id: 3,
-    token1: "PEPE",
-    token0: "USDC",
+    id: EXISTING_POOLS["PEPE/USDT"],
+    token0: "PEPE",
+    token1: "USDT",
     fee: 0.3,
     tvl: "$23.4M",
     volume24h: "$5.8M",
@@ -55,20 +45,20 @@ const mockPools = [
     isActive: false,
   },
   {
-    id: 4,
-    token0: "USDC",
-    token1: "USDT",
-    fee: 0.05,
-    tvl: "$123.4M",
-    volume24h: "$23.1M",
-    apr: "8.2%",
-    userLiquidity: "$2,450",
+    id: EXISTING_POOLS["WSONIC/PENGU"],
+    token0: "WSONIC",
+    token1: "PENGU",
+    fee: 0.3,
+    tvl: "$8.7M",
+    volume24h: "$2.1M",
+    apr: "45.2%",
+    userLiquidity: "$1,250",
     isActive: true,
   },
   {
-    id: 5,
-    token0: "WBTC",
-    token1: "ETH",
+    id: EXISTING_POOLS["WETH/WSONIC"],
+    token0: "WETH",
+    token1: "WSONIC",
     fee: 0.3,
     tvl: "$78.9M",
     volume24h: "$8.5M",
@@ -76,28 +66,29 @@ const mockPools = [
     userLiquidity: "$0",
     isActive: false,
   },
+  {
+    id: EXISTING_POOLS["WSONIC/PEPE"],
+    token0: "WSONIC",
+    token1: "PEPE",
+    fee: 0.3,
+    tvl: "$12.3M",
+    volume24h: "$3.2M",
+    apr: "28.4%",
+    userLiquidity: "$0",
+    isActive: false,
+  },
 ];
 
 // Function to get token logo path
 const getTokenLogo = (symbol: string) => {
-  const logoMap: { [key: string]: string } = {
-    ETH: "/images/logoCoin/ethLogo.png",
-    USDC: "/images/logoCoin/usdcLogo.png",
-    USDT: "/images/logoCoin/usdtLogo.png",
-    WBTC: "/images/logoCoin/wbtcLogo.png",
-    PENGU: "/images/logoCoin/penguLogo.png",
-    PEPE: "/images/logoCoin/pepeLogo.png",
-    POLLY: "/images/logoCoin/pollyLogo.jpg",
-  };
-
-  return logoMap[symbol] || "/images/logoCoin/ethereum.png"; // fallback to ETH
+  const token = POOL_TOKENS[symbol as keyof typeof POOL_TOKENS];
+  return token ? token.logo : "/images/logoCoin/ethereum.png";
 };
 
 export function PoolList({ activeTab }: PoolListProps) {
-  const filteredPools =
-    activeTab === "existing"
-      ? mockPools.filter((pool) => pool.userLiquidity !== "$0")
-      : mockPools;
+  const filteredPools = activeTab === "existing"
+    ? popularPools.filter((pool) => pool.userLiquidity !== "$0")
+    : popularPools;
 
   return (
     <motion.div
@@ -127,9 +118,13 @@ export function PoolList({ activeTab }: PoolListProps) {
           <h4 className="text-lg font-medium text-white mb-2">
             No positions yet
           </h4>
-          <p className="text-white/60">
+          <p className="text-white/60 mb-4">
             Create your first liquidity position to start earning fees
           </p>
+          <button className="inline-flex items-center space-x-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors">
+            <Plus className="w-4 h-4" />
+            <span>Create Position</span>
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -187,6 +182,9 @@ export function PoolList({ activeTab }: PoolListProps) {
                         24h Vol: {pool.volume24h}
                       </span>
                     </div>
+                    <div className="text-xs text-white/50 mt-1">
+                      Pool ID: {`${pool.id.slice(0, 8)}...${pool.id.slice(-6)}`}
+                    </div>
                   </div>
                 </div>
 
@@ -205,8 +203,13 @@ export function PoolList({ activeTab }: PoolListProps) {
                       {pool.userLiquidity}
                     </div>
                   )}
-                  <div className="flex items-center justify-end">
-                    <ExternalLink className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
+                  <div className="flex items-center justify-end space-x-2">
+                    <button className="text-xs px-3 py-1 bg-white/20 text-white hover:bg-white hover:text-black rounded-lg transition-colors">
+                      Add Liquidity
+                    </button>
+                    <button className="p-1 text-white/60 hover:text-white transition-colors">
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
