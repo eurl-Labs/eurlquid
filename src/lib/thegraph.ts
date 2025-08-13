@@ -79,14 +79,13 @@ export const queries = {
     `,
   },
   curve: {
-    pools: (first = 10) => `
-      query ($first: Int!) {
-        pools(first: $first, orderBy: totalValueLockedUSD, orderDirection: desc) {
+    tokens: (first = 10) => `
+      {
+        tokens(first: ${first}) {
           id
-          address
           name
-          totalValueLockedUSD
-          dailyVolumes(orderBy: timestamp, orderDirection: desc, first: 1) { volumeUSD }
+          symbol
+          decimals
         }
       }
     `,

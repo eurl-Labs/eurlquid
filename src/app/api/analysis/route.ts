@@ -43,12 +43,15 @@ export async function POST(req: NextRequest) {
       uniPools = { error: 'uniswapV3 query failed' };
     }
 
-    // Fetch TheGraph data: Curve top pools (as Curve subgraphs vary)
+    // Fetch TheGraph data: Curve tokens (as Curve uses different schema)
     let curvePools: any = null;
     try {
-      curvePools = await theGraphQuery('curveEthereum', queries.curve.pools(10), { first: 10 });
-    } catch (e) {
-      curvePools = { error: 'curve query failed' };
+      console.log('Attempting Curve query...');
+      curvePools = await theGraphQuery('curveEthereum', queries.curve.tokens(10));
+      console.log('Curve query successful:', curvePools);
+    } catch (e: any) {
+      console.log('Curve query failed:', e?.message || e);
+      curvePools = { error: 'curve query failed', details: e?.message || 'unknown error' };
     }
 
     // Prices via DeFiLlama
