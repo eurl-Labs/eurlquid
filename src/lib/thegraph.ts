@@ -55,5 +55,40 @@ export const queries = {
         }
       }
     `,
+    poolsByTokens: (token0: string, token1: string, first = 5) => `
+      query ($first: Int!) {
+        pools(
+          first: $first,
+          orderBy: totalValueLockedUSD,
+          orderDirection: desc,
+          where: {
+            token0_in: ["${token0.toLowerCase()}", "${token1.toLowerCase()}"],
+            token1_in: ["${token0.toLowerCase()}", "${token1.toLowerCase()}"]
+          }
+        ) {
+          id
+          feeTier
+          token0 { id symbol decimals }
+          token1 { id symbol decimals }
+          liquidity
+          totalValueLockedUSD
+          volumeUSD
+          feesUSD
+        }
+      }
+    `,
   },
+  curve: {
+    pools: (first = 10) => `
+      query ($first: Int!) {
+        pools(first: $first, orderBy: totalValueLockedUSD, orderDirection: desc) {
+          id
+          address
+          name
+          totalValueLockedUSD
+          dailyVolumes(orderBy: timestamp, orderDirection: desc, first: 1) { volumeUSD }
+        }
+      }
+    `,
+  }
 };
