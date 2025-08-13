@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { DEX_AGGREGATORS, type DexName } from "../../hooks/query/contracts/use-pool";
+import { DEX_AGGREGATORS, type DexName } from "../../../hooks/query/contracts/use-pool";
 
 interface DexSelectorProps {
   selectedDex: DexName;

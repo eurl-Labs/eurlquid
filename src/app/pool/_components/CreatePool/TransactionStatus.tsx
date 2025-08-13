@@ -71,7 +71,7 @@ export function TransactionStatus({
           <button
             type="button"
             onClick={() =>
-              window.open(`https://explorer.sonic.game/tx/${txHash}`, "_blank")
+              window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank")
             }
             className="p-1 hover:text-white text-white/60"
           >

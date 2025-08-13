@@ -1,6 +1,13 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { defineChain } from 'viem';
+import { getDefaultConfig, connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { mainnet, arbitrum, base } from 'viem/chains';
+import { 
+  rabbyWallet, 
+  metaMaskWallet,
+  walletConnectWallet,
+  coinbaseWallet,
+  braveWallet
+} from '@rainbow-me/rainbowkit/wallets';
+import { defineChain } from 'viem/chains/utils';
 
 // Define Sonic Blaze Testnet
 export const sonicBlazeTestnet = defineChain({
@@ -25,9 +32,41 @@ export const sonicBlazeTestnet = defineChain({
   testnet: true,
 });
 
+// ✅ Custom wallet configuration dengan Rabby Wallet
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Popular',
+      wallets: [
+        rabbyWallet,      // ✅ Explicitly include Rabby Wallet
+        metaMaskWallet,
+        braveWallet,
+        coinbaseWallet,
+        walletConnectWallet,
+      ],
+    },
+  ],
+  {
+    appName: 'Eurlquid',
+    projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default-project-id',
+  }
+);
+
 export const config = getDefaultConfig({
   appName: 'Eurlquid',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default-project-id',
   chains: [mainnet, arbitrum, base, sonicBlazeTestnet],
+  wallets: [
+    {
+      groupName: 'Popular',
+      wallets: [
+        rabbyWallet,
+        metaMaskWallet,
+        braveWallet,
+        coinbaseWallet,
+        walletConnectWallet,
+      ],
+    },
+  ],
   ssr: true,
 });

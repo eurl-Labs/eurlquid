@@ -171,6 +171,7 @@ export type TokenSymbol = keyof typeof POOL_TOKENS;
 export type DexName = keyof typeof DEX_AGGREGATORS;
 
 interface UsePoolReturn {
+  // ✅ Fixed: Add dex parameter to createPool signature
   createPool: (tokenA: TokenSymbol, tokenB: TokenSymbol, dex: DexName) => Promise<void>;
   
   addLiquidity: (poolId: string, amountA: string, amountB: string, tokenA: TokenSymbol, tokenB: TokenSymbol, dex: DexName) => Promise<void>;
@@ -205,6 +206,7 @@ export function usePool(): UsePoolReturn {
     hash: txHash,
   });
 
+  // ✅ Fixed: createPool function implementation matches interface signature
   const createPool = async (tokenA: TokenSymbol, tokenB: TokenSymbol, dex: DexName) => {
     if (!address) {
       setError(new Error('Wallet not connected'));
@@ -218,6 +220,15 @@ export function usePool(): UsePoolReturn {
       const tokenAAddress = POOL_TOKENS[tokenA].address;
       const tokenBAddress = POOL_TOKENS[tokenB].address;
       const dexAddress = DEX_AGGREGATORS[dex].address;
+
+      console.log('Creating pool:', {
+        tokenA,
+        tokenB,
+        dex,
+        tokenAAddress,
+        tokenBAddress,
+        dexAddress
+      });
 
       await writeContract({
         address: dexAddress,
@@ -253,6 +264,18 @@ export function usePool(): UsePoolReturn {
       const parsedAmountB = parseEther(amountB);
       const dexAddress = DEX_AGGREGATORS[dex].address;
 
+      console.log('Adding liquidity:', {
+        poolId,
+        amountA,
+        amountB,
+        tokenA,
+        tokenB,
+        dex,
+        dexAddress,
+        parsedAmountA: parsedAmountA.toString(),
+        parsedAmountB: parsedAmountB.toString()
+      });
+
       await writeContract({
         address: dexAddress,
         abi: MULTIPOOL_ABI,
@@ -279,6 +302,15 @@ export function usePool(): UsePoolReturn {
       const tokenAddress = POOL_TOKENS[tokenSymbol].address;
       const dexAddress = DEX_AGGREGATORS[dex].address;
       const parsedAmount = parseEther(amount);
+
+      console.log('Approving token:', {
+        tokenSymbol,
+        amount,
+        dex,
+        tokenAddress,
+        dexAddress,
+        parsedAmount: parsedAmount.toString()
+      });
 
       await writeContract({
         address: tokenAddress,
