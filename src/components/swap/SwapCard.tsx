@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowDownUp, ChevronDown, Brain, HelpCircle } from "lucide-react";
 import { SwapHelpModal } from "./SwapHelpModal";
+import { useAnalysisStore } from "@/store/userprompt-store";
 
 interface SwapCardProps {
   fromAmount: string;
@@ -27,6 +28,18 @@ export function SwapCard({
 }: SwapCardProps) {
   const [toAmount, setToAmount] = useState("0.354987");
   const [helpModalOpen, setHelpModalOpen] = useState(false);
+
+  // Integration with analysis store
+  const { setInput, runAnalysis, analysis, loading, error } = useAnalysisStore();
+  const parsed = analysis?.parsed;
+
+  // Update store when tokens or amount change
+  useEffect(() => {
+    setInput(fromToken, toToken, fromAmount || '0');
+    if (fromAmount && Number(fromAmount) > 0) {
+      runAnalysis();
+    }
+  }, [fromToken, toToken, fromAmount, setInput, runAnalysis]);
 
   const handleSwapTokens = () => {
     setFromToken(toToken);
@@ -130,17 +143,53 @@ export function SwapCard({
               <Brain className="w-4 h-4 text-white" />
               <span className="text-sm font-medium text-white">Smart Analysis</span>
             </div>
-            <span className="text-xs text-white/60">85% Confidence</span>
+            {parsed?.prediction?.confidence != null ? (
+              <span className="text-xs text-white/60">
+                {(parsed.prediction.confidence * 100).toFixed(0)}% Confidence
+              </span>
+            ) : (
+              <span className="text-xs text-white/60">85% Confidence</span>
+            )}
           </div>
-          <div className="space-y-1 text-sm">
-            <div className="text-white/90">Execute via Curve for best rate</div>
-            <div className="text-white/60">
-              MEV risk: Low • Expected slippage: 0.12%
+          
+          {loading && (
+            <div className="space-y-1 text-sm">
+              <div className="text-white/70">Analyzing live liquidity and routes…</div>
+              <div className="text-white/60">Fetching data from DeFiLlama and TheGraph</div>
             </div>
-            <div className="text-white">
-              Potential savings: +$0.16 vs market
+          )}
+
+          {error && (
+            <div className="space-y-1 text-sm">
+              <div className="text-red-300">Analysis temporarily unavailable</div>
+              <div className="text-white/60">Using fallback recommendations</div>
+              <div className="text-white">Execute via Curve for best rate</div>
             </div>
-          </div>
+          )}
+
+          {!loading && !error && parsed && (
+            <div className="space-y-1 text-sm">
+              <div className="text-white/90">{parsed.advice || 'Execute via Curve for best rate'}</div>
+              <div className="text-white/60">
+                MEV risk: {parsed.riskAlerts?.length > 0 ? 'Medium' : 'Low'} • Expected slippage: {parsed.expectedSlippage || '0.12%'}
+              </div>
+              <div className="text-white">
+                Potential savings: {parsed.expectedSavingsUSD ? `$${parsed.expectedSavingsUSD}` : '+$0.16'} vs market
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && !parsed && (
+            <div className="space-y-1 text-sm">
+              <div className="text-white/90">Execute via Curve for best rate</div>
+              <div className="text-white/60">
+                MEV risk: Low • Expected slippage: 0.12%
+              </div>
+              <div className="text-white">
+                Potential savings: +$0.16 vs market
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Swap Button */}
