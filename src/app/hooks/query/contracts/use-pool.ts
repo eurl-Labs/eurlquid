@@ -1,6 +1,8 @@
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract, useAccount } from 'wagmi';
+import { readContract } from 'wagmi/actions';
 import { parseEther, formatEther, zeroAddress } from 'viem';
 import { useState } from 'react';
+import { config } from '../../../../config/wagmi';
 
 export const DEX_AGGREGATORS = {
   Uniswap: {
@@ -178,6 +180,9 @@ interface UsePoolReturn {
 
   approveToken: (tokenSymbol: TokenSymbol, amount: string, dex: DexName) => Promise<void>;
   
+  // ✅ Add missing getPoolId function
+  getPoolId: (tokenA: TokenSymbol, tokenB: TokenSymbol, dex: DexName) => Promise<string | null>;
+  
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -263,18 +268,159 @@ export function usePool(): UsePoolReturn {
       const parsedAmountA = parseEther(amountA);
       const parsedAmountB = parseEther(amountB);
       const dexAddress = DEX_AGGREGATORS[dex].address;
+      const tokenAAddress = POOL_TOKENS[tokenA].address;
+      const tokenBAddress = POOL_TOKENS[tokenB].address;
 
-      console.log('Adding liquidity:', {
-        poolId,
-        amountA,
-        amountB,
-        tokenA,
-        tokenB,
-        dex,
-        dexAddress,
-        parsedAmountA: parsedAmountA.toString(),
-        parsedAmountB: parsedAmountB.toString()
-      });
+      console.log('🚀 Starting Add Liquidity Process');
+      console.log('==========================================');
+      console.log('📋 Transaction Parameters:');
+      console.log('   Pool ID:', poolId);
+      console.log('   Amount A:', amountA, '→', parsedAmountA.toString(), 'wei');
+      console.log('   Amount B:', amountB, '→', parsedAmountB.toString(), 'wei');
+      console.log('   Token A:', tokenA, '→', tokenAAddress);
+      console.log('   Token B:', tokenB, '→', tokenBAddress);
+      console.log('   DEX:', dex, '→', dexAddress);
+      console.log('   User:', address);
+      
+      // 🔍 Step 1: Verify Pool ID from contract
+      console.log('🔍 Step 1: Verifying Pool ID from smart contract...');
+      try {
+        const contractPoolId = await readContract(config, {
+          address: dexAddress,
+          abi: MULTIPOOL_ABI,
+          functionName: 'getPoolId',
+          args: [tokenAAddress, tokenBAddress],
+        });
+        
+        console.log('   Contract Pool ID:', contractPoolId);
+        console.log('   Using Pool ID:   ', poolId);
+        console.log('   Match:', contractPoolId === poolId ? '✅ YES' : '❌ NO');
+        
+        if (contractPoolId !== poolId) {
+          throw new Error(`Pool ID mismatch! Contract: ${contractPoolId}, Using: ${poolId}`);
+        }
+      } catch (poolError: any) {
+        console.error('❌ Pool ID verification failed:', poolError);
+        throw new Error(`Pool verification failed: ${poolError.message || poolError}`);
+      }
+      
+      // 🔍 Step 2: Check Token Approvals
+      console.log('🔍 Step 2: Checking token approvals...');
+      try {
+        const [allowanceA, allowanceB] = await Promise.all([
+          readContract(config, {
+            address: tokenAAddress,
+            abi: ERC20_ABI,
+            functionName: 'allowance',
+            args: [address!, dexAddress],
+          }),
+          readContract(config, {
+            address: tokenBAddress,
+            abi: ERC20_ABI,
+            functionName: 'allowance',
+            args: [address!, dexAddress],
+          })
+        ]);
+
+        console.log('   Token A Allowance:', allowanceA.toString());
+        console.log('   Token A Needed:   ', parsedAmountA.toString());
+        console.log('   Token A OK:       ', BigInt(allowanceA.toString()) >= parsedAmountA ? '✅' : '❌');
+        
+        console.log('   Token B Allowance:', allowanceB.toString());
+        console.log('   Token B Needed:   ', parsedAmountB.toString());
+        console.log('   Token B OK:       ', BigInt(allowanceB.toString()) >= parsedAmountB ? '✅' : '❌');
+
+        if (BigInt(allowanceA.toString()) < parsedAmountA) {
+          throw new Error(`Insufficient ${tokenA} approval. Have: ${allowanceA.toString()}, Need: ${parsedAmountA.toString()}`);
+        }
+
+        if (BigInt(allowanceB.toString()) < parsedAmountB) {
+          throw new Error(`Insufficient ${tokenB} approval. Have: ${allowanceB.toString()}, Need: ${parsedAmountB.toString()}`);
+        }
+        
+        console.log('✅ All token approvals are sufficient');
+        
+      } catch (approvalError: any) {
+        console.error('❌ Token approval check failed:', approvalError);
+        throw new Error(`Token approval validation failed: ${approvalError.message || approvalError}`);
+      }
+
+      // 🔍 Step 3: Check Token Balances
+      console.log('🔍 Step 3: Checking token balances...');
+      try {
+        const [balanceA, balanceB] = await Promise.all([
+          readContract(config, {
+            address: tokenAAddress,
+            abi: ERC20_ABI,
+            functionName: 'balanceOf',
+            args: [address!],
+          }),
+          readContract(config, {
+            address: tokenBAddress,
+            abi: ERC20_ABI,
+            functionName: 'balanceOf',
+            args: [address!],
+          })
+        ]);
+
+        console.log('   Token A Balance:', balanceA.toString());
+        console.log('   Token A Needed: ', parsedAmountA.toString());
+        console.log('   Token A OK:     ', BigInt(balanceA.toString()) >= parsedAmountA ? '✅' : '❌');
+        
+        console.log('   Token B Balance:', balanceB.toString());
+        console.log('   Token B Needed: ', parsedAmountB.toString());
+        console.log('   Token B OK:     ', BigInt(balanceB.toString()) >= parsedAmountB ? '✅' : '❌');
+
+        if (BigInt(balanceA.toString()) < parsedAmountA) {
+          throw new Error(`Insufficient ${tokenA} balance. Have: ${balanceA.toString()}, Need: ${parsedAmountA.toString()}`);
+        }
+
+        if (BigInt(balanceB.toString()) < parsedAmountB) {
+          throw new Error(`Insufficient ${tokenB} balance. Have: ${balanceB.toString()}, Need: ${parsedAmountB.toString()}`);
+        }
+        
+        console.log('✅ All token balances are sufficient');
+        
+      } catch (balanceError: any) {
+        console.error('❌ Token balance check failed:', balanceError);
+        throw new Error(`Token balance validation failed: ${balanceError.message || balanceError}`);
+      }
+
+      // � EMERGENCY: Check if pool actually exists in contract
+      console.log('🔍 EMERGENCY: Final pool existence check...');
+      try {
+        const contractPoolIdCheck = await readContract(config, {
+          address: dexAddress,
+          abi: MULTIPOOL_ABI,
+          functionName: 'getPoolId',
+          args: [tokenAAddress, tokenBAddress],
+        });
+        
+        console.log('   Final Pool ID Check:', contractPoolIdCheck);
+        
+        // Check if pool ID is zero (indicates pool doesn't exist)
+        if (!contractPoolIdCheck || contractPoolIdCheck === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+          throw new Error(`❌ CRITICAL: Pool does not exist in smart contract! Pool for ${tokenA}/${tokenB} must be created first before adding liquidity.`);
+        }
+        
+        // Check if pool ID matches what we're using
+        if (contractPoolIdCheck !== poolId) {
+          console.warn('⚠️ Pool ID mismatch detected:');
+          console.warn('   Contract says:', contractPoolIdCheck);
+          console.warn('   We are using:', poolId);
+          throw new Error(`Pool ID mismatch! Contract: ${contractPoolIdCheck}, Using: ${poolId}`);
+        }
+        
+        console.log('✅ Pool exists and ID matches');
+        
+      } catch (emergencyError: any) {
+        console.error('❌ EMERGENCY: Pool existence check failed:', emergencyError);
+        throw new Error(`Pool existence verification failed: ${emergencyError.message || emergencyError}`);
+      }
+
+      // �🚀 Step 4: Execute Transaction
+      console.log('🚀 Step 4: Executing addLiquidity transaction...');
+      console.log('==========================================');
 
       await writeContract({
         address: dexAddress,
@@ -283,7 +429,10 @@ export function usePool(): UsePoolReturn {
         args: [poolId as `0x${string}`, parsedAmountA, parsedAmountB],
       });
 
+      console.log('✅ Transaction submitted successfully!');
+
     } catch (err) {
+      console.error('❌ Add Liquidity Failed:', err);
       setError(err as Error);
       setIsLoading(false);
     }
@@ -331,6 +480,52 @@ export function usePool(): UsePoolReturn {
     resetWrite();
   };
 
+  // ✅ Add missing getPoolId function implementation
+  const getPoolId = async (tokenA: TokenSymbol, tokenB: TokenSymbol, dex: DexName): Promise<string | null> => {
+    try {
+      const tokenAAddress = POOL_TOKENS[tokenA].address;
+      const tokenBAddress = POOL_TOKENS[tokenB].address;
+      const dexAddress = DEX_AGGREGATORS[dex].address;
+
+      console.log('🔍 Getting Pool ID from smart contract:', {
+        tokenA: `${tokenA} (${tokenAAddress})`,
+        tokenB: `${tokenB} (${tokenBAddress})`,
+        dex: `${dex} (${dexAddress})`
+      });
+
+      // Use readContract to call getPoolId function directly from smart contract
+      const poolId = await readContract(config, {
+        address: dexAddress,
+        abi: MULTIPOOL_ABI,
+        functionName: 'getPoolId',
+        args: [tokenAAddress, tokenBAddress],
+      });
+
+      if (poolId) {
+        console.log('✅ Pool ID retrieved from smart contract:', poolId);
+        return poolId as string;
+      }
+
+      throw new Error('Pool ID not found');
+      
+    } catch (error) {
+      console.error('❌ Failed to get pool ID from smart contract:', error);
+      
+      // Fallback: Check existing pools mapping
+      const poolKey = `${tokenA}/${tokenB}` as keyof typeof EXISTING_POOLS;
+      const reversePoolKey = `${tokenB}/${tokenA}` as keyof typeof EXISTING_POOLS;
+      const knownPoolId = EXISTING_POOLS[poolKey] || EXISTING_POOLS[reversePoolKey];
+      
+      if (knownPoolId) {
+        console.log('✅ Using fallback pool ID from existing pools:', knownPoolId);
+        return knownPoolId;
+      }
+      
+      console.error('❌ No pool ID found in smart contract or existing pools');
+      return null;
+    }
+  };
+
   const finalIsLoading = isLoading || isConfirming;
   const finalError = error || writeError || receiptError;
 
@@ -338,6 +533,7 @@ export function usePool(): UsePoolReturn {
     createPool,
     addLiquidity,
     approveToken,
+    getPoolId,
     isLoading: finalIsLoading,
     isSuccess,
     isError: !!finalError,

@@ -20,6 +20,7 @@ interface SeparateActionButtonsProps {
   selectedTokenB: string | null;
   isLoading: boolean;
   isSuccess: boolean;
+  isError: boolean; // Add isError prop
   txHash: string | null;
   poolCreatedSuccessfully: boolean;
 }
@@ -39,6 +40,7 @@ export function SeparateActionButtons({
   selectedTokenB,
   isLoading,
   isSuccess,
+  isError, // Add isError parameter
   txHash,
   poolCreatedSuccessfully
 }: SeparateActionButtonsProps) {
@@ -58,7 +60,9 @@ export function SeparateActionButtons({
   };
 
   const getCreatePoolButtonText = () => {
-    if (poolCreationInProgress) return "Creating Pool...";
+    if (poolCreationInProgress && !isError) return "Creating Pool...";
+    if (isError) return `Create Pool on ${selectedDex}`; // Reset button text on error
+    if (poolCreatedSuccessfully) return `✓ Pool Created on ${selectedDex}`;
     if (!bothTokensApproved) return "Approve Tokens First";
     return `Create Pool on ${selectedDex}`;
   };
@@ -79,8 +83,14 @@ export function SeparateActionButtons({
       <button
         type="button"
         onClick={onCreatePool}
-        disabled={!bothTokensApproved || poolCreationInProgress || !isConnected}
-        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed"
+        disabled={!bothTokensApproved || (poolCreationInProgress && !isError) || !isConnected}
+        className={`w-full font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed ${
+          poolCreatedSuccessfully 
+            ? "bg-green-600 text-white" 
+            : isError
+            ? "bg-red-600 hover:bg-red-700 text-white" // Red color when error
+            : "bg-green-600 hover:bg-green-700 disabled:bg-white/20 text-white disabled:text-white/60"
+        }`}
       >
         {getCreatePoolButtonText()}
       </button>

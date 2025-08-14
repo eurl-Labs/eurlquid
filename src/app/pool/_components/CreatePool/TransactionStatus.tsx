@@ -13,7 +13,7 @@ export function TransactionStatus({
   isError,
   error,
   txHash,
-  poolId
+  poolId,
 }: TransactionStatusProps) {
   if (!isSuccess && !isError && !txHash && !poolId) return null;
 
@@ -51,17 +51,13 @@ export function TransactionStatus({
             : "Status"}
         </span>
       </div>
-      
+
       {poolId && (
         <div className="text-xs text-white/70 mb-1">
           Pool ID: {poolId.slice(0, 10)}...{poolId.slice(-8)}
         </div>
       )}
-      
-      {error && (
-        <div className="text-xs text-red-400">{error.message}</div>
-      )}
-      
+
       {txHash && (
         <div className="flex items-center space-x-2 text-xs text-white/60">
           <span>Tx:</span>
@@ -71,12 +67,22 @@ export function TransactionStatus({
           <button
             type="button"
             onClick={() =>
-              window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank")
+              window.open(
+                `https://testnet.sonicscan.org/tx/${txHash}`,
+                "_blank"
+              )
             }
             className="p-1 hover:text-white text-white/60"
           >
             <ExternalLink className="w-3 h-3" />
           </button>
+        </div>
+      )}
+
+      {error && (
+        // <div className="text-xs text-red-400">{error.message}</div>
+        <div className="text-xs text-red-400 mt-2">
+          Create Pool Failed. Please try again.
         </div>
       )}
     </div>

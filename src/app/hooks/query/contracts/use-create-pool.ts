@@ -101,9 +101,17 @@ export function useCreatePoolLogic() {
       console.log('✅ Pool creation transaction confirmed!');
       setPoolCreationInProgress(false);
       setPoolCreatedSuccessfully(true);
-      // Don't automatically advance to addLiquidity - let user see success state
+      
+      // Reset pool creation progress after showing success state
+      setTimeout(() => {
+        setPoolCreatedSuccessfully(false);
+      }, 3000); // Show success for 3 seconds then reset
+    } else if (poolCreationInProgress && isError && !isLoading) {
+      console.log('❌ Pool creation transaction failed!');
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
     }
-  }, [poolCreationInProgress, isSuccess, isLoading]);
+  }, [poolCreationInProgress, isSuccess, isLoading, isError]);
 
   // Reset states when tokens or DEX change
   useEffect(() => {
@@ -333,6 +341,7 @@ export function useCreatePoolLogic() {
     } catch (e) {
       console.error('❌ Create pool failed for DEX:', selectedDex, e);
       setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
     }
   };
 
@@ -456,6 +465,25 @@ export function useCreatePoolLogic() {
     stepLabel,
     handleApprove,
     handleCreatePool,
+    
+    // Reset function untuk modal
+    resetTransactionState: () => {
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
+      setApprovalInProgress(false);
+      reset(); // Reset wagmi state
+    },
+
+    // Reset semua state termasuk approval
+    resetAllState: () => {
+      setApprovedTokenA(false);
+      setApprovedTokenB(false);
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
+      setApprovalInProgress(false);
+      setStep("approve");
+      reset(); // Reset wagmi state
+    },
     
     // Pool state
     isLoading,

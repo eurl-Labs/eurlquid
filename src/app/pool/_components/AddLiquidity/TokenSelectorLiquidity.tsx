@@ -60,7 +60,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
     price: "$0.999",
   },
   WETH: {
-    name: "Wrapped ethLogo",
+    name: "Wrapped ETH",
     symbol: "WETH",
     address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
     decimals: 18,
