@@ -104,6 +104,24 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
     balance: "1,250,000",
     price: "$0.0000085",
   },
+  DARKPENGU: {
+    name: "Dark Pengu",
+    symbol: "DPENGU",
+    address: "0x7DE89E03157F4866Ff5A4F04d3297e88C54bbdb8" as `0x${string}`,
+    decimals: 18,
+    logo: "/images/logoCoin/darkPenguLogo.png",
+    balance: "1,250,000",
+    price: "$0.0000085",
+  },
+  GOONER: {
+    name: "PURGY PENGOON",
+    symbol: "GOONER",
+    address: "0x92EeEd76021665B8D926069ecd9b5986c6c779fb" as `0x${string}`,
+    decimals: 18,
+    logo: "/images/logoCoin/goonerLogo.png",
+    balance: "1,250,000",
+    price: "$0.0000085",
+  },
 };
 
 export function TokenSelector({
@@ -134,7 +152,7 @@ export function TokenSelector({
   const handleTokenSelection = (tokenSymbol: TokenSymbol) => {
     onSelect(tokenSymbol);
     setSearchQuery("");
-    onToggle(); 
+    onToggle();
   };
 
   const formatBalance = (balance: string) => {
