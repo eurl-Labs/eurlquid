@@ -220,6 +220,7 @@ export function useCreatePoolLogic() {
       console.log('Auto-clearing selectedTokenB because it matches selectedTokenA');
       setSelectedTokenB(null);
     }
+    // Close dropdown immediately after selection
     setOpenMenu(null);
     console.log('Token A selection completed:', symbol);
   }, [selectedTokenB]);
@@ -238,6 +239,7 @@ export function useCreatePoolLogic() {
       console.log('Auto-clearing selectedTokenA because it matches selectedTokenB');
       setSelectedTokenA(null);
     }
+    // Close dropdown immediately after selection
     setOpenMenu(null);
     console.log('Token B selection completed:', symbol);
   }, [selectedTokenA]);

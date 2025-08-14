@@ -42,7 +42,7 @@ export function EnhancedTokenSelector({
   const handleTokenSelection = (tokenSymbol: TokenSymbol) => {
     onSelect(tokenSymbol);
     setSearchQuery("");
-    onToggle(); // Close the dropdown after selection
+    // Don't call onToggle() here since the parent already handles closing via setOpenMenu(null)
   };
 
   const formatTokenName = (name: string) => {

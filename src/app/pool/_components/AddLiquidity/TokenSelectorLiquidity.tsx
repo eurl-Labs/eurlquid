@@ -134,7 +134,7 @@ export function TokenSelector({
   const handleTokenSelection = (tokenSymbol: TokenSymbol) => {
     onSelect(tokenSymbol);
     setSearchQuery("");
-    onToggle(); // Close the dropdown after selection
+    onToggle(); 
   };
 
   const formatBalance = (balance: string) => {
