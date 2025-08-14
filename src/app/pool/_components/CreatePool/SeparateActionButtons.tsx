@@ -1,9 +1,11 @@
 interface SeparateActionButtonsProps {
-  // Approval props
+  // Enhanced approval props
   onApprove: () => void;
   approvedTokenA: boolean;
   approvedTokenB: boolean;
   approvalInProgress: boolean;
+  approveTokenALoading: boolean;
+  approveTokenBLoading: boolean;
   
   // Create pool props
   onCreatePool: () => void;
@@ -20,9 +22,10 @@ interface SeparateActionButtonsProps {
   selectedTokenB: string | null;
   isLoading: boolean;
   isSuccess: boolean;
-  isError: boolean; // Add isError prop
+  isError: boolean;
   txHash: string | null;
   poolCreatedSuccessfully: boolean;
+  createPoolTxHash: string | null;
 }
 
 export function SeparateActionButtons({
@@ -30,6 +33,8 @@ export function SeparateActionButtons({
   approvedTokenA,
   approvedTokenB,
   approvalInProgress,
+  approveTokenALoading,
+  approveTokenBLoading,
   onCreatePool,
   poolCreationInProgress,
   onAddLiquidity,
@@ -40,14 +45,16 @@ export function SeparateActionButtons({
   selectedTokenB,
   isLoading,
   isSuccess,
-  isError, // Add isError parameter
+  isError,
   txHash,
-  poolCreatedSuccessfully
+  poolCreatedSuccessfully,
+  createPoolTxHash
 }: SeparateActionButtonsProps) {
   const bothTokensApproved = approvedTokenA && approvedTokenB;
+  const anyApprovalLoading = approveTokenALoading || approveTokenBLoading || approvalInProgress;
   
   const getApprovalButtonText = () => {
-    if (approvalInProgress) return "Approving Tokens...";
+    if (anyApprovalLoading) return "Approving Tokens...";
     if (!isConnected) return "Connect Wallet First";
     if (!canProceed) return "Select Tokens & Enter Amounts";
     
@@ -60,7 +67,7 @@ export function SeparateActionButtons({
   };
 
   const getCreatePoolButtonText = () => {
-    if (poolCreationInProgress && !isError) return "Creating Pool...";
+    if (poolCreationInProgress || isLoading) return "Creating Pool...";
     if (isError) return `Create Pool on ${selectedDex}`; // Reset button text on error
     if (poolCreatedSuccessfully) return `✓ Pool Created on ${selectedDex}`;
     if (!bothTokensApproved) return "Approve Tokens First";
@@ -69,21 +76,26 @@ export function SeparateActionButtons({
 
   return (
     <div className="space-y-3">
-      {/* Approval Button */}
+      {/* Enhanced Approval Button with Loading Spinner */}
       <button
         type="button"
         onClick={onApprove}
-        disabled={!canProceed || approvalInProgress || bothTokensApproved || !isConnected}
+        disabled={!canProceed || anyApprovalLoading || bothTokensApproved || !isConnected}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed"
       >
-        {getApprovalButtonText()}
+        <div className="flex items-center justify-center space-x-2">
+          {anyApprovalLoading && (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          )}
+          <span>{getApprovalButtonText()}</span>
+        </div>
       </button>
 
-      {/* Create Pool Button */}
-      <button
+      {/* Enhanced Create Pool Button with Loading Spinner */}
+      {/* <button
         type="button"
         onClick={onCreatePool}
-        disabled={!bothTokensApproved || (poolCreationInProgress && !isError) || !isConnected}
+        disabled={!bothTokensApproved || (poolCreationInProgress || isLoading) || !isConnected}
         className={`w-full font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed ${
           poolCreatedSuccessfully 
             ? "bg-green-600 text-white" 
@@ -92,11 +104,16 @@ export function SeparateActionButtons({
             : "bg-green-600 hover:bg-green-700 disabled:bg-white/20 text-white disabled:text-white/60"
         }`}
       >
-        {getCreatePoolButtonText()}
-      </button>
+        <div className="flex items-center justify-center space-x-2">
+          {(poolCreationInProgress || isLoading) && (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          )}
+          <span>{getCreatePoolButtonText()}</span>
+        </div>
+      </button> */}
 
-      {/* Success notification with transaction hash */}
-      {poolCreatedSuccessfully && txHash && (
+      {/* Enhanced Success notification with proper transaction hash */}
+      {poolCreatedSuccessfully && (createPoolTxHash || txHash) && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl">
           <div className="flex items-center">
             <div className="flex-1">
@@ -104,12 +121,12 @@ export function SeparateActionButtons({
               <div className="text-sm mt-1">
                 Transaction: 
                 <a 
-                  href={`https://testnet.sonicscan.org//tx/${txHash}`}
+                  href={`https://testnet.sonicscan.org/tx/${createPoolTxHash || txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-1 text-green-600 hover:text-green-800 underline"
                 >
-                  {txHash.slice(0, 6)}...{txHash.slice(-4)}
+                  {(createPoolTxHash || txHash)?.slice(0, 6)}...{(createPoolTxHash || txHash)?.slice(-4)}
                 </a>
               </div>
             </div>

@@ -67,8 +67,11 @@ export function useCreatePoolLogic() {
 
   // ✅ Fixed: Separate approval success tracking from pool creation success
   const [approvalInProgress, setApprovalInProgress] = useState(false);
+  const [approveTokenALoading, setApproveTokenALoading] = useState(false);
+  const [approveTokenBLoading, setApproveTokenBLoading] = useState(false);
   const [poolCreationInProgress, setPoolCreationInProgress] = useState(false);
   const [poolCreatedSuccessfully, setPoolCreatedSuccessfully] = useState(false);
+  const [createPoolTxHash, setCreatePoolTxHash] = useState<string | null>(null);
 
   // ---------- Auto-advance step logic with better debugging ----------
   useEffect(() => {
@@ -95,23 +98,48 @@ export function useCreatePoolLogic() {
     }
   }, [step, approvedTokenA, approvedTokenB, isSuccess, isLoading, approvalInProgress, poolCreationInProgress]);
 
-  // Monitor transaction completion for pool creation
+  // Monitor transaction completion for pool creation - Enhanced like Add Liquidity
   useEffect(() => {
-    if (poolCreationInProgress && isSuccess && !isLoading) {
-      console.log('✅ Pool creation transaction confirmed!');
+    console.log('🔍 Create Pool Success Detection Monitor:', {
+      isSuccess,
+      txHash,
+      poolCreationInProgress,
+      approveTokenALoading,
+      approveTokenBLoading
+    });
+
+    // ONLY detect successful CREATE POOL transactions
+    // Ignore token approval successes by checking if we're in pool creation process
+    if (isSuccess && txHash && poolCreationInProgress) {
+      console.log('🎉 Create Pool Success Detected!');
+      console.log('   Transaction Hash:', txHash);
+      
       setPoolCreationInProgress(false);
       setPoolCreatedSuccessfully(true);
+      setCreatePoolTxHash(txHash);
       
       // Reset pool creation progress after showing success state
       setTimeout(() => {
         setPoolCreatedSuccessfully(false);
-      }, 3000); // Show success for 3 seconds then reset
-    } else if (poolCreationInProgress && isError && !isLoading) {
+      }, 5000); // Show success for 5 seconds then reset
+    } 
+    
+    // Handle pool creation errors
+    else if (poolCreationInProgress && isError && !isLoading) {
       console.log('❌ Pool creation transaction failed!');
       setPoolCreationInProgress(false);
       setPoolCreatedSuccessfully(false);
+      setCreatePoolTxHash(null);
     }
-  }, [poolCreationInProgress, isSuccess, isLoading, isError]);
+
+    // Log when approval transactions complete (for debugging)
+    if (isSuccess && txHash && (approveTokenALoading || approveTokenBLoading)) {
+      console.log('✅ Token Approval Success Detected (not triggering pool creation success)');
+      console.log('   Approval Transaction Hash:', txHash);
+      console.log('   Token A Loading:', approveTokenALoading);
+      console.log('   Token B Loading:', approveTokenBLoading);
+    }
+  }, [poolCreationInProgress, isSuccess, isLoading, isError, txHash, approveTokenALoading, approveTokenBLoading]);
 
   // Reset states when tokens or DEX change
   useEffect(() => {
@@ -252,8 +280,65 @@ export function useCreatePoolLogic() {
     console.log('Token B selection completed:', symbol);
   }, [selectedTokenA]);
 
-  // ✅ Fixed: Better approval handling with sequential approval
+  // ✅ ENHANCED: Individual token approval functions (like Add Liquidity)
+  const handleApproveTokenA = async () => {
+    if (!selectedTokenA || !amountA || !selectedDex) {
+      console.error('❌ Cannot approve Token A - missing data');
+      return;
+    }
+
+    console.log('🔄 Approving Token A only:', selectedTokenA, 'for DEX:', selectedDex);
+    setApproveTokenALoading(true);
+
+    try {
+      await approveToken(selectedTokenA, amountA, selectedDex);
+      setApprovedTokenA(true);
+      console.log('✅ Token A approved successfully');
+      
+      // Reset hook state to prevent interference with next approval
+      setTimeout(() => {
+        reset();
+        console.log('🔄 Hook state reset after Token A approval');
+      }, 500);
+      
+    } catch (e) {
+      console.error('❌ Token A approval failed:', e);
+    } finally {
+      setApproveTokenALoading(false);
+    }
+  };
+
+  const handleApproveTokenB = async () => {
+    if (!selectedTokenB || !amountB || !selectedDex) {
+      console.error('❌ Cannot approve Token B - missing data');
+      return;
+    }
+
+    console.log('🔄 Approving Token B only:', selectedTokenB, 'for DEX:', selectedDex);
+    setApproveTokenBLoading(true);
+
+    try {
+      await approveToken(selectedTokenB, amountB, selectedDex);
+      setApprovedTokenB(true);
+      console.log('✅ Token B approved successfully');
+      
+      // Reset hook state to prevent interference with pool creation
+      setTimeout(() => {
+        reset();
+        console.log('🔄 Hook state reset after Token B approval');
+      }, 500);
+      
+    } catch (e) {
+      console.error('❌ Token B approval failed:', e);
+    } finally {
+      setApproveTokenBLoading(false);
+    }
+  };
+
+  // ✅ DEPRECATED: Keep old function for backward compatibility but log deprecation
   const handleApprove = async () => {
+    console.warn('⚠️  DEPRECATED: handleApprove is deprecated, use handleApproveTokenA/B instead');
+    
     if (!canProceed || !selectedTokenA || !selectedTokenB || !selectedDex) {
       console.error('❌ Cannot proceed with approval - missing data');
       return;
@@ -447,8 +532,11 @@ export function useCreatePoolLogic() {
     approvedTokenA,
     approvedTokenB,
     approvalInProgress,
+    approveTokenALoading,
+    approveTokenBLoading,
     poolCreationInProgress,
     poolCreatedSuccessfully,
+    createPoolTxHash,
     
     // Derived
     canProceed,
@@ -464,6 +552,8 @@ export function useCreatePoolLogic() {
     stepAction,
     stepLabel,
     handleApprove,
+    handleApproveTokenA,
+    handleApproveTokenB,
     handleCreatePool,
     
     // Reset function untuk modal
@@ -471,6 +561,9 @@ export function useCreatePoolLogic() {
       setPoolCreationInProgress(false);
       setPoolCreatedSuccessfully(false);
       setApprovalInProgress(false);
+      setApproveTokenALoading(false);
+      setApproveTokenBLoading(false);
+      setCreatePoolTxHash(null);
       reset(); // Reset wagmi state
     },
 
@@ -481,6 +574,9 @@ export function useCreatePoolLogic() {
       setPoolCreationInProgress(false);
       setPoolCreatedSuccessfully(false);
       setApprovalInProgress(false);
+      setApproveTokenALoading(false);
+      setApproveTokenBLoading(false);
+      setCreatePoolTxHash(null);
       setStep("approve");
       reset(); // Reset wagmi state
     },

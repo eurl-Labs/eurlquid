@@ -24,7 +24,12 @@ export function CreatePoolForm() {
     poolId,
     approvedTokenA,
     approvedTokenB,
+    approvalInProgress,
+    approveTokenALoading,
+    approveTokenBLoading,
+    poolCreationInProgress,
     poolCreatedSuccessfully,
+    createPoolTxHash,
     canProceed,
     toggleMenu,
     handleDexSelection,
@@ -34,9 +39,9 @@ export function CreatePoolForm() {
     setAmountB,
     setOpenMenu,
     handleApprove,
+    handleApproveTokenA,
+    handleApproveTokenB,
     handleCreatePool,
-    approvalInProgress,
-    poolCreationInProgress,
     isLoading,
     isSuccess,
     isError,
@@ -55,64 +60,148 @@ export function CreatePoolForm() {
     contractAddress: selectedDex ? `Will hit: ${selectedDex} contract` : 'No DEX selected'
   });
 
-  // Modal step management
+  // Modal step management - Enhanced like Add Liquidity
   const handleModalApproveFirst = async () => {
-    console.log('Approving first token...');
-    await handleApprove(); // This will approve first token
+    console.log('🔄 Modal: Approving first token...');
+    await handleApproveTokenA();
   };
 
   const handleModalApproveSecond = async () => {
-    console.log('Approving second token...');
-    await handleApprove(); // This will approve second token
+    console.log('🔄 Modal: Approving second token...');
+    await handleApproveTokenB();
   };
 
   const handleModalCreatePool = async () => {
-    console.log('Creating pool...');
+    console.log('🔄 Modal: Creating pool...');
     await handleCreatePool();
   };
 
-  // Auto-advance logic based on approval states
+  // Enhanced modal step management with success detection (like Add Liquidity)
   useEffect(() => {
+    console.log('🔍 Create Pool Modal Step Management:', {
+      isModalOpen,
+      modalStep,
+      approvedTokenA,
+      approvedTokenB,
+      approveTokenALoading,
+      approveTokenBLoading,
+      poolCreationInProgress,
+      isSuccess,
+      txHash: createPoolTxHash || txHash
+    });
+
     if (isModalOpen) {
-      if (modalStep === "approve-first-token" && approvedTokenA && !approvedTokenB) {
-        console.log('Auto-advancing to approve second token');
-        setTimeout(() => setModalStep("approve-second-token"), 1000);
-      } else if (modalStep === "approve-second-token" && approvedTokenA && approvedTokenB) {
-        console.log('Auto-advancing to create pool');
-        setTimeout(() => setModalStep("create-pool"), 1000);
-        // Auto-execute create pool after both tokens approved
+      // Step 1: Token A approved → Move to Token B
+      if (modalStep === "approve-first-token" && approvedTokenA && !approveTokenALoading) {
+        console.log('✅ Token A approved, advancing to approve second token');
         setTimeout(() => {
-          console.log('Auto-executing create pool...');
-          handleCreatePool();
+          setModalStep("approve-second-token");
+        }, 1000);
+      } 
+      // Step 2: Token B approved → Move to Create Pool
+      else if (modalStep === "approve-second-token" && approvedTokenB && !approveTokenBLoading) {
+        console.log('✅ Token B approved, advancing to create pool');
+        setTimeout(() => {
+          setModalStep("create-pool");
+        }, 1000);
+      }
+      // Step 3: Pool creation success → Move to Success
+      else if (modalStep === "create-pool" && isSuccess && (createPoolTxHash || txHash)) {
+        console.log('✅ Pool created successfully, advancing to success');
+        setTimeout(() => {
+          setModalStep("success");
         }, 1500);
-      } else if (modalStep === "create-pool" && isSuccess && txHash) {
-        console.log('Auto-advancing to success');
-        setTimeout(() => setModalStep("success"), 1000);
-      } else if (modalStep === "create-pool" && isError) {
-        console.log('Error occurred during pool creation');
-        // Don't auto-advance, let user see error and try again
       }
     }
-  }, [isModalOpen, modalStep, approvedTokenA, approvedTokenB, isSuccess, isError, txHash]);
+  }, [
+    isModalOpen, 
+    modalStep, 
+    approvedTokenA, 
+    approvedTokenB, 
+    approveTokenALoading,
+    approveTokenBLoading,
+    poolCreationInProgress,
+    isSuccess, 
+    createPoolTxHash,
+    txHash
+  ]);
+
+  // Enhanced success detection for Create Pool (like Add Liquidity)
+  useEffect(() => {
+    console.log('🔍 Create Pool Success Detection Monitor:', {
+      isSuccess,
+      txHash,
+      createPoolTxHash,
+      poolCreationInProgress,
+      isModalOpen,
+      modalStep,
+      approveTokenALoading,
+      approveTokenBLoading
+    });
+
+    // DETECT successful CREATE POOL transactions
+    if (isSuccess && (createPoolTxHash || txHash)) {
+      // Check if this is a create pool success
+      const isCreatePoolSuccess = modalStep === "create-pool" || poolCreationInProgress;
+      
+      if (isCreatePoolSuccess) {
+        console.log('🎉 Create Pool Success Detected!');
+        console.log('   Transaction Hash:', createPoolTxHash || txHash);
+        console.log('   Current Modal State:', { isModalOpen, modalStep });
+        
+        // Handle modal transition based on current state
+        if (isModalOpen) {
+          if (modalStep === "create-pool") {
+            console.log('   ✅ Transitioning modal to success step...');
+            const timer = setTimeout(() => {
+              setModalStep("success");
+              console.log('   ✅ Modal step set to success with txHash:', createPoolTxHash || txHash);
+            }, 1500);
+
+            return () => clearTimeout(timer);
+          } else {
+            console.log('   🔄 Modal is open but not in create-pool step, opening success modal...');
+            setModalStep("success");
+            setIsModalOpen(true);
+          }
+        } else {
+          // If modal is closed, open it in success state
+          console.log('   🔄 Modal is closed, opening success modal...');
+          setModalStep("success");
+          setIsModalOpen(true);
+        }
+      } else {
+        // Log when approval transactions complete (for debugging)
+        console.log('✅ Token Approval Success Detected (not triggering success modal)');
+        console.log('   Approval Transaction Hash:', txHash);
+        console.log('   Current Modal Step:', modalStep);
+      }
+    }
+  }, [isSuccess, txHash, createPoolTxHash, poolCreationInProgress, isModalOpen, modalStep, approveTokenALoading, approveTokenBLoading]);
 
   const handleModalClose = () => {
+    console.log('🚪 Create Pool Modal closing...');
     setIsModalOpen(false);
     setModalStep("approve-first-token");
     // Reset semua state agar user mulai dari approve token lagi
     resetAllState();
   };
 
-  // Override the original approve and create pool functions to show modal
+  // Enhanced modal trigger functions
   const handleApproveWithModal = () => {
+    console.log('🚀 Opening approval modal...');
     setIsModalOpen(true);
-    if (!approvedTokenA && !approvedTokenB) {
+    if (!approvedTokenA) {
       setModalStep("approve-first-token");
-    } else if (approvedTokenA && !approvedTokenB) {
+    } else if (!approvedTokenB) {
       setModalStep("approve-second-token");
+    } else {
+      setModalStep("create-pool");
     }
   };
 
   const handleCreatePoolWithModal = () => {
+    console.log('🚀 Opening create pool modal...');
     setIsModalOpen(true);
     setModalStep("create-pool");
   };
@@ -196,6 +285,8 @@ export function CreatePoolForm() {
         approvedTokenA={approvedTokenA}
         approvedTokenB={approvedTokenB}
         approvalInProgress={approvalInProgress}
+        approveTokenALoading={approveTokenALoading}
+        approveTokenBLoading={approveTokenBLoading}
         onCreatePool={handleCreatePoolWithModal}
         poolCreationInProgress={poolCreationInProgress}
         onAddLiquidity={() => {}} // Add later if needed
@@ -206,12 +297,13 @@ export function CreatePoolForm() {
         selectedTokenB={selectedTokenB}
         isLoading={isLoading}
         isSuccess={isSuccess}
-        isError={isError} // Pass isError prop
+        isError={isError}
         txHash={txHash || null}
         poolCreatedSuccessfully={poolCreatedSuccessfully}
+        createPoolTxHash={createPoolTxHash}
       />
 
-      {/* Transaction Modal */}
+      {/* Enhanced Transaction Modal */}
       <PoolTransactionModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
@@ -227,11 +319,13 @@ export function CreatePoolForm() {
           logo: POOL_TOKENS[selectedTokenB]?.logo || "/images/logoCoin/ethLogo.png",
           name: POOL_TOKENS[selectedTokenB]?.name || selectedTokenB
         } : undefined}
-        txHash={txHash || undefined}
+        txHash={createPoolTxHash || txHash || undefined}
         onApproveFirstToken={handleModalApproveFirst}
         onApproveSecondToken={handleModalApproveSecond}
         onCreatePool={handleModalCreatePool}
-        isLoading={isLoading}
+        isLoading={
+          approveTokenALoading || approveTokenBLoading || poolCreationInProgress || isLoading
+        }
         error={error?.message}
       />
     </div>
