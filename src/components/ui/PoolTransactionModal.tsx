@@ -241,7 +241,7 @@ export function PoolTransactionModal({
             <div
               className="rounded-xl shadow-2xl overflow-hidden"
               style={{
-                background: "#0B1220",
+                background: "black",
                 boxShadow:
                   "0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -274,7 +274,7 @@ export function PoolTransactionModal({
               </div>
 
               {/* Progress Bar */}
-              <div className="px-5 py-4 bg-[#101828]">
+              <div className="px-5 py-4 bg-black">
                 <div className="flex items-center justify-between mb-3">
                   {Array.from(
                     { length: progressConfig.totalSteps },
@@ -577,10 +577,11 @@ export function PoolTransactionModal({
                       ? "bg-red-600 hover:bg-red-700"
                       : step === "success"
                       ? "bg-[#4ADE80] hover:bg-[#3BCC6D]"
-                      : "bg-[#1E293B]"
+                      : "text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 me-2"
                   }`}
                   style={{
-                    color: "#FFFFFF",
+                    color: "white",
+                    fontWeight: "bold",
                   }}
                 >
                   {isLoading && !error && step !== "success" && (

@@ -260,18 +260,18 @@ export function AddLiquidityForm({
   };
 
   const handleModalClose = () => {
-    console.log('🚪 Modal closing...');
+    console.log("🚪 Modal closing...");
     setIsModalOpen(false);
     setModalStep("approve-first-token");
-    
+
     // Reset success states when closing modal
     setAddLiquiditySuccess(false);
     setAddLiquidityTxHash(null);
     setAddLiquidityLoading(false);
-    
+
     // Reset hook state if there was an error or success
     if (isError || isSuccess) {
-      console.log('🔄 Resetting hook state...');
+      console.log("🔄 Resetting hook state...");
       reset();
     }
   };
@@ -292,53 +292,60 @@ export function AddLiquidityForm({
 
   // Pre-transaction validation helper
   const validateTransaction = async () => {
-    console.log('🔍 PRE-TRANSACTION VALIDATION:');
-    
+    console.log("🔍 PRE-TRANSACTION VALIDATION:");
+
     try {
       // Use existing pool ID if available, otherwise get from smart contract
       if (existingPool?.id) {
-        console.log('✅ Using existing pool ID:', existingPool.id);
+        console.log("✅ Using existing pool ID:", existingPool.id);
         return existingPool.id;
       }
 
       // 🚀 Get pool ID from smart contract using the hook
-      console.log('📞 Getting Pool ID from smart contract...');
-      const contractPoolId = await getPoolId(selectedTokenA!, selectedTokenB!, selectedDex);
-      
+      console.log("📞 Getting Pool ID from smart contract...");
+      const contractPoolId = await getPoolId(
+        selectedTokenA!,
+        selectedTokenB!,
+        selectedDex
+      );
+
       if (!contractPoolId) {
-        console.log('🆕 Pool does not exist, need to create it first');
-        
+        console.log("🆕 Pool does not exist, need to create it first");
+
         // Ask user if they want to create the pool
         const shouldCreate = window.confirm(
           `Pool for ${selectedTokenA}/${selectedTokenB} does not exist. Do you want to create it first?`
         );
-        
+
         if (shouldCreate) {
-          console.log('🚀 Creating new pool...');
+          console.log("🚀 Creating new pool...");
           await createPool(selectedTokenA!, selectedTokenB!, selectedDex);
-          
+
           // After creating, try to get pool ID again
-          const newPoolId = await getPoolId(selectedTokenA!, selectedTokenB!, selectedDex);
+          const newPoolId = await getPoolId(
+            selectedTokenA!,
+            selectedTokenB!,
+            selectedDex
+          );
           if (!newPoolId) {
-            throw new Error('Failed to get pool ID after creating pool');
+            throw new Error("Failed to get pool ID after creating pool");
           }
           return newPoolId;
         } else {
-          throw new Error('Pool creation cancelled by user');
+          throw new Error("Pool creation cancelled by user");
         }
       }
-      
-      console.log('✅ Pool ID retrieved from smart contract:', contractPoolId);
-      
+
+      console.log("✅ Pool ID retrieved from smart contract:", contractPoolId);
+
       // Additional validation
-      if (!contractPoolId.startsWith('0x') || contractPoolId.length !== 66) {
+      if (!contractPoolId.startsWith("0x") || contractPoolId.length !== 66) {
         throw new Error(`Invalid pool ID format: ${contractPoolId}`);
       }
-      
+
       return contractPoolId;
-      
     } catch (error) {
-      console.error('❌ Validation failed:', error);
+      console.error("❌ Validation failed:", error);
       throw error;
     }
   };
@@ -362,11 +369,11 @@ export function AddLiquidityForm({
 
     try {
       setAddLiquidityLoading(true);
-      
+
       // Reset previous success state
       setAddLiquiditySuccess(false);
       setAddLiquidityTxHash(null);
-      
+
       // 🔍 Get validated pool ID from smart contract
       const validatedPoolId = await validateTransaction();
 
@@ -374,26 +381,32 @@ export function AddLiquidityForm({
       const tokenAInfo = POOL_TOKENS[selectedTokenA];
       const tokenBInfo = POOL_TOKENS[selectedTokenB];
       const dexInfo = DEX_AGGREGATORS[selectedDex];
-      
-      console.log('🚀 EXECUTING ADD LIQUIDITY TRANSACTION:');
-      console.log('==========================================');
-      console.log('📊 Pool Information:');
+
+      console.log("🚀 EXECUTING ADD LIQUIDITY TRANSACTION:");
+      console.log("==========================================");
+      console.log("📊 Pool Information:");
       console.log(`   - Final Pool ID: ${validatedPoolId}`);
-      console.log(`   - Pool Source: ${existingPool ? 'Existing Pool' : 'Smart Contract'}`);
-      console.log('💰 Token Information:');
+      console.log(
+        `   - Pool Source: ${existingPool ? "Existing Pool" : "Smart Contract"}`
+      );
+      console.log("💰 Token Information:");
       console.log(`   - Token A: ${selectedTokenA} (${tokenAInfo.address})`);
       console.log(`   - Token B: ${selectedTokenB} (${tokenBInfo.address})`);
-      console.log(`   - Amount A: ${amountA} (${parseEther(amountA).toString()} wei)`);
-      console.log(`   - Amount B: ${amountB} (${parseEther(amountB).toString()} wei)`);
-      console.log('🏦 DEX Information:');
+      console.log(
+        `   - Amount A: ${amountA} (${parseEther(amountA).toString()} wei)`
+      );
+      console.log(
+        `   - Amount B: ${amountB} (${parseEther(amountB).toString()} wei)`
+      );
+      console.log("🏦 DEX Information:");
       console.log(`   - DEX: ${selectedDex}`);
       console.log(`   - DEX Contract: ${dexInfo.address}`);
-      console.log('✅ Approval Status:');
+      console.log("✅ Approval Status:");
       console.log(`   - Token A Approved: ${approvedTokenA}`);
       console.log(`   - Token B Approved: ${approvedTokenB}`);
-      console.log('==========================================');
+      console.log("==========================================");
 
-      console.log('📤 Sending transaction to blockchain...');
+      console.log("📤 Sending transaction to blockchain...");
 
       await addLiquidity(
         validatedPoolId,
@@ -404,8 +417,8 @@ export function AddLiquidityForm({
         selectedDex
       );
 
-      console.log('✅ Transaction sent successfully!');
-      console.log('⏳ Waiting for transaction confirmation...');
+      console.log("✅ Transaction sent successfully!");
+      console.log("⏳ Waiting for transaction confirmation...");
 
       // Note: Success state will be handled by the useEffect monitoring hook states
       // Don't set loading to false here - let the success detection handle it
@@ -415,7 +428,7 @@ export function AddLiquidityForm({
         message: (err as any)?.message,
         code: (err as any)?.code,
         data: (err as any)?.data,
-        cause: (err as any)?.cause
+        cause: (err as any)?.cause,
       });
       setAddLiquiditySuccess(false);
       setAddLiquidityLoading(false); // Only set to false on error
@@ -435,7 +448,7 @@ export function AddLiquidityForm({
 
   // Monitor hook success for add liquidity - Enhanced detection
   useEffect(() => {
-    console.log('🔍 Success Detection Monitor:', {
+    console.log("🔍 Success Detection Monitor:", {
       isSuccess,
       txHash,
       addLiquidityLoading,
@@ -443,7 +456,7 @@ export function AddLiquidityForm({
       modalStep,
       currentTxHash: addLiquidityTxHash,
       approveTokenALoading,
-      approveTokenBLoading
+      approveTokenBLoading,
     });
 
     // DETECT successful ADD LIQUIDITY transactions
@@ -452,14 +465,18 @@ export function AddLiquidityForm({
     // 2. AND we're currently in the add-liquidity modal step OR we were processing add liquidity
     if (isSuccess && txHash) {
       // Check if this is an add liquidity success
-      const isAddLiquiditySuccess = modalStep === "add-liquidity" || addLiquidityLoading;
-      
+      const isAddLiquiditySuccess =
+        modalStep === "add-liquidity" || addLiquidityLoading;
+
       if (isAddLiquiditySuccess) {
-        console.log('🎉 Add Liquidity Success Detected!');
-        console.log('   Transaction Hash:', txHash);
-        console.log('   Current Modal State:', { isModalOpen, modalStep });
-        console.log('   Detection Criteria:', { modalStep, addLiquidityLoading });
-        
+        console.log("🎉 Add Liquidity Success Detected!");
+        console.log("   Transaction Hash:", txHash);
+        console.log("   Current Modal State:", { isModalOpen, modalStep });
+        console.log("   Detection Criteria:", {
+          modalStep,
+          addLiquidityLoading,
+        });
+
         // Always update success state
         setAddLiquiditySuccess(true);
         setAddLiquidityTxHash(txHash);
@@ -468,34 +485,49 @@ export function AddLiquidityForm({
         // Handle modal transition based on current state
         if (isModalOpen) {
           if (modalStep === "add-liquidity") {
-            console.log('   ✅ Transitioning modal to success step...');
+            console.log("   ✅ Transitioning modal to success step...");
             const timer = setTimeout(() => {
               setModalStep("success");
-              console.log('   ✅ Modal step set to success with txHash:', txHash);
+              console.log(
+                "   ✅ Modal step set to success with txHash:",
+                txHash
+              );
             }, 1500);
 
             return () => clearTimeout(timer);
           } else {
-            console.log('   🔄 Modal is open but not in add-liquidity step, opening success modal...');
+            console.log(
+              "   🔄 Modal is open but not in add-liquidity step, opening success modal..."
+            );
             setModalStep("success");
             setIsModalOpen(true);
           }
         } else {
           // If modal is closed, open it in success state
-          console.log('   🔄 Modal is closed, opening success modal...');
+          console.log("   🔄 Modal is closed, opening success modal...");
           setModalStep("success");
           setIsModalOpen(true);
         }
       } else {
         // Log when approval transactions complete (for debugging)
-        console.log('✅ Token Approval Success Detected (not triggering success modal)');
-        console.log('   Approval Transaction Hash:', txHash);
-        console.log('   Current Modal Step:', modalStep);
-        console.log('   Token A Loading:', approveTokenALoading);
-        console.log('   Token B Loading:', approveTokenBLoading);
+        console.log(
+          "✅ Token Approval Success Detected (not triggering success modal)"
+        );
+        console.log("   Approval Transaction Hash:", txHash);
+        console.log("   Current Modal Step:", modalStep);
+        console.log("   Token A Loading:", approveTokenALoading);
+        console.log("   Token B Loading:", approveTokenBLoading);
       }
     }
-  }, [isSuccess, txHash, addLiquidityLoading, isModalOpen, modalStep, approveTokenALoading, approveTokenBLoading]);
+  }, [
+    isSuccess,
+    txHash,
+    addLiquidityLoading,
+    isModalOpen,
+    modalStep,
+    approveTokenALoading,
+    approveTokenBLoading,
+  ]);
 
   // Additional success detection using different approach - watch for transition from loading to success
   useEffect(() => {
@@ -503,31 +535,40 @@ export function AddLiquidityForm({
     if (isSuccess && txHash && !addLiquidityLoading && !addLiquiditySuccess) {
       // Check if we're in the right context (modal is open and in add-liquidity step)
       if (isModalOpen && modalStep === "add-liquidity") {
-        console.log('🚀 Alternative Add Liquidity Success Detection!');
-        console.log('   Transaction Hash:', txHash);
-        console.log('   Triggering success modal...');
-        
+        console.log("🚀 Alternative Add Liquidity Success Detection!");
+        console.log("   Transaction Hash:", txHash);
+        console.log("   Triggering success modal...");
+
         setAddLiquiditySuccess(true);
         setAddLiquidityTxHash(txHash);
-        
+
         setTimeout(() => {
           setModalStep("success");
-          console.log('   ✅ Success modal triggered via alternative detection');
+          console.log(
+            "   ✅ Success modal triggered via alternative detection"
+          );
         }, 1000);
       }
     }
-  }, [isSuccess, txHash, addLiquidityLoading, addLiquiditySuccess, isModalOpen, modalStep]);
+  }, [
+    isSuccess,
+    txHash,
+    addLiquidityLoading,
+    addLiquiditySuccess,
+    isModalOpen,
+    modalStep,
+  ]);
 
   // Fallback success detection - force success modal after transaction is confirmed
   useEffect(() => {
     let fallbackTimer: NodeJS.Timeout;
-    
+
     if (isModalOpen && modalStep === "add-liquidity" && isSuccess && txHash) {
-      console.log('🔔 Fallback timer started for success modal...');
+      console.log("🔔 Fallback timer started for success modal...");
       fallbackTimer = setTimeout(() => {
         if (!addLiquiditySuccess && modalStep === "add-liquidity") {
-          console.log('🚨 Fallback success modal trigger activated!');
-          console.log('   Transaction Hash:', txHash);
+          console.log("🚨 Fallback success modal trigger activated!");
+          console.log("   Transaction Hash:", txHash);
           setAddLiquiditySuccess(true);
           setAddLiquidityTxHash(txHash);
           setAddLiquidityLoading(false);
@@ -546,9 +587,9 @@ export function AddLiquidityForm({
   // 🔍 Debug: Monitor addLiquidityTxHash state changes
   useEffect(() => {
     if (addLiquidityTxHash) {
-      console.log('🔍 addLiquidityTxHash updated:', addLiquidityTxHash);
-      console.log('   Modal Step:', modalStep);
-      console.log('   Modal Open:', isModalOpen);
+      console.log("🔍 addLiquidityTxHash updated:", addLiquidityTxHash);
+      console.log("   Modal Step:", modalStep);
+      console.log("   Modal Open:", isModalOpen);
     }
   }, [addLiquidityTxHash, modalStep, isModalOpen]);
 
@@ -570,7 +611,7 @@ export function AddLiquidityForm({
         // Also reset hook state
         reset();
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isModalOpen, addLiquiditySuccess, isError, reset]);
@@ -820,7 +861,23 @@ export function AddLiquidityForm({
               approveTokenBLoading ||
               !isConnected
             }
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none cursor-pointer disabled:cursor-not-allowed"
+            className="w-full
+  bg-gradient-to-b from-neutral-900 to-black
+  text-white
+  font-semibold
+  py-4 px-6
+  rounded-xl
+  border border-white/10
+  shadow-[0_4px_12px_rgba(0,0,0,0.4)]
+  hover:bg-gradient-to-b hover:from-white/10 hover:to-white/20
+  hover:text-white
+  hover:border-white/20
+  hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)]
+  transition-all duration-200
+  disabled:from-white/10 disabled:to-white/10
+  disabled:text-white/40
+  disabled:shadow-none
+  cursor-pointer disabled:cursor-not-allowedcursor-pointer disabled:cursor-not-allowed"
           >
             {approvedTokenA && approvedTokenB
               ? "✓ Tokens Approved"
@@ -914,7 +971,10 @@ export function AddLiquidityForm({
         onApproveSecondToken={handleModalApproveSecond}
         onAddLiquidity={handleModalAddLiquidity}
         isLoading={
-          approveTokenALoading || approveTokenBLoading || addLiquidityLoading || isLoading
+          approveTokenALoading ||
+          approveTokenBLoading ||
+          addLiquidityLoading ||
+          isLoading
         }
         error={error?.message}
       />
