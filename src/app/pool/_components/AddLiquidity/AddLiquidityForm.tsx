@@ -594,7 +594,7 @@ export function AddLiquidityForm({
           {onBack && (
             <button
               onClick={onBack}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
@@ -611,7 +611,7 @@ export function AddLiquidityForm({
 
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
           title="Settings"
         >
           <Settings className="w-5 h-5 text-white/70" />
@@ -641,7 +641,7 @@ export function AddLiquidityForm({
                   <button
                     key={value}
                     onClick={() => setSlippage(value)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                       slippage === value
                         ? "bg-white text-black"
                         : "bg-white/10 text-white hover:bg-white/20"
@@ -820,7 +820,7 @@ export function AddLiquidityForm({
               approveTokenBLoading ||
               !isConnected
             }
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none cursor-pointer disabled:cursor-not-allowed"
           >
             {approvedTokenA && approvedTokenB
               ? "✓ Tokens Approved"
@@ -845,7 +845,7 @@ export function AddLiquidityForm({
       )}
 
       {/* Action Button */}
-      <button
+      {/* <button
         onClick={
           existingPool ? handleAddLiquidity : handleAddLiquidityWithModal
         }
@@ -854,7 +854,7 @@ export function AddLiquidityForm({
           addLiquidityLoading ||
           isLoading // Also check hook loading state
         }
-        className="w-full bg-white hover:bg-gray-200 disabled:bg-white/20 text-black disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed mt-6"
+        className="w-full bg-white hover:bg-gray-200 disabled:bg-white/20 text-black disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed cursor-pointer mt-6"
       >
         <div className="flex items-center justify-center space-x-2">
           {(addLiquidityLoading || isLoading) && (
@@ -879,7 +879,7 @@ export function AddLiquidityForm({
               : `Add Liquidity on ${selectedDex}`}
           </span>
         </div>
-      </button>
+      </button> */}
 
       {/* Transaction Modal */}
       <PoolTransactionModal

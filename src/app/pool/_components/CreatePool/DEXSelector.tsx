@@ -27,7 +27,7 @@ export function DexSelector({ selectedDex, onSelect }: DexSelectorProps) {
             key={key}
             type="button"
             onClick={() => handleDexSelection(key)}
-            className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+            className={`p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
               selectedDex === key
                 ? "border-green-400 bg-green-400/10 ring-2 ring-green-400/20"
                 : "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30"

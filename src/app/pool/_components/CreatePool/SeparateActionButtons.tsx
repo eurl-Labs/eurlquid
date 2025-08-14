@@ -81,7 +81,7 @@ export function SeparateActionButtons({
         type="button"
         onClick={onApprove}
         disabled={!canProceed || anyApprovalLoading || bothTokensApproved || !isConnected}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed"
+        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none cursor-pointer disabled:cursor-not-allowed"
       >
         <div className="flex items-center justify-center space-x-2">
           {anyApprovalLoading && (
@@ -96,7 +96,7 @@ export function SeparateActionButtons({
         type="button"
         onClick={onCreatePool}
         disabled={!bothTokensApproved || (poolCreationInProgress || isLoading) || !isConnected}
-        className={`w-full font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed ${
+        className={`w-full font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none cursor-pointer disabled:cursor-not-allowed ${
           poolCreatedSuccessfully 
             ? "bg-green-600 text-white" 
             : isError

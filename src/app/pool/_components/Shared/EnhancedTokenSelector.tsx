@@ -153,7 +153,7 @@ export function EnhancedTokenSelector({
                         e.stopPropagation();
                         onToggle();
                       }}
-                      className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                      className="p-1 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                     >
                       <X className="w-5 h-5 text-white/70" />
                     </button>
