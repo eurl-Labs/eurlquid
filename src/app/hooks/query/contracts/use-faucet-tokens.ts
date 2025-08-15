@@ -88,6 +88,14 @@ export const FAUCET_TOKENS = {
     decimals: 18,
     logo: "/images/logoCoin/goonerLogo.png",
   },
+    ABSTER: {
+    name: "Abster",
+    symbol: "ABSTER",
+    address: "0xa989FAf5595228A42C701590515152c2aE0eaC39" as `0x${string}`,
+    amount: "100000",
+    decimals: 18,
+    logo: "/images/logoCoin/absterLogo.jpg",
+  },
 } as const;
 
 // ERC20 ABI with mint function

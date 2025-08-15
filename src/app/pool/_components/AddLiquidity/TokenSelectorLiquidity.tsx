@@ -122,6 +122,15 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
     balance: "1,250,000",
     price: "$0.0000085",
   },
+  ABSTER: {
+    name: "Abster",
+    symbol: "ABSTER",
+    address: "0xa989FAf5595228A42C701590515152c2aE0eaC39" as `0x${string}`,
+    decimals: 18,
+    logo: "/images/logoCoin/absterLogo.jpg",
+    balance: "1,250,000",
+    price: "$0.0000085",
+  },
 };
 
 export function TokenSelector({
