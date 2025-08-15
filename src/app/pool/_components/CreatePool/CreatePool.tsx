@@ -245,7 +245,6 @@ export function CreatePoolForm() {
           handleTokenASelection(token);
         }}
         onAmountChange={setAmountA}
-        zIndex="z-30"
       />
 
       <div className="flex justify-center mb-6">
@@ -269,7 +268,6 @@ export function CreatePoolForm() {
           handleTokenBSelection(token);
         }}
         onAmountChange={setAmountB}
-        zIndex="z-20"
       />
 
       <TransactionStatus

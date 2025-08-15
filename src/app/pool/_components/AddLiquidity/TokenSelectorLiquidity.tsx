@@ -142,7 +142,7 @@ export function TokenSelector({
   onToggle,
   onSelect,
   onAmountChange,
-  zIndex,
+  // zIndex,
   disabled = false,
 }: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -172,7 +172,7 @@ export function TokenSelector({
   };
 
   return (
-    <div className={`relative ${zIndex} mb-6`}>
+    <div className={`relative mb-6`}>
       <label className="block text-sm text-white/70 font-medium mb-3">
         {label}
       </label>
@@ -238,17 +238,33 @@ export function TokenSelector({
             )}
           </button>
 
-          {/* Enhanced Token Dropdown - Sonic Network Only */}
+          {/* Enhanced Token Dropdown - Centered Modal Style */}
           <AnimatePresence>
             {isOpen && !disabled && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 right-0 mt-2 z-[1200] shadow-2xl"
-              >
-                <div className="rounded-2xl border border-white/20 backdrop-blur-xl bg-black overflow-hidden">
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggle();
+                  }}
+                />
+                
+                {/* Centered Modal */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-md mx-4 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-2xl border border-white/20 backdrop-blur-xl bg-black/90 overflow-hidden">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-white/10">
                     <div className="flex items-center space-x-3">
@@ -419,8 +435,9 @@ export function TokenSelector({
                       <span>Powered by Sonic Network</span>
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </div>

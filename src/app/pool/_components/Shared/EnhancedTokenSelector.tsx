@@ -13,7 +13,6 @@ interface EnhancedTokenSelectorProps {
   onToggle: () => void;
   onSelect: (token: TokenSymbol) => void;
   onAmountChange: (amount: string) => void;
-  zIndex: string;
   disabled?: boolean;
 }
 
@@ -26,7 +25,6 @@ export function EnhancedTokenSelector({
   onToggle,
   onSelect,
   onAmountChange,
-  zIndex,
   disabled = false
 }: EnhancedTokenSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -54,7 +52,7 @@ export function EnhancedTokenSelector({
   };
 
   return (
-    <div className={`relative ${zIndex} mb-6`}>
+    <div className="relative mb-6">
       <label className="block text-sm text-white/70 font-medium mb-3">
         {label}
       </label>
@@ -117,37 +115,48 @@ export function EnhancedTokenSelector({
             )}
           </button>
 
-          {/* Enhanced Token Dropdown - Using Real POOL_TOKENS */}
+          {/* Enhanced Token Dropdown - Centered Modal */}
           <AnimatePresence>
             {isOpen && !disabled && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 mt-2 z-[1200] shadow-2xl w-[350px] min-w-full"
-              >
-                <div className="rounded-2xl border border-white/20 backdrop-blur-xl bg-black overflow-hidden">
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-white/10">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-6 h-6 rounded-full overflow-hidden">
-                        <Image
-                          src="/images/logoCoin/sonicLogo.png"
-                          alt="Sonic Network"
-                          width={24}
-                          height={24}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "/images/logoCoin/ethLogo.png";
-                          }}
-                        />
+              <>
+                {/* Modal Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9997]"
+                  onClick={onToggle}
+                />
+                
+                {/* Modal Content */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90vw] max-w-[420px] max-h-[80vh]"
+                >
+                  <div className="rounded-2xl border border-white/20 backdrop-blur-xl bg-black/95 overflow-hidden shadow-2xl">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-6 h-6 rounded-full overflow-hidden">
+                          <Image
+                            src="/images/logoCoin/sonicLogo.png"
+                            alt="Sonic Network"
+                            width={24}
+                            height={24}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/images/logoCoin/ethLogo.png";
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">Select Token</h3>
+                          <p className="text-xs text-white/60">Sonic Network</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">Select Token</h3>
-                        <p className="text-xs text-white/60">Sonic Network</p>
-                      </div>
-                    </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -198,7 +207,7 @@ export function EnhancedTokenSelector({
                               className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors text-left ${
                                 isDisabled
                                   ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-white/10"
+                                  : "hover:bg-white/10 cursor-pointer"
                               } ${
                                 selectedToken === symbol ? "bg-white/20 ring-2 ring-blue-400/40" : ""
                               }`}
@@ -273,8 +282,9 @@ export function EnhancedTokenSelector({
                       <span>Powered by Sonic Network</span>
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </div>
