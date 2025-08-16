@@ -6,6 +6,7 @@ import { SwapHelpModal } from "./SwapHelpModal";
 import { TokenSelector } from "./TokenSelector";
 import { useTokenBalance, type TokenSymbol } from "@/app/hooks/query/contracts/use-token-balance";
 import { useAnalysisStore } from "@/store/userprompt-store";
+import { useSwapPrice } from "@/hooks/useSwapPrice";
 
 interface SwapCardProps {
   fromAmount: string;
@@ -43,8 +44,21 @@ export function SwapCard({
   onInputFocus,
   onInputBlur,
 }: SwapCardProps) {
-  const [toAmount, setToAmount] = useState("0.354987");
   const [helpModalOpen, setHelpModalOpen] = useState(false);
+
+  // Get real-time price calculation from Pyth
+  const { 
+    toAmount: calculatedToAmount, 
+    fromPriceUSD, 
+    toPriceUSD, 
+    isLoading: priceLoading, 
+    error: priceError,
+    fromValueUSD,
+    toValueUSD 
+  } = useSwapPrice(fromToken, toToken, fromAmount);
+
+  // Use calculated amount from price feed instead of static value
+  const toAmount = calculatedToAmount;
 
   // Get token balances (convert display symbols to pool symbols)
   const fromPoolToken = SWAP_TO_POOL_TOKEN[fromToken] as TokenSymbol;
@@ -85,10 +99,10 @@ export function SwapCard({
   }, [fromToken, toToken, fromAmount, setInput, runAnalysis]);
 
   const handleSwapTokens = () => {
+    // Only swap tokens, let the price calculation handle the amounts
     setFromToken(toToken);
     setToToken(fromToken);
-    setFromAmount(toAmount);
-    setToAmount(fromAmount || "0");
+    setFromAmount(toAmount || "0");
   };
 
   return (
@@ -131,7 +145,11 @@ export function SwapCard({
               className="w-full bg-transparent text-2xl font-semibold text-white outline-none placeholder-white/30"
             />
             <div className="mt-2">
-              <span className="text-sm text-white/60">≈ $3,549.87</span>
+              <span className="text-sm text-white/60">
+                {priceLoading ? "Loading..." : 
+                 fromValueUSD ? `≈ $${fromValueUSD.toFixed(2)}` : 
+                 priceError ? "Price unavailable" : "≈ $0.00"}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
@@ -181,7 +199,11 @@ export function SwapCard({
               className="w-full bg-transparent text-2xl font-semibold text-white outline-none"
             />
             <div className="mt-2">
-              <span className="text-sm text-white/60">≈ $354.99</span>
+              <span className="text-sm text-white/60">
+                {priceLoading ? "Calculating..." : 
+                 toValueUSD ? `≈ $${toValueUSD.toFixed(2)}` : 
+                 priceError ? "Price unavailable" : "≈ $0.00"}
+              </span>
             </div>
             <div className="flex justify-end">
               <span className="text-sm text-white/60">
