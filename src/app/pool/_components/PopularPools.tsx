@@ -1,39 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Droplets,
-  ExternalLink,
-  Plus,
-  Loader2,
-  AlertCircle,
-  Wallet,
-} from "lucide-react";
+import { Droplets, ExternalLink, TrendingUp, Loader2, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { useUserLiquidityPools } from "@/hooks/useUserLiquidityPools";
-import {
-  getTokenInfo,
-  getDexInfo,
-} from "@/lib/token-mapping";
+import { usePopularPools, DEX_OPTIONS } from "@/hooks/usePopularPools";
+import { getTokenInfo, getDexInfo } from "@/lib/token-mapping";
 import { Pool } from "@/types/history";
 
-export function UserLiquidityPositions() {
-  const { pools, loading, error, refetch, refreshKey, isConnected } =
-    useUserLiquidityPools();
+export function PopularPools() {
+  const [selectedDex, setSelectedDex] = useState('Uniswap');
+  const { pools, loading, error, refetch, refreshKey } = usePopularPools(selectedDex);
 
   const getTokenDisplay = (tokenAddress: string) => {
     const tokenInfo = getTokenInfo(tokenAddress);
-
+    
     if (tokenInfo) {
       return {
         symbol: tokenInfo.symbol,
-        logo: tokenInfo.logo,
+        logo: tokenInfo.logo
       };
     }
-
+    
     return {
       symbol: `${tokenAddress.slice(0, 6)}...${tokenAddress.slice(-4)}`,
-      logo: "/images/logoCoin/defaultLogo.png",
+      logo: '/images/logoCoin/defaultLogo.png'
     };
   };
 
@@ -41,44 +32,41 @@ export function UserLiquidityPositions() {
     const dexInfo = getDexInfo(dexName);
     return {
       name: dexInfo?.name || dexName,
-      logo: dexInfo?.logo || "/images/logo/defaultDex.png",
+      logo: dexInfo?.logo || '/images/logo/defaultDex.png'
     };
   };
 
   const formatDate = (timestamp: string) => {
-    return new Date(parseInt(timestamp) * 1000).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    return new Date(parseInt(timestamp) * 1000).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
   const openTransaction = (txHash: string) => {
-    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank");
+    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, '_blank');
   };
 
-  // Show wallet connection prompt if not connected
-  if (!isConnected) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-        className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
-      >
-        <div className="text-center py-12">
-          <Wallet className="w-16 h-16 text-white/30 mx-auto mb-4" />
-          <h4 className="text-lg font-medium text-white mb-2">
-            Connect Your Wallet
-          </h4>
-          <p className="text-white/60">
-            Connect your wallet to view your liquidity positions
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
+  // Calculate estimated APR (mock calculation for demo)
+  const calculateAPR = (pool: Pool) => {
+    const reserveA = parseFloat(pool.reserve_a);
+    const reserveB = parseFloat(pool.reserve_b);
+    const totalValue = (reserveA + reserveB) / 1e18;
+    return (Math.random() * 50 + 5).toFixed(1); // Mock APR 5-55%
+  };
+
+  // Calculate estimated TVL (mock calculation for demo)
+  const calculateTVL = (pool: Pool) => {
+    const reserveA = parseFloat(pool.reserve_a);
+    const reserveB = parseFloat(pool.reserve_b);
+    const totalValue = (reserveA + reserveB) / 1e18 * 100; // Mock price
+    return totalValue > 1000000 
+      ? `$${(totalValue / 1000000).toFixed(1)}M` 
+      : totalValue > 1000 
+        ? `$${(totalValue / 1000).toFixed(1)}K`
+        : `$${totalValue.toFixed(0)}`;
+  };
 
   return (
     <motion.div
@@ -91,11 +79,11 @@ export function UserLiquidityPositions() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Droplets className="w-6 h-6 text-white" />
-          <h3 className="text-xl font-bold text-white">Your Created Pools</h3>
+          <h3 className="text-xl font-bold text-white">Popular Pools</h3>
         </div>
         <div className="flex items-center space-x-4">
           <span className="text-sm text-white/60">
-            {pools.length} pool{pools.length !== 1 ? "s" : ""}
+            {pools.length} pool{pools.length !== 1 ? "s" : ""} on {selectedDex}
           </span>
           <motion.button
             onClick={() => refetch()}
@@ -131,14 +119,46 @@ export function UserLiquidityPositions() {
         </div>
       </div>
 
+      {/* DEX Filter Buttons */}
+      <div className="mb-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <span className="text-sm text-white/60">Filter by DEX:</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {DEX_OPTIONS.map((dex) => {
+            const dexInfo = getDexDisplay(dex);
+            return (
+              <motion.button
+                key={dex}
+                onClick={() => setSelectedDex(dex)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`cursor-pointer flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  selectedDex === dex
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-white/5 text-white/70 hover:text-white hover:bg-white/10 border border-white/10'
+                }`}
+              >
+                <Image
+                  src={dexInfo.logo}
+                  alt={dex}
+                  width={16}
+                  height={16}
+                  className="w-4 h-4"
+                />
+                <span className="font-medium">{dex === 'OneInch' ? '1Inch' : dex }</span>
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+
       {error && (
         <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-lg p-4">
           <div className="flex items-center space-x-3">
             <AlertCircle className="w-5 h-5 text-red-400" />
             <div>
-              <p className="text-red-400 font-medium">
-                Error loading liquidity positions
-              </p>
+              <p className="text-red-400 font-medium">Error loading popular pools</p>
               <p className="text-red-400/80 text-sm">{error.message}</p>
             </div>
           </div>
@@ -148,7 +168,7 @@ export function UserLiquidityPositions() {
       {loading && (
         <div className="text-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-white/40 mx-auto mb-4" />
-          <p className="text-white/60">Loading your positions...</p>
+          <p className="text-white/60">Loading popular pools...</p>
         </div>
       )}
 
@@ -156,21 +176,17 @@ export function UserLiquidityPositions() {
         <div className="text-center py-12">
           <Droplets className="w-16 h-16 text-white/30 mx-auto mb-4" />
           <h4 className="text-lg font-medium text-white mb-2">
-            No positions yet
+            No pools found
           </h4>
-          <p className="text-white/60 mb-4">
-            Create your first liquidity position to start earning fees
+          <p className="text-white/60">
+            No pools available for {selectedDex} at the moment.
           </p>
-          <button className="inline-flex items-center space-x-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors">
-            <Plus className="w-4 h-4" />
-            <span>Create Position</span>
-          </button>
         </div>
       )}
 
       {!loading && !error && pools.length > 0 && (
         <motion.div 
-          key={refreshKey} // Key berubah setiap kali refresh diklik
+          key={`${selectedDex}-${refreshKey}`} // Key berubah saat filter atau refresh
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -180,7 +196,9 @@ export function UserLiquidityPositions() {
             const tokenA = getTokenDisplay(pool.token_a);
             const tokenB = getTokenDisplay(pool.token_b);
             const dex = getDexDisplay(pool.dex_name);
-
+            const apr = calculateAPR(pool);
+            const tvl = calculateTVL(pool);
+            
             return (
               <motion.div
                 key={pool.id}
@@ -232,37 +250,45 @@ export function UserLiquidityPositions() {
                             {dex.name}
                           </span>
                         </div>
-                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
-                          Active
-                        </span>
                       </div>
                       <div className="flex items-center space-x-4 mt-1">
-                        <span className="text-xs text-white/50">
+                        <span className="text-xs text-white/60">
+                          TVL: {tvl}
+                        </span>
+                        <span className="text-xs text-white/60">
                           Created: {formatDate(pool.created_at)}
                         </span>
                       </div>
                       <div className="text-xs text-white/50 mt-1">
-                        Pool ID:{" "}
-                        {`${pool.id.slice(0, 8)}...${pool.id.slice(-6)}`}
+                        Pool ID: {`${pool.id.slice(0, 8)}...${pool.id.slice(-6)}`}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="flex items-center justify-end space-x-2 mb-2">
-                      <span className="text-xs text-white/60">Block</span>
-                      <span className="font-medium text-white text-sm">
-                        #{pool.block_number}
-                      </span>
+                    <div className="flex items-center justify-end space-x-2 mb-1">
+                      <span className="text-xs text-white/60">APR</span>
+                      <div className="flex items-center space-x-1">
+                        <TrendingUp className="w-3 h-3 text-green-400" />
+                        <span className="font-bold text-green-400 text-sm">
+                          {apr}%
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center justify-end space-x-2">
-                      <motion.button
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="text-xs px-3 py-1 bg-white/20 text-white hover:bg-white hover:text-black rounded-lg transition-colors"
+                      >
+                        Add Liquidity
+                      </motion.button>
+                      <motion.button 
                         onClick={() => openTransaction(pool.transaction_hash)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="flex items-center space-x-1 text-sm cursor-pointer text-white/60 hover:text-white transition-colors px-2 py-1 rounded hover:bg-white/10"
+                        className="p-1 text-white/60 hover:text-white transition-colors"
                       >
-                        <span>View in explorer</span>
                         <ExternalLink className="w-4 h-4" />
                       </motion.button>
                     </div>

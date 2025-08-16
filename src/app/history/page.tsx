@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Calendar, ExternalLink, Loader2, Filter, AlertCircle, Wallet } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { SwapNavbar } from '@/components/swap/SwapNavbar';
 import { Manrope } from 'next/font/google';
 import Image from 'next/image';
@@ -16,7 +17,7 @@ export default function HistoryPage() {
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedDex, setSelectedDex] = useState('all');
   
-  const { swaps, loading, error, refetch, isConnected, address } = useUserTradingHistory(selectedDex);
+  const { swaps, loading, error, refetch, refreshKey, isConnected, address } = useUserTradingHistory(selectedDex);
 
   // Debug: log swaps data to see actual token addresses
   console.log('Swaps data:', swaps);
@@ -156,20 +157,27 @@ export default function HistoryPage() {
               </div>
             </div>
             
-            <button
+            <motion.button
               onClick={() => refetch()}
               disabled={loading}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors"
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              )}
+              <motion.div
+                animate={loading ? { rotate: 360 } : { rotate: 0 }}
+                transition={loading ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 0.3 }}
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4" />
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )}
+              </motion.div>
               <span>Refresh</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
@@ -211,7 +219,13 @@ export default function HistoryPage() {
         )}
 
         {!loading && !error && swaps.length > 0 && (
-          <div className="bg-white/5 rounded-lg overflow-hidden border border-white/10">
+          <motion.div 
+            key={refreshKey} // Key berubah setiap kali refresh diklik
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="bg-white/5 rounded-lg overflow-hidden border border-white/10"
+          >
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-white/5">
@@ -237,13 +251,20 @@ export default function HistoryPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
-                  {swaps.map((swap: Swap) => {
+                  {swaps.map((swap: Swap, index) => {
                     const tokenIn = getTokenDisplay(swap.token_in);
                     const tokenOut = swap.token_out ? getTokenDisplay(swap.token_out) : null;
                     const dex = getDexDisplay(swap.dex_name);
                     
                     return (
-                      <tr key={swap.id} className="hover:bg-white/5 transition-colors">
+                      <motion.tr 
+                        key={swap.id} 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                        className="hover:bg-white/5 transition-colors"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80 hover:underline">
                          <Link href={`https://testnet.sonicscan.org/block/${swap.block_number}`} target="_blank" rel="noopener noreferrer">
                            #{swap.block_number}
@@ -320,13 +341,13 @@ export default function HistoryPage() {
                             <ExternalLink className="w-3 h-3" />
                           </button>
                         </td>
-                      </tr>
+                      </motion.tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

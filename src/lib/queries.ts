@@ -134,3 +134,29 @@ export const GET_POOL_BY_WALLET_ADDRESS = gql`
     }
   }
 `;
+
+// Get Pool by Dex Aggregator - For popular pools filtering
+export const GET_POOL_BY_DEX_AGGREGATOR = gql`
+  query GetPoolsByDEX($dexName: String!, $limit: Int = 6) {
+    poolss(
+      where: { dex_name: $dexName }
+      orderBy: "created_at"
+      orderDirection: "desc"
+      limit: $limit
+    ) {
+      items {
+        id
+        token_a
+        token_b
+        creator
+        dex_name
+        reserve_a
+        reserve_b
+        total_supply
+        created_at
+        block_number
+        transaction_hash
+      }
+    }
+  }
+`;

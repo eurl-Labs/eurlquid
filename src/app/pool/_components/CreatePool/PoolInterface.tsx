@@ -9,7 +9,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Droplets, Plus, History } from "lucide-react";
 
 export function PoolInterface() {
-  const [activeTab, setActiveTab] = useState<"create" | "existing" | "addLiquidity">("create");
+  const [activeTab, setActiveTab] = useState<
+    "create" | "existing" | "addLiquidity"
+  >("create");
   const [selectedPool, setSelectedPool] = useState<any>(null);
 
   const handleAddLiquidity = (pool?: any) => {
@@ -27,7 +29,13 @@ export function PoolInterface() {
       <SwapNavbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className={`grid gap-8 ${activeTab === "addLiquidity" ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"}`}>
+        <div
+          className={`grid gap-8 ${
+            activeTab === "addLiquidity"
+              ? "grid-cols-1"
+              : "grid-cols-1 lg:grid-cols-3"
+          }`}
+        >
           {/* Left Panel - Create Pool (Hidden when Add Liquidity is active) */}
           {activeTab !== "addLiquidity" && (
             <div className="lg:col-span-1">
@@ -36,7 +44,11 @@ export function PoolInterface() {
           )}
 
           {/* Right Panel - Pool List & Add Liquidity */}
-          <div className={activeTab === "addLiquidity" ? "col-span-1" : "lg:col-span-2"}>
+          <div
+            className={
+              activeTab === "addLiquidity" ? "col-span-1" : "lg:col-span-2"
+            }
+          >
             {/* Tab Navigation */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-1 bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10 w-fit">
@@ -81,16 +93,13 @@ export function PoolInterface() {
             {/* Content */}
             <AnimatePresence mode="wait">
               {activeTab === "addLiquidity" ? (
-                <AddLiquidityForm 
+                <AddLiquidityForm
                   key="addLiquidity"
                   existingPool={selectedPool}
                   onBack={selectedPool ? handleBackToList : undefined}
                 />
               ) : (
-                <PoolList 
-                  key={activeTab}
-                  activeTab={activeTab}
-                />
+                <PoolList key={activeTab} activeTab={activeTab} />
               )}
             </AnimatePresence>
           </div>
