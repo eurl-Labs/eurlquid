@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ChevronDown,
   Droplets,
@@ -20,11 +20,18 @@ import {
 } from "../../hooks/query/contracts/use-faucet-tokens";
 import Link from "next/link";
 
+interface ClaimRecord {
+  token: TokenSymbol;
+  timestamp: number;
+}
+
 interface FaucetCardProps {
   selectedToken: TokenSymbol | null;
   setSelectedToken: (token: TokenSymbol | null) => void;
   onClaim: (tokenSymbol: TokenSymbol) => void;
-  claimHistory: TokenSymbol[];
+  claimHistory: ClaimRecord[];
+  isTokenOnCooldown: (tokenSymbol: TokenSymbol) => boolean;
+  getTimeUntilAvailable: (tokenSymbol: TokenSymbol) => number;
 }
 
 export function FaucetCard({
@@ -32,8 +39,11 @@ export function FaucetCard({
   setSelectedToken,
   onClaim,
   claimHistory,
+  isTokenOnCooldown,
+  getTimeUntilAvailable,
 }: FaucetCardProps) {
   const [showTokenSelect, setShowTokenSelect] = useState(false);
+  const claimInitiatedRef = useRef<TokenSymbol | null>(null);
 
   const { address, isConnected } = useAccount();
   const { claimToken, isLoading, isSuccess, isError, error, txHash, reset } =
@@ -44,19 +54,20 @@ export function FaucetCard({
     selectedToken &&
     isConnected &&
     address &&
-    !claimHistory.includes(selectedToken);
+    !isTokenOnCooldown(selectedToken);
+
+  // Only disable button if actually loading for the current token or if token is already claimed
+  const isButtonDisabled = !canClaim || (isLoading && claimInitiatedRef.current === selectedToken);
 
   const handleClaim = async () => {
     if (!selectedToken || !canClaim) return;
 
     try {
+      claimInitiatedRef.current = selectedToken; // Track which token we're claiming
       await claimToken(selectedToken);
-      // Wait for success before updating claim history
-      if (isSuccess) {
-        onClaim(selectedToken);
-      }
     } catch (err) {
       console.error("Claim failed:", err);
+      claimInitiatedRef.current = null; // Reset on error
     }
   };
 
@@ -64,12 +75,51 @@ export function FaucetCard({
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+  // Format time remaining for display
+  const formatTimeRemaining = (milliseconds: number): string => {
+    const totalSeconds = Math.ceil(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  };
+
+  // Handle successful claim - only for manually initiated claims
+  useEffect(() => {
+    // Only trigger onClaim if:
+    // 1. We have a successful transaction
+    // 2. We actually initiated a claim (tracked by ref)
+    // 3. The claimed token matches what we initiated
+    // 4. The token is not on cooldown (available to claim)
+    if (isSuccess && txHash && claimInitiatedRef.current && !isTokenOnCooldown(claimInitiatedRef.current)) {
+      onClaim(claimInitiatedRef.current);
+      claimInitiatedRef.current = null; // Reset after successful claim
+    }
+  }, [isSuccess, txHash, onClaim, isTokenOnCooldown]);
+
   // Reset error/success state when changing tokens
   const handleTokenSelect = (token: TokenSymbol) => {
     setSelectedToken(token);
     setShowTokenSelect(false);
-    reset();
+    claimInitiatedRef.current = null; // Reset claim tracking
+    reset(); // This resets the useFaucet hook state including isLoading
   };
+
+  // Additional reset when success modal is shown but user wants to claim another token
+  useEffect(() => {
+    // If we have a success state but user selected a different token that's available,
+    // reset the success state to allow claiming the new token
+    if (isSuccess && selectedToken && !isTokenOnCooldown(selectedToken) && !claimInitiatedRef.current) {
+      reset();
+    }
+  }, [selectedToken, isSuccess, isTokenOnCooldown, reset]);
 
   return (
     <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl">
@@ -283,17 +333,18 @@ export function FaucetCard({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/60">Status:</span>
-                <span
-                  className={`font-medium ${
-                    selectedToken && claimHistory.includes(selectedToken)
-                      ? "text-red-400"
-                      : "text-green-400"
-                  }`}
-                >
-                  {selectedToken && claimHistory.includes(selectedToken)
-                    ? "Claimed"
-                    : "Available"}
-                </span>
+                <div className="text-right">
+                  {selectedToken && isTokenOnCooldown(selectedToken) ? (
+                    <div>
+                      <div className="text-red-400 font-medium">Cooldown</div>
+                      <div className="text-xs text-white/60">
+                        Available in {formatTimeRemaining(getTimeUntilAvailable(selectedToken))}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-green-400 font-medium">Available</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -302,11 +353,11 @@ export function FaucetCard({
         {/* Claim Button */}
         <button
           onClick={handleClaim}
-          disabled={!canClaim || isLoading}
+          disabled={isButtonDisabled}
           className="w-full bg-white hover:bg-gray-200 disabled:bg-white/20 text-black disabled:text-white/60 font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
           <div className="flex items-center justify-center space-x-2 cursor-pointer">
-            {isLoading && !isSuccess ? (
+            {isLoading && claimInitiatedRef.current === selectedToken ? (
               <>
                 <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                 <span>Claiming...</span>
@@ -318,8 +369,8 @@ export function FaucetCard({
                     "Connect Wallet First"
                   ) : !selectedToken ? (
                     "Select Token"
-                  ) : selectedToken && claimHistory.includes(selectedToken) ? (
-                    "Already Claimed"
+                  ) : selectedToken && isTokenOnCooldown(selectedToken) ? (
+                    `Available in ${formatTimeRemaining(getTimeUntilAvailable(selectedToken))}`
                   ) : (
                     <span className="flex items-center space-x-2">
                       <span>
