@@ -35,7 +35,9 @@ export function useTokenBalance(tokenSymbol: TokenSymbol | null): UseTokenBalanc
     args: address ? [address] : undefined,
     query: {
       enabled: !!tokenSymbol && !!address,
-      refetchInterval: 10000, // Refetch every 10 seconds
+      refetchInterval: 30000, // Reduced to 30 seconds
+      staleTime: 20000, // Cache for 20 seconds
+      refetchOnWindowFocus: false, // Don't refetch on window focus
     },
   });
 
@@ -78,7 +80,9 @@ export function useMultipleTokenBalances(tokens: TokenSymbol[]): UseMultipleToke
       args: address ? [address] : undefined,
       query: {
         enabled: !!address,
-        refetchInterval: 10000,
+        refetchInterval: 30000, // Reduced to 30 seconds
+        staleTime: 20000, // Cache for 20 seconds
+        refetchOnWindowFocus: false, // Don't refetch on window focus
       },
     });
 

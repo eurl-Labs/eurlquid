@@ -1,164 +1,45 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, Clock, TrendingUp, TrendingDown, CheckCircle, XCircle, Loader2, Filter, Calendar, ExternalLink } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Calendar, ExternalLink, Loader2, Filter, AlertCircle, Wallet } from 'lucide-react';
 import { SwapNavbar } from '@/components/swap/SwapNavbar';
 import { Manrope } from 'next/font/google';
 import Image from 'next/image';
+import { useUserTradingHistory } from '@/hooks/useUserTradingHistory';
+import { getTokenInfo, getDexInfo, formatTokenAmount } from '@/lib/token-mapping';
+import { Swap } from '@/types/history';
+import Link from 'next/link';
 
 const manrope = Manrope({ subsets: ['latin'] });
 
-// Mock data for demonstration with DEX aggregators
-const mockHistoryData = [
-  {
-    id: 1,
-    date: '2024-01-15T10:30:00Z',
-    pair: 'ETH/USDC',
-    fromToken: 'ETH',
-    toToken: 'USDC',
-    fromLogo: '/images/logoCoin/ethLogo.png',
-    toLogo: '/images/logoCoin/usdcLogo.png',
-    amount: '2.5 ETH',
-    value: '$4,250.00',
-    slippage: 0.15,
-    dexAggregator: '1inch',
-    dexLogo: '/images/logo/1inchLogo.png',
-    profitLoss: 12.50,
-    txHash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
-  },
-  {
-    id: 2,
-    date: '2024-01-14T15:45:00Z',
-    pair: 'USDC/SONIC',
-    fromToken: 'USDC',
-    toToken: 'SONIC',
-    fromLogo: '/images/logoCoin/usdcLogo.png',
-    toLogo: '/images/logoCoin/sonicLogo.png',
-    amount: '1,000 USDC',
-    value: '$1,000.00',
-    slippage: -0.08,
-    dexAggregator: 'Uniswap',
-    dexLogo: '/images/logo/uniLogo.svg.png',
-    profitLoss: -5.20,
-    txHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
-  },
-  {
-    id: 3,
-    date: '2024-01-13T09:20:00Z',
-    pair: 'WBTC/PEPE',
-    fromToken: 'WBTC',
-    toToken: 'PEPE',
-    fromLogo: '/images/logoCoin/wbtcLogo.png',
-    toLogo: '/images/logoCoin/pepeLogo.png',
-    amount: '0.1 WBTC',
-    value: '$3,200.00',
-    slippage: 0.25,
-    dexAggregator: 'Curve',
-    dexLogo: '/images/logo/curveLogo.png',
-    profitLoss: 0,
-    txHash: '0x9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba'
-  },
-  {
-    id: 4,
-    date: '2024-01-12T14:10:00Z',
-    pair: 'ETH/POPCAT',
-    fromToken: 'ETH',
-    toToken: 'POPCAT',
-    fromLogo: '/images/logoCoin/ethLogo.png',
-    toLogo: '/images/logoCoin/popcatLogo.png',
-    amount: '1.8 ETH',
-    value: '$3,060.00',
-    slippage: 0.12,
-    dexAggregator: 'Balancer',
-    dexLogo: '/images/logo/balancerLogo.png',
-    profitLoss: 0,
-    txHash: '0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321'
-  },
-  {
-    id: 5,
-    date: '2024-01-11T11:20:00Z',
-    pair: 'PEPE/USDT',
-    fromToken: 'PEPE',
-    toToken: 'USDT',
-    fromLogo: '/images/logoCoin/pepeLogo.png',
-    toLogo: '/images/logoCoin/usdtLogo.png',
-    amount: '5,000,000 PEPE',
-    value: '$5,000.00',
-    slippage: 0.05,
-    dexAggregator: 'SushiSwap',
-    dexLogo: '/images/logo/sushiLogo.png',
-    profitLoss: 8.75,
-    txHash: '0x5555555555555555555555555555555555555555555555555555555555555555'
-  },
-  {
-    id: 6,
-    date: '2024-01-10T16:30:00Z',
-    pair: 'SONIC/PENGU',
-    fromToken: 'SONIC',
-    toToken: 'PENGU',
-    fromLogo: '/images/logoCoin/sonicLogo.png',
-    toLogo: '/images/logoCoin/penguLogo.png',
-    amount: '10,000 SONIC',
-    value: '$5,440.00',
-    slippage: 0.18,
-    dexAggregator: 'Matcha',
-    dexLogo: '/images/logo/matchaLogo.png',
-    profitLoss: -2.10,
-    txHash: '0x6666666666666666666666666666666666666666666666666666666666666666'
-  },
-  {
-    id: 7,
-    date: '2024-01-09T12:15:00Z',
-    pair: 'POPCAT/ETH',
-    fromToken: 'POPCAT',
-    toToken: 'ETH',
-    fromLogo: '/images/logoCoin/popcatLogo.png',
-    toLogo: '/images/logoCoin/ethLogo.png',
-    amount: '50,000 POPCAT',
-    value: '$2,800.00',
-    slippage: 0.22,
-    dexAggregator: '1inch',
-    dexLogo: '/images/logo/1inchLogo.png',
-    profitLoss: 15.30,
-    txHash: '0x7777777777777777777777777777777777777777777777777777777777777777'
-  },
-  {
-    id: 8,
-    date: '2024-01-08T08:45:00Z',
-    pair: 'USDC/PEPE',
-    fromToken: 'USDC',
-    toToken: 'PEPE',
-    fromLogo: '/images/logoCoin/usdcLogo.png',
-    toLogo: '/images/logoCoin/pepeLogo.png',
-    amount: '2,500 USDC',
-    value: '$2,500.00',
-    slippage: 0.08,
-    dexAggregator: 'Uniswap',
-    dexLogo: '/images/logo/uniLogo.svg.png',
-    profitLoss: 3.45,
-    txHash: '0x8888888888888888888888888888888888888888888888888888888888888888'
-  }
-];
-
-// Calculate stats
-const calculateStats = (data: typeof mockHistoryData) => {
-  const totalSwaps = data.length;
-  const volume = data.reduce((sum, item) => sum + parseFloat(item.value.replace('$', '').replace(',', '')), 0);
-  const netProfit = data.reduce((sum, item) => sum + item.profitLoss, 0);
-  const successRate = (data.filter(item => item.profitLoss >= 0).length / totalSwaps) * 100;
-
-  return { totalSwaps, volume, netProfit, successRate };
-};
-
-const stats = calculateStats(mockHistoryData);
-
 export default function HistoryPage() {
-  const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedDex, setSelectedDex] = useState('all');
+  
+  const { swaps, loading, error, refetch, isConnected, address } = useUserTradingHistory(selectedDex);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  // Debug: log swaps data to see actual token addresses
+  console.log('Swaps data:', swaps);
+
+  // Get unique DEX names from actual data
+  const uniqueDexes = useMemo(() => {
+    return Array.from(new Set(swaps.map(swap => swap.dex_name)));
+  }, [swaps]);
+
+  // Calculate stats from real data
+  const stats = useMemo(() => {
+    const totalSwaps = swaps.length;
+    const volume = swaps.reduce((sum, swap) => {
+      // Estimate USD value (simplified)
+      const amountIn = parseFloat(formatTokenAmount(swap.amount_in));
+      return sum + (amountIn * 100); // Rough estimation - needs real price data
+    }, 0);
+    
+    return { totalSwaps, volume };
+  }, [swaps]);
+
+  const formatDate = (timestamp: string) => {
+    return new Date(parseInt(timestamp) * 1000).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -166,29 +47,57 @@ export default function HistoryPage() {
     });
   };
 
-  const getProfitLossColor = (value: number) => {
-    if (value > 0) return 'text-green-500';
-    if (value < 0) return 'text-red-500';
-    return 'text-gray-400';
-  };
-
-  const getSlippageColor = (value: number) => {
-    if (value > 0.2) return 'text-red-500';
-    if (value > 0.1) return 'text-yellow-500';
-    return 'text-green-500';
-  };
-
   const formatTxHash = (hash: string) => {
     return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
   };
 
   const openTransaction = (txHash: string) => {
-    // Open transaction in Etherscan or similar block explorer
-    window.open(`https://etherscan.io/tx/${txHash}`, '_blank');
+    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, '_blank');
   };
 
-  // Get unique DEX aggregators for filter
-  const uniqueDexes = Array.from(new Set(mockHistoryData.map(item => item.dexAggregator)));
+  const getTokenDisplay = (tokenAddress: string) => {
+    const tokenInfo = getTokenInfo(tokenAddress);
+    
+    if (tokenInfo) {
+      return {
+        symbol: tokenInfo.symbol,
+        logo: tokenInfo.logo
+      };
+    }
+    
+    // Fallback for unknown tokens
+    return {
+      symbol: `${tokenAddress.slice(0, 6)}...${tokenAddress.slice(-4)}`,
+      logo: '/images/logoCoin/defaultLogo.png'
+    };
+  };
+
+  const getDexDisplay = (dexName: string) => {
+    const dexInfo = getDexInfo(dexName);
+    return {
+      name: dexInfo?.name || dexName,
+      logo: dexInfo?.logo || '/images/logo/defaultDex.png'
+    };
+  };
+
+  // Show wallet connection prompt if not connected
+  if (!isConnected) {
+    return (
+      <div className={`min-h-screen bg-black text-white ${manrope.className}`}>
+        <SwapNavbar />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <Wallet className="w-16 h-16 text-white/40 mx-auto mb-6" />
+            <h1 className="text-3xl font-bold text-white mb-4">Connect Your Wallet</h1>
+            <p className="text-white/60 mb-8">
+              Connect your wallet to view your transaction history
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen bg-black text-white ${manrope.className}`}>
@@ -199,8 +108,8 @@ export default function HistoryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col space-y-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">Swap History</h1>
-              <p className="text-white/60 mt-1">Your transaction records</p>
+              <h1 className="text-3xl font-bold text-white">Transaction History</h1>
+              <p className="text-white/60 mt-1">Your on-chain transaction records</p>
             </div>
             
             {/* Stats Bar */}
@@ -211,17 +120,11 @@ export default function HistoryPage() {
               </div>
               <div className="flex-shrink-0 bg-white/5 rounded-lg p-4 min-w-[150px] border border-white/10">
                 <div className="text-2xl font-bold text-white">${stats.volume.toLocaleString()}</div>
-                <div className="text-white/60 text-sm">Volume</div>
+                <div className="text-white/60 text-sm">Estimated Volume</div>
               </div>
               <div className="flex-shrink-0 bg-white/5 rounded-lg p-4 min-w-[150px] border border-white/10">
-                <div className={`text-2xl font-bold ${getProfitLossColor(stats.netProfit)}`}>
-                  ${stats.netProfit.toFixed(2)}
-                </div>
-                <div className="text-white/60 text-sm">Net Profit</div>
-              </div>
-              <div className="flex-shrink-0 bg-white/5 rounded-lg p-4 min-w-[150px] border border-white/10">
-                <div className="text-2xl font-bold text-white">{stats.successRate.toFixed(1)}%</div>
-                <div className="text-white/60 text-sm">Success Rate</div>
+                <div className="text-2xl font-bold text-white">{uniqueDexes.length}</div>
+                <div className="text-white/60 text-sm">DEXs Used</div>
               </div>
             </div>
           </div>
@@ -231,158 +134,201 @@ export default function HistoryPage() {
       {/* Filters */}
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-white/60" />
-              <select 
-                value={timeRange} 
-                onChange={(e) => setTimeRange(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="24h">Last 24 hours</option>
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="all">All time</option>
-              </select>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-white/60" />
+                <div className="flex space-x-1">
+                  {['all', ...uniqueDexes].map((dex) => (
+                    <button
+                      key={dex}
+                      onClick={() => setSelectedDex(dex)}
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                        selectedDex === dex
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
+                      }`}
+                    >
+                      {dex === 'all' ? 'All DEXs' : dex}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Filter className="w-4 h-4 text-white/60" />
-              <div className="flex space-x-1">
-                {['all', ...uniqueDexes].map((dex) => (
-                  <button
-                    key={dex}
-                    onClick={() => setSelectedDex(dex)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      selectedDex === dex
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
-                    }`}
-                  >
-                    {dex === 'all' ? 'All DEXs' : dex}
-                  </button>
-                ))}
+            <button
+              onClick={() => refetch()}
+              disabled={loading}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              )}
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {error && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <div>
+                <p className="text-red-400 font-medium">Error loading transaction history</p>
+                <p className="text-red-400/80 text-sm">{error.message}</p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Table */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white/5 rounded-lg overflow-hidden border border-white/10">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-white/5">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Pair</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Slippage</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">DEX Aggregator</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Profit/Loss</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Transaction</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/10">
-                {mockHistoryData.map((item) => (
-                  <tr 
-                    key={item.id} 
-                    className="hover:bg-white/5 transition-colors cursor-pointer"
-                    onClick={() => setExpandedRow(expandedRow === item.id ? null : item.id)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
-                      {formatDate(item.date)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
-                            <Image
-                              src={item.fromLogo}
-                              alt={`${item.fromToken} logo`}
-                              width={24}
-                              height={24}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <span>{item.fromToken}</span>
-                        </div>
-                        <span className="text-white/60">→</span>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
-                            <Image
-                              src={item.toLogo}
-                              alt={`${item.toToken} logo`}
-                              width={24}
-                              height={24}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <span>{item.toToken}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
-                      <div>{item.amount}</div>
-                      <div className="text-xs text-white/40">{item.value}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`${getSlippageColor(item.slippage)}`}>
-                        {item.slippage > 0 ? '+' : ''}{item.slippage.toFixed(2)}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
-                          <Image
-                            src={item.dexLogo}
-                            alt={`${item.dexAggregator} logo`}
-                            width={24}
-                            height={24}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <span className="text-white/80">{item.dexAggregator}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`${getProfitLossColor(item.profitLoss)}`}>
-                        {item.profitLoss > 0 ? '+' : ''}${item.profitLoss.toFixed(2)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openTransaction(item.txHash);
-                        }}
-                        className="flex items-center space-x-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors"
-                      >
-                        <span className="text-xs font-mono">{formatTxHash(item.txHash)}</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    </td>
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
+              <p className="text-white/60">Loading transaction history...</p>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && swaps.length === 0 && (
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">📊</div>
+            <h3 className="text-xl font-semibold text-white mb-2">No transactions found</h3>
+            <p className="text-white/60">
+              {selectedDex === 'all' 
+                ? "You haven't made any swaps yet. Start trading to see your history here!"
+                : `No transactions found for ${selectedDex}. Try selecting a different DEX or clear the filter.`
+              }
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && swaps.length > 0 && (
+          <div className="bg-white/5 rounded-lg overflow-hidden border border-white/10">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      Block Number
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      Pair
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      DEX Aggregator
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      Transaction Hash
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {swaps.map((swap: Swap) => {
+                    const tokenIn = getTokenDisplay(swap.token_in);
+                    const tokenOut = swap.token_out ? getTokenDisplay(swap.token_out) : null;
+                    const dex = getDexDisplay(swap.dex_name);
+                    
+                    return (
+                      <tr key={swap.id} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80 hover:underline">
+                         <Link href={`https://testnet.sonicscan.org/block/${swap.block_number}`} target="_blank" rel="noopener noreferrer">
+                           #{swap.block_number}
+                         </Link>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                          {formatDate(swap.timestamp)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
+                                <Image
+                                  src={tokenIn.logo}
+                                  alt={`${tokenIn.symbol} logo`}
+                                  width={24}
+                                  height={24}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <span>{tokenIn.symbol}</span>
+                            </div>
+                            {tokenOut && (
+                              <>
+                                <span className="text-white/60">→</span>
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
+                                    <Image
+                                      src={tokenOut.logo}
+                                      alt={`${tokenOut.symbol} logo`}
+                                      width={24}
+                                      height={24}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <span>{tokenOut.symbol}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                          <div>
+                            <div className="font-medium">
+                              {formatTokenAmount(swap.amount_in)} {tokenIn.symbol}
+                            </div>
+                            {swap.amount_out && tokenOut && (
+                              <div className="text-xs text-white/40">
+                                → {formatTokenAmount(swap.amount_out)} {tokenOut.symbol}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10">
+                              <Image
+                                src={dex.logo}
+                                alt={`${dex.name} logo`}
+                                width={24}
+                                height={24}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <span className="text-white/80">{dex.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <button
+                            onClick={() => openTransaction(swap.transaction_hash)}
+                            className="cursor-pointer flex items-center space-x-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors"
+                          >
+                            <span className="text-xs font-mono">{formatTxHash(swap.transaction_hash)}</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-end mt-6">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors">
-              Previous
-            </button>
-            <button className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg">1</button>
-            <button className="px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors">
-              Next
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
-} 
+}

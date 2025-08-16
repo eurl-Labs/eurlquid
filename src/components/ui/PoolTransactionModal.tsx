@@ -399,7 +399,7 @@ export function PoolTransactionModal({
                           className="p-3 rounded-lg border border-white/10"
                           style={{ background: "#0F172A" }}
                         >
-                          <div className="flex items-center justify-between cursor-pointer">
+                          <div className="flex items-center justify-between">
                             <code className="text-xs text-[#9FFF85] font-mono">
                               {txHash.slice(0, 12)}...{txHash.slice(-8)}
                             </code>

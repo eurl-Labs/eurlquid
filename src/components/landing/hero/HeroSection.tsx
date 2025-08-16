@@ -1,6 +1,6 @@
 "use client";
 import { SplitText } from "../split-text";
-import Link from "next/link";
+import { NavigationLink } from "@/components/ui/NavigationLink";
 
 export function HeroSection() {
   return (
@@ -40,11 +40,11 @@ export function HeroSection() {
           MEV protection, and optimal execution timing across all major DEXs.
         </h2>
         <div className="flex sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
-          <Link href="/swap">
+          <NavigationLink href="/swap">
             <button className="font-bold cursor-pointer text-red hover:before:bg-black relative h-[50px] w-40 overflow-hidden border border-white bg-white px-3 text-black shadow-2xl transition-all before:absolute before:bottom-0 before:left-0 before:top-0 before:z-0 before:h-full before:w-0 before:bg-white before:transition-all before:duration-500 hover:text-white hover:shadow-white hover:before:left-0 hover:before:w-full">
               <span className="relative z-10">Swap Now</span>
             </button>
-          </Link>
+          </NavigationLink>
         </div>
       </div>
     </div>

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
 import { WalletProviders } from "@/providers/WalletProviders";
+import { GraphQLProvider } from "@/providers/ApolloProvider";
 import { SimpleFooter } from "@/components/landing/layout/SimpleFooter";
+import { NavigationLoadingProvider } from "@/contexts/NavigationLoadingContext";
+import { NavigationLoadingBar } from "@/components/ui/NavigationLoadingBar";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,8 +37,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <WalletProviders>{children}</WalletProviders>
-        <SimpleFooter />
+        <NavigationLoadingProvider>
+          <NavigationLoadingBar />
+          <GraphQLProvider>
+            <WalletProviders>{children}</WalletProviders>
+          </GraphQLProvider>
+          <SimpleFooter />
+        </NavigationLoadingProvider>
       </body>
     </html>
   );

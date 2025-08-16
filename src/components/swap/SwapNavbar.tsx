@@ -12,11 +12,11 @@ import {
   ArrowLeftRight,
   Compass,
 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ConnectWalletButton } from "@/components/wallet/ConnectWalletButton";
+import { NavigationLink } from "@/components/ui/NavigationLink";
 
 export function SwapNavbar() {
   const pathname = usePathname();
@@ -47,7 +47,7 @@ export function SwapNavbar() {
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Page Title */}
           <div className="flex items-center space-x-4">
-            <Link
+            <NavigationLink
               href="/"
               className="flex items-center space-x-3 text-white hover:text-white/80 transition-colors"
             >
@@ -59,7 +59,7 @@ export function SwapNavbar() {
                 className="rounded-full"
               />
               <span className="text-lg font-bold text-white">eurlquid</span>
-            </Link>
+            </NavigationLink>
             
             <div className="hidden sm:block w-px h-6 bg-white/20"></div>
             
@@ -70,7 +70,7 @@ export function SwapNavbar() {
 
           {/* Center - Navigation Menu (Desktop) */}
           <div className="hidden lg:flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10">
-            <Link
+            <NavigationLink
               href="/swap"
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                 pathname === "/swap"
@@ -80,9 +80,9 @@ export function SwapNavbar() {
             >
               <ArrowLeftRight className="w-4 h-4" />
               <span>Swap</span>
-            </Link>
+            </NavigationLink>
 
-            <Link
+            <NavigationLink
               href="/bridge"
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                 pathname === "/bridge"
@@ -91,11 +91,11 @@ export function SwapNavbar() {
               }`}
             >
               <span>Bridge</span>
-            </Link>
+            </NavigationLink>
 
             {/* Explore dropdown/menu */}
             <div className="relative group">
-              <Link
+              <NavigationLink
                 href="/pool"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                   isExplorePage
@@ -105,12 +105,12 @@ export function SwapNavbar() {
               >
                 <Compass className="w-4 h-4" />
                 <span>Explore</span>
-              </Link>
+              </NavigationLink>
 
               {/* Dropdown menu for Explore */}
               <div className="absolute top-full left-0 mt-2 w-48 bg-white backdrop-blur-lg border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="p-2">
-                  <Link
+                  <NavigationLink
                     href="/pool"
                     className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                       pathname === "/pool"
@@ -120,8 +120,8 @@ export function SwapNavbar() {
                   >
                     <Droplets className="w-4 h-4" />
                     <span>Liquidity Pools</span>
-                  </Link>
-                  <Link
+                  </NavigationLink>
+                  <NavigationLink
                     href="/liquidity"
                     className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                       pathname === "/liquidity"
@@ -131,8 +131,8 @@ export function SwapNavbar() {
                   >
                     <Search className="w-4 h-4" />
                     <span>Explorer</span>
-                  </Link>
-                  <Link
+                  </NavigationLink>
+                  <NavigationLink
                     href="/faucets"
                     className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                       pathname === "/faucets"
@@ -142,12 +142,12 @@ export function SwapNavbar() {
                   >
                     <TrendingUp className="w-4 h-4" />
                     <span>Faucets</span>
-                  </Link>
+                  </NavigationLink>
                 </div>
               </div>
             </div>
 
-            <Link
+            <NavigationLink
               href="/history"
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                 pathname === "/history"
@@ -157,7 +157,7 @@ export function SwapNavbar() {
             >
               <Clock className="w-4 h-4" />
               <span>History</span>
-            </Link>
+            </NavigationLink>
           </div>
 
           {/* Right side - Actions */}
@@ -193,7 +193,7 @@ export function SwapNavbar() {
               </div>
 
               {/* Navigation Links */}
-              <Link
+              <NavigationLink
                 href="/swap"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
@@ -204,9 +204,9 @@ export function SwapNavbar() {
               >
                 <ArrowLeftRight className="w-5 h-5" />
                 <span>Swap Tokens</span>
-              </Link>
+              </NavigationLink>
 
-              <Link
+              <NavigationLink
                 href="/bridge"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
@@ -216,14 +216,14 @@ export function SwapNavbar() {
                 }`}
               >
                 <span>Bridge Assets</span>
-              </Link>
+              </NavigationLink>
 
               {/* Explore Section */}
               <div className="space-y-1">
                 <div className="px-4 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">
                   Explore
                 </div>
-                <Link
+                <NavigationLink
                   href="/pool"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
@@ -234,9 +234,9 @@ export function SwapNavbar() {
                 >
                   <Droplets className="w-5 h-5" />
                   <span>Liquidity Pools</span>
-                </Link>
+                </NavigationLink>
 
-                <Link
+                <NavigationLink
                   href="/liquidity"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
@@ -247,9 +247,9 @@ export function SwapNavbar() {
                 >
                   <Search className="w-5 h-5" />
                   <span>Liquidity Explorer</span>
-                </Link>
+                </NavigationLink>
 
-                <Link
+                <NavigationLink
                   href="/faucets"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
@@ -260,10 +260,10 @@ export function SwapNavbar() {
                 >
                   <TrendingUp className="w-5 h-5" />
                   <span>Testnet Faucets</span>
-                </Link>
+                </NavigationLink>
               </div>
 
-              <Link
+              <NavigationLink
                 href="/history"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
@@ -274,7 +274,7 @@ export function SwapNavbar() {
               >
                 <Clock className="w-5 h-5" />
                 <span>Transaction History</span>
-              </Link>
+              </NavigationLink>
 
 
             </div>

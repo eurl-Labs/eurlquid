@@ -1,4 +1,4 @@
-export { SwapInterface } from './BridgeInterface'
-export { SwapNavbar } from './SwapNavbar'
-export { SwapCard } from './BridgeCard'
+export { BridgeInterface } from './BridgeInterface'
+export { BridgeCard } from './BridgeCard'
 export { RoutesList } from './RoutesList'
+export { BridgeHelpModal } from './BridgeHelpModal'

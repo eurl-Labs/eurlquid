@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Manrope } from 'next/font/google'
 import { SwapNavbar } from '@/components/swap/SwapNavbar'
 import { Search, BarChart3, Users, TrendingUp, DollarSign, Shield, Target, Activity } from 'lucide-react'
+import { useMemo } from 'react'
 
 const manrope = Manrope({ subsets: ['latin'] })
 
@@ -17,6 +18,7 @@ export default function LiquidityExplorer() {
     { name: 'Pool comparison tools', icon: TrendingUp }
   ]
 
+  // Memoize large data array to prevent unnecessary re-renders
   const dexAggregatorsByLiquidity = [
     {
       name: 'Uniswap V3',
