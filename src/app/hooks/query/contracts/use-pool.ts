@@ -7,7 +7,7 @@ import {
 import { readContract } from "wagmi/actions";
 import { parseEther, formatEther, zeroAddress } from "viem";
 import { useState } from "react";
-import { config } from "../../../../config/wagmi";
+import { config } from "../../../../config/reown";
 
 export const DEX_AGGREGATORS = {
   Uniswap: {

@@ -51,11 +51,8 @@ export const config = getDefaultConfig({
   wallets: [
     {
       groupName: 'Popular',
-      wallets: [
-        metaMaskWallet,      // ✅ Put MetaMask first as most stable
+      wallets: [  
         rabbyWallet,        
-        braveWallet,
-        coinbaseWallet,
         walletConnectWallet,
       ],
     },
