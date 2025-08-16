@@ -61,11 +61,13 @@ export function PopularPools() {
     const reserveA = parseFloat(pool.reserve_a);
     const reserveB = parseFloat(pool.reserve_b);
     const totalValue = (reserveA + reserveB) / 1e18 * 100; // Mock price
-    return totalValue > 1000000 
-      ? `$${(totalValue / 1000000).toFixed(1)}M` 
-      : totalValue > 1000 
-        ? `$${(totalValue / 1000).toFixed(1)}K`
-        : `$${totalValue.toFixed(0)}`;
+    if (totalValue > 1000000) {
+      return `$${(totalValue / 1000000).toFixed(1)}M`;
+    } else if (totalValue > 1000) {
+      return `$${(totalValue / 1000).toFixed(1)}K`;
+    } else {
+      return `$${totalValue.toFixed(0)}`;
+    }
   };
 
   return (

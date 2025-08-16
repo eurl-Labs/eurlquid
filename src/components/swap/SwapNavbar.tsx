@@ -82,7 +82,7 @@ export function SwapNavbar() {
               <span>Swap</span>
             </NavigationLink>
 
-            <NavigationLink
+            {/* <NavigationLink
               href="/bridge"
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                 pathname === "/bridge"
@@ -91,7 +91,7 @@ export function SwapNavbar() {
               }`}
             >
               <span>Bridge</span>
-            </NavigationLink>
+            </NavigationLink> */}
 
             {/* Explore dropdown/menu */}
             <div className="relative group">

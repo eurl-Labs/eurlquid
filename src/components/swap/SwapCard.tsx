@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowDownUp, ChevronDown, Brain, HelpCircle } from "lucide-react";
+import { ArrowDownUp, Brain, HelpCircle } from "lucide-react";
 import { SwapHelpModal } from "./SwapHelpModal";
+import { TokenSelector } from "./TokenSelector";
+import { useTokenBalance, type TokenSymbol } from "@/app/hooks/query/contracts/use-token-balance";
 import { useAnalysisStore } from "@/store/userprompt-store";
 
 interface SwapCardProps {
@@ -15,6 +17,21 @@ interface SwapCardProps {
   onInputFocus?: () => void;
   onInputBlur?: () => void;
 }
+
+// Token mapping for display (swap format -> pool format)
+const SWAP_TO_POOL_TOKEN: Record<string, string> = {
+  "ETH": "WETH", // Display as ETH but use WETH internally
+  "USDC": "USDC",
+  "USDT": "USDT", 
+  "WBTC": "WBTC",
+  "WSONIC": "WSONIC",
+  "PEPE": "PEPE",
+  "PENGU": "PENGU",
+  "DPENGU": "DARKPENGU", // Pool uses DARKPENGU
+  "GOONER": "GOONER",
+  "ABSTER": "ABSTER",
+  "POLLY": "POLLY",
+};
 
 export function SwapCard({
   fromAmount,
@@ -29,9 +46,35 @@ export function SwapCard({
   const [toAmount, setToAmount] = useState("0.354987");
   const [helpModalOpen, setHelpModalOpen] = useState(false);
 
+  // Get token balances (convert display symbols to pool symbols)
+  const fromPoolToken = SWAP_TO_POOL_TOKEN[fromToken] as TokenSymbol;
+  const toPoolToken = SWAP_TO_POOL_TOKEN[toToken] as TokenSymbol;
+  
+  const { formattedBalance: fromTokenBalance } = useTokenBalance(fromPoolToken);
+  const { formattedBalance: toTokenBalance } = useTokenBalance(toPoolToken);
+
   // Integration with analysis store
   const { setInput, runAnalysis, analysis, loading, error } = useAnalysisStore();
   const parsed = analysis?.parsed;
+
+  // Helper functions
+  const formatDisplayBalance = (balance: string | undefined) => {
+    if (!balance) return "0.0000";
+    const num = parseFloat(balance);
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(2)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(2)}K`;
+    } else {
+      return num.toFixed(4);
+    }
+  };
+
+  const handleMaxClick = () => {
+    if (fromTokenBalance) {
+      setFromAmount(fromTokenBalance);
+    }
+  };
 
   // Update store when tokens or amount change
   useEffect(() => {
@@ -70,12 +113,12 @@ export function SwapCard({
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-white/60">From</span>
-              <button className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 rounded-lg px-2 py-1 transition-colors">
-                <span className="text-sm text-white font-medium">
-                  {fromToken}
-                </span>
-                <ChevronDown className="w-3 h-3 text-white/60" />
-              </button>
+              <TokenSelector
+                selectedToken={fromToken}
+                onTokenSelect={setFromToken}
+                otherToken={toToken}
+                label="From"
+              />
             </div>
 
             <input
@@ -90,8 +133,20 @@ export function SwapCard({
             <div className="mt-2">
               <span className="text-sm text-white/60">≈ $3,549.87</span>
             </div>
-            <div className="flex justify-end">
-              <span className="text-sm text-white/60">Balance: 2.5 ETH</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-white/60">
+                  Balance: {formatDisplayBalance(fromTokenBalance)} {fromToken}
+                </span>
+                {fromTokenBalance && parseFloat(fromTokenBalance) > 0 && (
+                  <button
+                    onClick={handleMaxClick}
+                    className="text-xs bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded transition-colors"
+                  >
+                    MAX
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -112,12 +167,12 @@ export function SwapCard({
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-white/60">To</span>
-              <button className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 rounded-lg px-2 py-1 transition-colors">
-                <span className="text-sm text-white font-medium">
-                  {toToken}
-                </span>
-                <ChevronDown className="w-3 h-3 text-white/60" />
-              </button>
+              <TokenSelector
+                selectedToken={toToken}
+                onTokenSelect={setToToken}
+                otherToken={fromToken}
+                label="To"
+              />
             </div>
             <input
               type="text"
@@ -130,7 +185,7 @@ export function SwapCard({
             </div>
             <div className="flex justify-end">
               <span className="text-sm text-white/60">
-                Balance: 15,420 USDC
+                Balance: {formatDisplayBalance(toTokenBalance)} {toToken}
               </span>
             </div>
           </div>

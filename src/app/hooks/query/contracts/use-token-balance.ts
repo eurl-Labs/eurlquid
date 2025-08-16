@@ -2,6 +2,9 @@ import { useReadContract, useAccount } from "wagmi";
 import { POOL_TOKENS, type TokenSymbol } from "./use-pool";
 import { formatEther } from "viem";
 
+// Re-export TokenSymbol for external use
+export type { TokenSymbol };
+
 const ERC20_ABI = [
   {
     inputs: [{ internalType: "address", name: "account", type: "address" }],
