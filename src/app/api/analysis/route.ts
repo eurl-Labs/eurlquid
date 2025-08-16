@@ -27,9 +27,17 @@ export async function POST(req: NextRequest) {
     if (!from || !to) return NextResponse.json({ error: 'Unsupported token' }, { status: 400 });
 
     // Fetch DeFiLlama overview (cross-protocol context)
-    const dexOverview = await getDexOverview();
-    const uniOverview = dexOverview.find(p => p.name?.toLowerCase().includes('uniswap') && p.chain?.toLowerCase() === 'ethereum');
-    const curveOverview = dexOverview.find(p => p.name?.toLowerCase().includes('curve') && p.chain?.toLowerCase() === 'ethereum');
+    let dexOverview: any[] = [];
+    let uniOverview = null;
+    let curveOverview = null;
+    
+    try {
+      dexOverview = await getDexOverview();
+      uniOverview = dexOverview.find(p => p.name?.toLowerCase().includes('uniswap v3'));
+      curveOverview = dexOverview.find(p => p.name?.toLowerCase().includes('curve'));
+    } catch (e: any) {
+      console.log('DeFiLlama overview failed:', e?.message);
+    }
 
   // Map ETH to WETH for Uniswap pool lookups
   const mapToUniAddress = (addr: string, sym: string) => sym === 'ETH' ? TOKENS.WETH.address : addr;
@@ -46,11 +54,8 @@ export async function POST(req: NextRequest) {
     // Fetch TheGraph data: Curve tokens (as Curve uses different schema)
     let curvePools: any = null;
     try {
-      console.log('Attempting Curve query...');
       curvePools = await theGraphQuery('curveEthereum', queries.curve.tokens(10));
-      console.log('Curve query successful:', curvePools);
     } catch (e: any) {
-      console.log('Curve query failed:', e?.message || e);
       curvePools = { error: 'curve query failed', details: e?.message || 'unknown error' };
     }
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BASE_URL = 'https://coins.llama.fi';
-const LLAMA_DEX_URL = 'https://api.llama.fi/dexs';
+const LLAMA_PROTOCOLS_URL = 'https://api.llama.fi/protocols';
 
 export interface PriceResult {
   coins: Record<string, { price: number; symbol: string; decimals?: number; confidence: number; timestamp: number }>;
@@ -27,18 +27,15 @@ export interface DexOverviewItem {
 }
 
 export async function getDexOverview(): Promise<DexOverviewItem[]> {
-  try {
-    const url = `${LLAMA_DEX_URL}`;
-    const res = await axios.get(url, { timeout: 10_000 });
-    const items = (res.data?.protocols || res.data || []) as any[];
-    return items.map((p) => ({
-      name: p?.name,
-      chain: p?.chain,
-      tvlUsd: p?.tvl ?? p?.tvlUsd,
-      volumeUsd1d: p?.dailyVolume ?? p?.volumeUsd1d,
-      volumeUsd7d: p?.weeklyVolume ?? p?.volumeUsd7d,
-    }));
-  } catch {
-    return [];
-  }
+  const url = `${LLAMA_PROTOCOLS_URL}`;
+  const res = await axios.get(url, { timeout: 10_000 });
+  // The response is an array of protocols
+  const items = (res.data || []) as any[];
+  return items.map((p) => ({
+    name: p?.name,
+    chain: p?.chain || 'Multi-Chain',
+    tvlUsd: p?.tvl,
+    volumeUsd1d: p?.volume1d,
+    volumeUsd7d: p?.volume7d,
+  }));
 }
