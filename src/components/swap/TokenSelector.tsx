@@ -20,7 +20,7 @@ const SWAP_TOKENS = [
   { symbol: "PENGU", name: "Pengu", address: "0x894a84F584D4b84697854Ba0a895Eb122e8791A9", logo: "/images/logoCoin/penguLogo.png" },
   { symbol: "DPENGU", name: "Dark Pengu", address: "0x7DE89E03157F4866Ff5A4F04d3297e88C54bbdb8", logo: "/images/logoCoin/darkPenguLogo.png" },
   { symbol: "GOONER", name: "Gooner", address: "0x92EeEd76021665B8D926069ecd9b5986c6c779fb", logo: "/images/logoCoin/goonerLogo.png" },
-  { symbol: "ABSTER", name: "Abster", address: "0xa989FAf5595228A42C701590515152c2aE0eaC39", logo: "/images/logoCoin/absterLogo.png" },
+  { symbol: "ABSTER", name: "Abster", address: "0xa989FAf5595228A42C701590515152c2aE0eaC39", logo: "/images/logoCoin/absterLogo.jpg" },
   { symbol: "POLLY", name: "Polly", address: "0xFD9bd8cfc9f6326A1496f240E83ff6717f960E20", logo: "/images/logoCoin/pollyLogo.jpg" },
 ];
 
@@ -176,7 +176,7 @@ export function TokenSelector({ selectedToken, onTokenSelect, otherToken, label 
                     damping: 25,
                     stiffness: 300
                   }}
-                  className="w-full max-w-lg max-h-[85vh] bg-black/95 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden"
+                  className="w-full max-w-lg h-[90vh] max-h-[700px] bg-black/95 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
                   style={{
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)'
                   }}
