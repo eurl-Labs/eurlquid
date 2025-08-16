@@ -232,15 +232,15 @@ export function SwapInterface() {
                         <div className="flex flex-col items-center space-y-2">
                           <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <Image
-                              src="/images/logo/sushiLogo.png"
-                              alt="SushiSwap logo"
+                              src="/images/logo/curveLogo.png"
+                              alt="Curve logo"
                               width={24}
                               height={24}
                               className="rounded-full"
                             />
                           </div>
                           <span className="text-white text-sm font-medium">
-                            SushiSwap
+                            Curve
                           </span>
                           <span className="text-white/60 text-xs">
                             Medium Liquidity

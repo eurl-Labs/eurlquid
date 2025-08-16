@@ -4,10 +4,21 @@ export interface AnalysisState {
   fromToken: string;
   toToken: string;
   amount: string;
-  prompt: any | null;
-  analysis: any | null;
+  data: {
+    dex: any;
+    prices: any;
+  } | null;
+  prompts: {
+    system: string;
+    user: string;
+  } | null;
+  analysis: {
+    raw: string;
+    parsed?: any;
+  } | null;
   loading: boolean;
   error: string | null;
+  metadata: any | null;
   setInput: (fromToken: string, toToken: string, amount: string) => void;
   runAnalysis: () => Promise<void>;
 }
@@ -16,10 +27,12 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   fromToken: 'USDC',
   toToken: 'ETH',
   amount: '0',
-  prompt: null,
+  data: null,
+  prompts: null,
   analysis: null,
   loading: false,
   error: null,
+  metadata: null,
   setInput: (fromToken, toToken, amount) => set({ fromToken, toToken, amount }),
   runAnalysis: async () => {
     const { fromToken, toToken, amount } = get();
@@ -32,7 +45,20 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const json = await res.json();
-      set({ prompt: json.prompt, analysis: json.ai, loading: false });
+      
+      // Structure AI response properly
+      const analysis = json.ai ? {
+        raw: json.ai.raw || '',
+        parsed: json.ai.parsed || null
+      } : null;
+      
+      set({ 
+        data: json.data,
+        prompts: json.prompts, 
+        analysis: analysis,
+        metadata: json.metadata,
+        loading: false 
+      });
     } catch (e: any) {
       set({ error: e?.message || 'Unknown error', loading: false });
     }

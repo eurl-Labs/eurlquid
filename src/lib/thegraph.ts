@@ -19,6 +19,7 @@ const SUBGRAPH_IDS = {
   uniswapV2Ethereum: process.env.THEGRAPH_SUBGRAPH_ID_UNISWAP_V2_ETHEREUM || 'A3Np3RQbaBA6oKJgiwDJeo5T3zrYfGHPWFYayMwtNDum',
   curveEthereum: process.env.THEGRAPH_SUBGRAPH_ID_CURVE_ETHEREUM || '3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF',
   curveArbitrum: process.env.THEGRAPH_SUBGRAPH_ID_CURVE_ARBITRUM || 'Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc',
+  balancerEthereum: process.env.THEGRAPH_SUBGRAPH_ID_BALANCER_ETHEREUM || 'C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV',
 } as const;
 
 export type Subgraph = keyof typeof SUBGRAPH_IDS;
@@ -28,6 +29,7 @@ const endpoints: Record<Subgraph, string> = {
   uniswapV2Ethereum: graphUrlForId(SUBGRAPH_IDS.uniswapV2Ethereum),
   curveEthereum: graphUrlForId(SUBGRAPH_IDS.curveEthereum),
   curveArbitrum: graphUrlForId(SUBGRAPH_IDS.curveArbitrum),
+  balancerEthereum: graphUrlForId(SUBGRAPH_IDS.balancerEthereum),
 };
 
 export async function theGraphQuery<T = any>(subgraph: Subgraph, query: string, variables?: Record<string, any>): Promise<T> {
@@ -86,6 +88,43 @@ export const queries = {
           name
           symbol
           decimals
+        }
+      }
+    `,
+  },
+  balancer: {
+    pools: (first = 5) => `
+      query ($first: Int!) {
+        balancers(first: $first) {
+          id
+          poolCount
+          pools {
+            id
+          }
+          snapshots {
+            id
+          }
+        }
+        pools(first: $first) {
+          id
+          address
+          poolType
+          poolTypeVersion
+        }
+      }
+    `,
+    poolsByTokens: (first = 5) => `
+      query ($first: Int!) {
+        pools(first: $first) {
+          id
+          address
+          poolType
+          poolTypeVersion
+          tokens {
+            address
+            symbol
+            decimals
+          }
         }
       }
     `,

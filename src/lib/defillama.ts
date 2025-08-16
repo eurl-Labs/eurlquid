@@ -24,6 +24,7 @@ export interface DexOverviewItem {
   tvlUsd?: number;
   volumeUsd1d?: number;
   volumeUsd7d?: number;
+  category?: string;
 }
 
 export async function getDexOverview(): Promise<DexOverviewItem[]> {
@@ -37,5 +38,21 @@ export async function getDexOverview(): Promise<DexOverviewItem[]> {
     tvlUsd: p?.tvl,
     volumeUsd1d: p?.volume1d,
     volumeUsd7d: p?.volume7d,
+    category: p?.category,
   }));
+}
+
+// Get specific DEX data by name patterns
+export async function getDexByName(patterns: string[]): Promise<Record<string, DexOverviewItem | null>> {
+  const overview = await getDexOverview();
+  const result: Record<string, DexOverviewItem | null> = {};
+  
+  patterns.forEach(pattern => {
+    const found = overview.find(p => 
+      p.name?.toLowerCase().includes(pattern.toLowerCase())
+    );
+    result[pattern] = found || null;
+  });
+  
+  return result;
 }

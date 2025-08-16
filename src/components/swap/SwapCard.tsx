@@ -110,7 +110,6 @@ export function SwapCard({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-white">Smart Swap</h2>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-white/60">Slippage: 0.5%</span>
           <button
             onClick={() => setHelpModalOpen(true)}
             className="cursor-pointer p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
@@ -239,8 +238,8 @@ export function SwapCard({
           {error && (
             <div className="space-y-1 text-sm">
               <div className="text-red-300">Analysis temporarily unavailable</div>
-              <div className="text-white/60">Using fallback recommendations</div>
-              <div className="text-white">Execute via Curve for best rate</div>
+              <div className="text-white/60">AI have trouble with analysis</div>
+              <div className="text-white">do your own research</div>
             </div>
           )}
 
@@ -258,12 +257,12 @@ export function SwapCard({
 
           {!loading && !error && !parsed && (
             <div className="space-y-1 text-sm">
-              <div className="text-white/90">Execute via Curve for best rate</div>
+              <div className="text-white/90">unknown</div>
               <div className="text-white/60">
-                MEV risk: Low • Expected slippage: 0.12%
+                MEV risk: unknown • Expected slippage: unknown
               </div>
               <div className="text-white">
-                Potential savings: +$0.16 vs market
+                Potential savings: unknown
               </div>
             </div>
           )}
