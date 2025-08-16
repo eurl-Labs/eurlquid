@@ -109,3 +109,28 @@ export const GET_ALL_TRADING_DATA = gql`
     }
   }
 `;
+
+// Get Pool by Wallet Address - For user's liquidity positions
+export const GET_POOL_BY_WALLET_ADDRESS = gql`
+  query GetPoolsByCreator($creatorAddress: String!) {
+    poolss(
+      where: { creator: $creatorAddress }
+      orderBy: "created_at"
+      orderDirection: "desc"
+    ) {
+      items {
+        id
+        token_a
+        token_b
+        creator
+        dex_name
+        reserve_a
+        reserve_b
+        total_supply
+        created_at
+        block_number
+        transaction_hash
+      }
+    }
+  }
+`;

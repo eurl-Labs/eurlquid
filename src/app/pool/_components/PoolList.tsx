@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Droplets, TrendingUp, ExternalLink, Plus } from "lucide-react";
 import Image from "next/image";
 import { EXISTING_POOLS, POOL_TOKENS } from "../../hooks/query/contracts/use-pool";
+import { UserLiquidityPositions } from "./UserLiquidityPositions";
 
 interface PoolListProps {
   activeTab: "create" | "existing";
@@ -86,9 +87,13 @@ const getTokenLogo = (symbol: string) => {
 };
 
 export function PoolList({ activeTab }: PoolListProps) {
-  const filteredPools = activeTab === "existing"
-    ? popularPools.filter((pool) => pool.userLiquidity !== "$0")
-    : popularPools;
+  // If showing user positions, use the GraphQL component
+  if (activeTab === "existing") {
+    return <UserLiquidityPositions />;
+  }
+
+  // Otherwise show popular pools
+  const filteredPools = popularPools;
 
   return (
     <motion.div
@@ -104,7 +109,7 @@ export function PoolList({ activeTab }: PoolListProps) {
           <h3 className="text-xl font-bold text-white">
             {activeTab === "create"
               ? "Popular Pools"
-              : "Your Liquidity Positions"}
+              : "Your Pool"}
           </h3>
         </div>
         <span className="text-sm text-white/60">

@@ -61,6 +61,12 @@ const baseTokens = [
     name: 'Abster',
     address: '0xa989FAf5595228A42C701590515152c2aE0eaC39',
     logo: '/images/logoCoin/absterLogo.png'
+  },
+    {
+    symbol: 'POLLY',
+    name: 'Polly',
+    address: '0xFD9bd8cfc9f6326A1496f240E83ff6717f960E20',
+    logo: '/images/logoCoin/pollyLogo.jpg'
   }
 ];
 
