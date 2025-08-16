@@ -5,6 +5,7 @@ import {
   POOL_TOKENS,
   type TokenSymbol,
 } from "../../../hooks/query/contracts/use-pool";
+import { useTokenBalance } from "../../../hooks/query/contracts/use-token-balance";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TokenSelectorProps {
@@ -35,7 +36,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   WSONIC: {
     name: "Wrapped Sonic",
     symbol: "WSONIC",
-    address: "0x039e2fB26b05a3C1DC5B9CD02D3Fc4dE7d9D4C8E",
+    address: "0x6e943f6BFb751512C68d7fB32dB4C3A51011656a",
     decimals: 18,
     logo: "/images/logoCoin/sonicLogo.png",
     balance: "125.48",
@@ -44,7 +45,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   USDC: {
     name: "USD Coin",
     symbol: "USDC",
-    address: "0xA0b86a33E6aBc19b8E1c8F6Ff0B1a8d9F8f7f3b2",
+    address: "0x534dE6164d9314b44c8682Be8E41306A8a8cE2Ae",
     decimals: 6,
     logo: "/images/logoCoin/usdcLogo.png",
     balance: "15,247.50",
@@ -53,7 +54,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   USDT: {
     name: "Tether USD",
     symbol: "USDT",
-    address: "0x55d398326f99059fF775485246999027B3197955",
+    address: "0xEc3a35b973e9cb9e735123a6e4Ba1b3D237A9F7F",
     decimals: 6,
     logo: "/images/logoCoin/usdtLogo.png",
     balance: "8,965.25",
@@ -62,7 +63,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   WETH: {
     name: "Wrapped ETH",
     symbol: "WETH",
-    address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+    address: "0x0e07bce15e5Ae4729eE24b6294Aef7bcB6c2a260",
     decimals: 18,
     logo: "/images/logoCoin/ethLogo.png",
     balance: "3.2574",
@@ -71,7 +72,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   WBTC: {
     name: "Wrapped Bitcoin",
     symbol: "WBTC",
-    address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+    address: "0xBBc467639fbEeDF5ec1eDFfC7Ed22b4666Cdd4bA",
     decimals: 8,
     logo: "/images/logoCoin/wbtcLogo.png",
     balance: "0.1245",
@@ -80,7 +81,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   PENGU: {
     name: "Pudgy Penguins",
     symbol: "PENGU",
-    address: "0x8A419Ef4941355476cf04933E90bf3bbF2F73814",
+    address: "0x894a84F584D4b84697854Ba0a895Eb122e8791A9",
     decimals: 18,
     logo: "/images/logoCoin/penguLogo.png",
     balance: "125,847.68",
@@ -89,7 +90,7 @@ const SONIC_TOKENS: Record<string, SonicTokenInfo> = {
   PEPE: {
     name: "Pepe",
     symbol: "PEPE",
-    address: "0x25D887Ce7a35172C62FeBFD67a1856F20FaEbB00",
+    address: "0x6EB23CA35D4F467d0d2c326B1E23C8BFDF0688B4",
     decimals: 18,
     logo: "/images/logoCoin/pepeLogo.png",
     balance: "1,250,000",
@@ -146,6 +147,19 @@ export function TokenSelector({
   disabled = false,
 }: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Get real balance for selected token
+  const { formattedBalance, isLoading: balanceLoading } = useTokenBalance(selectedToken);
+
+  // Component for getting real token balance
+  const TokenBalanceDisplay = ({ tokenSymbol }: { tokenSymbol: string }) => {
+    const { formattedBalance, isLoading } = useTokenBalance(tokenSymbol as TokenSymbol);
+    
+    if (isLoading) return <span className="text-white/40">Loading...</span>;
+    
+    const displayBalance = parseFloat(formattedBalance) > 0 ? formattedBalance : "0.00";
+    return <span>{formatBalance(displayBalance)}</span>;
+  };
 
   // Filter tokens based on search only (Sonic network only)
   const filteredTokens = Object.entries(SONIC_TOKENS).filter(
@@ -166,9 +180,11 @@ export function TokenSelector({
 
   const formatBalance = (balance: string) => {
     const num = parseFloat(balance.replace(/,/g, ""));
+    if (num === 0) return "0.00";
     if (num > 1000000) return (num / 1000000).toFixed(2) + "M";
     if (num > 1000) return (num / 1000).toFixed(2) + "K";
-    return balance;
+    if (num < 0.01) return num.toExponential(2);
+    return num.toFixed(2);
   };
 
   return (
@@ -402,7 +418,7 @@ export function TokenSelector({
                               </div>
                               <div className="text-right">
                                 <div className="text-white font-medium">
-                                  {formatBalance(token.balance)}
+                                  <TokenBalanceDisplay tokenSymbol={symbol} />
                                 </div>
                                 <div className="text-xs text-white/60 mt-0.5">
                                   Balance
@@ -453,6 +469,34 @@ export function TokenSelector({
           />
         </div>
       </div>
+
+      {/* Balance Display */}
+      {selectedToken && (
+        <div className="flex justify-between items-center mt-2 px-1">
+          <span className="text-xs text-white/60">
+            Available Balance:
+          </span>
+          <div className="flex items-center space-x-2">
+            {balanceLoading ? (
+              <span className="text-xs text-white/40">Loading...</span>
+            ) : (
+              <span className="text-xs text-white font-medium">
+                {parseFloat(formattedBalance) > 0 ? parseFloat(formattedBalance).toFixed(4) : "0.00"} {selectedToken}
+              </span>
+            )}
+            <button
+              onClick={() => {
+                if (parseFloat(formattedBalance) > 0) {
+                  onAmountChange(formattedBalance);
+                }
+              }}
+              className="text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+            >
+              MAX
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

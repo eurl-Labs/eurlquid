@@ -2,6 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ChevronDown, Search, X } from "lucide-react";
 import { POOL_TOKENS, type TokenSymbol } from "../../../hooks/query/contracts/use-pool";
+import { useTokenBalance } from "../../../hooks/query/contracts/use-token-balance";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface EnhancedTokenSelectorProps {
@@ -28,6 +29,40 @@ export function EnhancedTokenSelector({
   disabled = false
 }: EnhancedTokenSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Get real balance for selected token
+  const { formattedBalance, isLoading: balanceLoading } = useTokenBalance(selectedToken);
+
+  // Component for getting real token balance in the list
+  const TokenBalanceDisplay = ({ tokenSymbol }: { tokenSymbol: string }) => {
+    const { formattedBalance, isLoading } = useTokenBalance(tokenSymbol as TokenSymbol);
+    
+    if (isLoading) return <span className="text-white/40 text-xs">Loading...</span>;
+    
+    const num = parseFloat(formattedBalance);
+    let displayBalance = "0.00";
+    
+    if (num === 0) {
+      displayBalance = "0.00";
+    } else if (num > 1000000) {
+      displayBalance = (num / 1000000).toFixed(2) + "M";
+    } else if (num > 1000) {
+      displayBalance = (num / 1000).toFixed(2) + "K";
+    } else if (num < 0.01) {
+      displayBalance = num.toExponential(2);
+    } else {
+      displayBalance = num.toFixed(4);
+    }
+    
+    return (
+      <div className="text-right">
+        <div className="text-white font-medium text-sm">
+          {displayBalance}
+        </div>
+        <div className="text-xs text-white/60">Balance</div>
+      </div>
+    );
+  };
 
   // Filter tokens based on search using real POOL_TOKENS data
   const filteredTokens = Object.entries(POOL_TOKENS).filter(([symbol, token]) => {
@@ -254,8 +289,9 @@ export function EnhancedTokenSelector({
                                 </div>
                               </div>
                               <div className="text-right">
+                                <TokenBalanceDisplay tokenSymbol={symbol} />
                                 {selectedToken === symbol && (
-                                  <div className="flex items-center justify-end">
+                                  <div className="flex items-center justify-end mt-1">
                                     <div className="w-2 h-2 rounded-full bg-blue-400" />
                                   </div>
                                 )}
@@ -300,6 +336,34 @@ export function EnhancedTokenSelector({
           />
         </div>
       </div>
+
+      {/* Balance Display */}
+      {selectedToken && (
+        <div className="flex justify-between items-center mt-2 px-1">
+          <span className="text-xs text-white/60">
+            Available Balance:
+          </span>
+          <div className="flex items-center space-x-2">
+            {balanceLoading ? (
+              <span className="text-xs text-white/40">Loading...</span>
+            ) : (
+              <span className="text-xs text-white font-medium">
+                {parseFloat(formattedBalance) > 0 ? parseFloat(formattedBalance).toFixed(4) : "0.00"} {selectedToken}
+              </span>
+            )}
+            <button
+              onClick={() => {
+                if (parseFloat(formattedBalance) > 0) {
+                  onAmountChange(formattedBalance);
+                }
+              }}
+              className="text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+            >
+              MAX
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

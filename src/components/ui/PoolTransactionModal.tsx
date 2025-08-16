@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle, ExternalLink, Clock, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
+import { PoolLogo, AddLiquidityLogo } from "../../../public/images/animation";
 
 export type PoolTransactionStep =
   | "approve-first-token"
@@ -470,7 +471,22 @@ export function PoolTransactionModal({
 
                       {(step === "create-pool" || step === "add-liquidity") && (
                         <>
-                          <Clock className="w-5 h-5 text-[#00FF85]" />
+                          {/* <Clock className="w-5 h-5 text-[#00FF85]" /> */}
+                          {step === "create-pool" ? (
+                            <Image
+                              src={PoolLogo}
+                              alt="create-pool"
+                              width={24}
+                              height={24}
+                            />
+                          ) : (
+                            <Image
+                              src={AddLiquidityLogo}
+                              alt="add-liquidity"
+                              width={24}
+                              height={24}
+                            />
+                          )}
                           <span className="text-sm text-[#B0B7C3]">
                             {step === "create-pool"
                               ? "Click the button to create a pool"
