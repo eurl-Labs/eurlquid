@@ -72,6 +72,30 @@ export const FAUCET_TOKENS = {
     amount: "100000",
     logo: "/images/logoCoin/pollyLogo.jpg",
   },
+  DARKPENGU: {
+    name: "Dark Pengu",
+    symbol: "DPENGU",
+    address: "0x7DE89E03157F4866Ff5A4F04d3297e88C54bbdb8" as `0x${string}`,
+    amount: "100000",
+    decimals: 18,
+    logo: "/images/logoCoin/darkPenguLogo.png",
+  },
+  GOONER: {
+    name: "PURGY PENGOON",
+    symbol: "GOONER",
+    address: "0x92EeEd76021665B8D926069ecd9b5986c6c779fb" as `0x${string}`,
+    amount: "100000",
+    decimals: 18,
+    logo: "/images/logoCoin/goonerLogo.png",
+  },
+    ABSTER: {
+    name: "Abster",
+    symbol: "ABSTER",
+    address: "0xa989FAf5595228A42C701590515152c2aE0eaC39" as `0x${string}`,
+    amount: "100000",
+    decimals: 18,
+    logo: "/images/logoCoin/absterLogo.jpg",
+  },
 } as const;
 
 // ERC20 ABI with mint function

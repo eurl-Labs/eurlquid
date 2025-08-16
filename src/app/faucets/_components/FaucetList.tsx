@@ -5,31 +5,70 @@ import { Droplets, Clock, CheckCircle, ExternalLink, AlertCircle } from "lucide-
 import Image from "next/image";
 import { FAUCET_TOKENS, type TokenSymbol, useFaucet } from "../../hooks/query/contracts/use-faucet-tokens";
 import { useAccount } from "wagmi";
+import { useState } from "react";
+
+interface ClaimRecord {
+  token: TokenSymbol;
+  timestamp: number;
+}
 
 interface FaucetListProps {
   onSelectToken: (token: TokenSymbol) => void;
   selectedToken: TokenSymbol | null;
-  claimHistory: TokenSymbol[];
+  claimHistory: ClaimRecord[];
   onClaim: (tokenSymbol: TokenSymbol) => void;
+  isTokenOnCooldown: (tokenSymbol: TokenSymbol) => boolean;
+  getTimeUntilAvailable: (tokenSymbol: TokenSymbol) => number;
 }
 
 export function FaucetList({ 
   onSelectToken, 
   selectedToken, 
   claimHistory, 
-  onClaim 
+  onClaim,
+  isTokenOnCooldown,
+  getTimeUntilAvailable
 }: FaucetListProps) {
   const { isConnected } = useAccount();
-  const { claimToken, isLoading } = useFaucet();
+  const { claimToken } = useFaucet();
+  
+  // Track individual token claiming states
+  const [claimingTokens, setClaimingTokens] = useState<Set<TokenSymbol>>(new Set());
+
+  // Format time remaining for display
+  const formatTimeRemaining = (milliseconds: number): string => {
+    const totalSeconds = Math.ceil(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  };
 
   const handleQuickClaim = async (tokenSymbol: TokenSymbol) => {
-    if (!isConnected || claimHistory.includes(tokenSymbol)) return;
+    if (!isConnected || isTokenOnCooldown(tokenSymbol) || claimingTokens.has(tokenSymbol)) return;
+    
+    // Add token to claiming set
+    setClaimingTokens(prev => new Set(prev).add(tokenSymbol));
     
     try {
       await claimToken(tokenSymbol);
       onClaim(tokenSymbol);
     } catch (err) {
       console.error('Quick claim failed:', err);
+    } finally {
+      // Remove token from claiming set
+      setClaimingTokens(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(tokenSymbol);
+        return newSet;
+      });
     }
   };
 
@@ -52,8 +91,11 @@ export function FaucetList({
 
       <div className="space-y-3">
         {Object.entries(FAUCET_TOKENS).map(([symbol, token], index) => {
-          const isClaimed = claimHistory.includes(symbol as TokenSymbol);
+          const tokenSymbol = symbol as TokenSymbol;
+          const isClaimed = isTokenOnCooldown(tokenSymbol);
           const isSelected = selectedToken === symbol;
+          const isClaiming = claimingTokens.has(tokenSymbol);
+          const timeUntilAvailable = getTimeUntilAvailable(tokenSymbol);
           
           return (
             <motion.div
@@ -127,19 +169,24 @@ export function FaucetList({
 
                   <div className="flex items-center space-x-2">
                     {isClaimed ? (
-                      <span className="text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400">
-                        Claimed ✓
-                      </span>
+                      <div className="text-center">
+                        <div className="text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-400 mb-1">
+                          Cooldown
+                        </div>
+                        <div className="text-xs text-white/60">
+                          {formatTimeRemaining(timeUntilAvailable)}
+                        </div>
+                      </div>
                     ) : (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleQuickClaim(symbol as TokenSymbol);
                         }}
-                        disabled={!isConnected || isLoading}
+                        disabled={!isConnected || isClaiming}
                         className="cursor-pointer text-xs px-3 py-1 rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isLoading ? "Claiming..." : "Quick Claim"}
+                        {isClaiming ? "Claiming..." : "Quick Claim"}
                       </button>
                     )}
                     <button className="cursor-pointer"

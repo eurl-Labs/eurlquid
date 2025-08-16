@@ -11,36 +11,33 @@ import {
 
 export function useCreatePoolLogic() {
   console.log('useCreatePoolLogic initialized');
-  console.log('Available DEX_AGGREGATORS:', Object.keys(DEX_AGGREGATORS));
   console.log('Available POOL_TOKENS:', Object.keys(POOL_TOKENS));
+  console.log('Available DEX_AGGREGATORS:', Object.keys(DEX_AGGREGATORS));
 
   // ---------- State ----------
   const [selectedTokenA, setSelectedTokenA] = useState<TokenSymbol | null>(null);
   const [selectedTokenB, setSelectedTokenB] = useState<TokenSymbol | null>(null);
-  const [selectedDex, setSelectedDex] = useState<DexName>(() => {
+  const [selectedDex, setSelectedDex] = useState<DexName>("Uniswap");
+  
+  // Initialize selectedDex from localStorage on client side only
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("selectedDex") as DexName | null;
-      console.log('Saved DEX from localStorage:', saved);
-      console.log('Available DEX keys:', Object.keys(DEX_AGGREGATORS));
-      
-      // Handle old '1inch' key that was renamed to 'OneInch'
       if (saved === '1inch' as any) {
-        console.log('Converting old 1inch key to OneInch');
         localStorage.setItem("selectedDex", "OneInch");
-        return "OneInch";
+        setSelectedDex("OneInch");
+        return;
       }
-      
       if (saved && saved in DEX_AGGREGATORS) {
-        console.log('Using saved DEX:', saved);
-        return saved;
+        setSelectedDex(saved);
       }
     }
-    console.log('Using default DEX: Uniswap');
-    return "Uniswap";
-  });
+  }, []);
   const [amountA, setAmountA] = useState("");
   const [amountB, setAmountB] = useState("");
   const [step, setStep] = useState<"approve" | "create" | "addLiquidity">("approve");
+  const [approvedTokenA, setApprovedTokenA] = useState(false);
+  const [approvedTokenB, setApprovedTokenB] = useState(false);
   const [openMenu, setOpenMenu] = useState<null | "dex" | "tokenA" | "tokenB">(null);
   const [poolId, setPoolId] = useState<`0x${string}` | null>(null);
 
@@ -54,7 +51,8 @@ export function useCreatePoolLogic() {
     isSuccess,
     isError,
     error,
-    txHash
+    txHash,
+    reset
   } = usePool();
 
   // ---------- Derived ----------
@@ -64,25 +62,113 @@ export function useCreatePoolLogic() {
     selectedTokenA !== selectedTokenB &&
     !!amountA &&
     !!amountB &&
+    !!selectedDex &&
     isConnected;
 
-  // ---------- Utils ----------
+  // ✅ Fixed: Separate approval success tracking from pool creation success
+  const [approvalInProgress, setApprovalInProgress] = useState(false);
+  const [approveTokenALoading, setApproveTokenALoading] = useState(false);
+  const [approveTokenBLoading, setApproveTokenBLoading] = useState(false);
+  const [poolCreationInProgress, setPoolCreationInProgress] = useState(false);
+  const [poolCreatedSuccessfully, setPoolCreatedSuccessfully] = useState(false);
+  const [createPoolTxHash, setCreatePoolTxHash] = useState<string | null>(null);
+
+  // ---------- Auto-advance step logic with better debugging ----------
+  useEffect(() => {
+    console.log('🔍 Checking step advancement...', {
+      step,
+      approvedTokenA,
+      approvedTokenB,
+      isSuccess,
+      isLoading,
+      approvalInProgress,
+      poolCreationInProgress
+    });
+
+    // Step 1: Approve → Create (when both tokens approved)
+    if (step === "approve" && approvedTokenA && approvedTokenB && !approvalInProgress) {
+      console.log('✅ Both tokens approved, advancing to create step');
+      setStep("create");
+    } 
+    // Step 2: Create → AddLiquidity (when pool created successfully)
+    else if (step === "create" && isSuccess && !isLoading && poolCreationInProgress) {
+      console.log('✅ Pool created successfully, advancing to addLiquidity step');
+      setStep("addLiquidity");
+      setPoolCreationInProgress(false);
+    }
+  }, [step, approvedTokenA, approvedTokenB, isSuccess, isLoading, approvalInProgress, poolCreationInProgress]);
+
+  // Monitor transaction completion for pool creation - Enhanced like Add Liquidity
+  useEffect(() => {
+    console.log('🔍 Create Pool Success Detection Monitor:', {
+      isSuccess,
+      txHash,
+      poolCreationInProgress,
+      approveTokenALoading,
+      approveTokenBLoading
+    });
+
+    // ONLY detect successful CREATE POOL transactions
+    // Ignore token approval successes by checking if we're in pool creation process
+    if (isSuccess && txHash && poolCreationInProgress) {
+      console.log('🎉 Create Pool Success Detected!');
+      console.log('   Transaction Hash:', txHash);
+      
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(true);
+      setCreatePoolTxHash(txHash);
+      
+      // Reset pool creation progress after showing success state
+      setTimeout(() => {
+        setPoolCreatedSuccessfully(false);
+      }, 5000); // Show success for 5 seconds then reset
+    } 
+    
+    // Handle pool creation errors
+    else if (poolCreationInProgress && isError && !isLoading) {
+      console.log('❌ Pool creation transaction failed!');
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
+      setCreatePoolTxHash(null);
+    }
+
+    // Log when approval transactions complete (for debugging)
+    if (isSuccess && txHash && (approveTokenALoading || approveTokenBLoading)) {
+      console.log('✅ Token Approval Success Detected (not triggering pool creation success)');
+      console.log('   Approval Transaction Hash:', txHash);
+      console.log('   Token A Loading:', approveTokenALoading);
+      console.log('   Token B Loading:', approveTokenBLoading);
+    }
+  }, [poolCreationInProgress, isSuccess, isLoading, isError, txHash, approveTokenALoading, approveTokenBLoading]);
+
+  // Reset states when tokens or DEX change
+  useEffect(() => {
+    console.log('🔄 Tokens or DEX changed, resetting approval status');
+    setApprovedTokenA(false);
+    setApprovedTokenB(false);
+    setStep("approve");
+    setApprovalInProgress(false);
+    setPoolCreationInProgress(false);
+    setPoolCreatedSuccessfully(false);
+    reset(); // Reset wagmi state
+  }, [selectedTokenA, selectedTokenB, selectedDex]); // Remove reset from dependencies
+
+  // ---------- Utils ---------- 
   const computePoolId = useCallback(
-    (tA: TokenSymbol, tB: TokenSymbol, dex: DexName): `0x${string}` => {
+    (tA: TokenSymbol, tB: TokenSymbol): `0x${string}` => {
       try {
         const aAddr = POOL_TOKENS[tA].address.toLowerCase();
         const bAddr = POOL_TOKENS[tB].address.toLowerCase();
-        const dAddr = DEX_AGGREGATORS[dex].address.toLowerCase();
         const [token0, token1] = aAddr < bAddr ? [aAddr, bAddr] : [bAddr, aAddr];
         
         const poolId = keccak256(
           encodePacked(
-            ["address", "address", "address"],
-            [token0 as `0x${string}`, token1 as `0x${string}`, dAddr as `0x${string}`]
+            ["address", "address"],
+            [token0 as `0x${string}`, token1 as `0x${string}`]
           )
         );
         
-        console.log('Computed poolId:', poolId);
+        console.log('Computed poolId:', poolId, 'for tokens:', tA, tB);
         return poolId;
       } catch (error) {
         console.error('Error computing poolId:', error);
@@ -95,12 +181,12 @@ export function useCreatePoolLogic() {
   // ---------- Effects ----------
   useEffect(() => {
     if (selectedTokenA && selectedTokenB) {
-      const newPoolId = computePoolId(selectedTokenA, selectedTokenB, selectedDex);
+      const newPoolId = computePoolId(selectedTokenA, selectedTokenB);
       setPoolId(newPoolId);
     } else {
       setPoolId(null);
     }
-  }, [selectedTokenA, selectedTokenB, selectedDex, computePoolId]);
+  }, [selectedTokenA, selectedTokenB, computePoolId]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -115,20 +201,20 @@ export function useCreatePoolLogic() {
 
   // Log state changes
   useEffect(() => {
-    console.log('State changed:', {
+    console.log('📊 State changed:', {
       selectedTokenA,
       selectedTokenB,
       selectedDex,
       openMenu,
-      poolId
+      poolId,
+      step,
+      approvedTokenA,
+      approvedTokenB,
+      isLoading,
+      isSuccess,
+      isError
     });
-  }, [selectedTokenA, selectedTokenB, selectedDex, openMenu, poolId]);
-
-  // Dedicated useEffect for selectedDex changes
-  useEffect(() => {
-    console.log('selectedDex changed to:', selectedDex);
-    console.log('DEX info:', selectedDex ? DEX_AGGREGATORS[selectedDex] : null);
-  }, [selectedDex]);
+  }, [selectedTokenA, selectedTokenB, selectedDex, openMenu, poolId, step, approvedTokenA, approvedTokenB, isLoading, isSuccess, isError]);
 
   // ---------- Handlers ----------
   const toggleMenu = useCallback((m: "dex" | "tokenA" | "tokenB") => {
@@ -141,21 +227,20 @@ export function useCreatePoolLogic() {
   }, [openMenu]);
 
   const handleDexSelection = useCallback((dexKey: DexName) => {
-    console.log('Hook - handleDexSelection called:', dexKey);
-    console.log('Hook - DEX_AGGREGATORS has key?', dexKey in DEX_AGGREGATORS);
-    console.log('Hook - Current selectedDex before change:', selectedDex);
+    console.log('handleDexSelection called:', dexKey);
+    console.log('DEX_AGGREGATORS has key?', dexKey in DEX_AGGREGATORS);
+    console.log('Will hit contract address:', DEX_AGGREGATORS[dexKey]?.address);
     
     if (!(dexKey in DEX_AGGREGATORS)) {
-      console.error('Hook - Invalid DEX key:', dexKey);
+      console.error('Invalid DEX key:', dexKey);
       return;
     }
-
-    console.log('Hook - Setting selectedDex to:', dexKey);
+    
     setSelectedDex(dexKey);
     localStorage.setItem("selectedDex", dexKey);
     setOpenMenu(null);
-    console.log('Hook - DEX selection completed:', dexKey);
-  }, [selectedDex]);
+    console.log('DEX selection completed:', dexKey, 'Contract Address:', DEX_AGGREGATORS[dexKey].address);
+  }, []);
 
   const handleTokenASelection = useCallback((symbol: TokenSymbol) => {
     console.log('handleTokenASelection called:', symbol);
@@ -171,6 +256,7 @@ export function useCreatePoolLogic() {
       console.log('Auto-clearing selectedTokenB because it matches selectedTokenA');
       setSelectedTokenB(null);
     }
+    // Close dropdown immediately after selection
     setOpenMenu(null);
     console.log('Token A selection completed:', symbol);
   }, [selectedTokenB]);
@@ -189,38 +275,175 @@ export function useCreatePoolLogic() {
       console.log('Auto-clearing selectedTokenA because it matches selectedTokenB');
       setSelectedTokenA(null);
     }
+    // Close dropdown immediately after selection
     setOpenMenu(null);
     console.log('Token B selection completed:', symbol);
   }, [selectedTokenA]);
 
-  const handleApprove = async () => {
-    if (!canProceed || !selectedTokenA || !selectedTokenB) return;
-    console.log('Starting approval process...');
+  // ✅ ENHANCED: Individual token approval functions (like Add Liquidity)
+  const handleApproveTokenA = async () => {
+    if (!selectedTokenA || !amountA || !selectedDex) {
+      console.error('❌ Cannot approve Token A - missing data');
+      return;
+    }
+
+    console.log('🔄 Approving Token A only:', selectedTokenA, 'for DEX:', selectedDex);
+    setApproveTokenALoading(true);
+
     try {
       await approveToken(selectedTokenA, amountA, selectedDex);
-      await approveToken(selectedTokenB, amountB, selectedDex);
-      setStep("create");
-      console.log('Approval completed, step set to create');
+      setApprovedTokenA(true);
+      console.log('✅ Token A approved successfully');
+      
+      // Reset hook state to prevent interference with next approval
+      setTimeout(() => {
+        reset();
+        console.log('🔄 Hook state reset after Token A approval');
+      }, 500);
+      
     } catch (e) {
-      console.error("Approve failed", e);
+      console.error('❌ Token A approval failed:', e);
+    } finally {
+      setApproveTokenALoading(false);
     }
   };
 
-  const handleCreatePool = async () => {
-    if (!selectedTokenA || !selectedTokenB || !poolId) return;
-    console.log('Starting pool creation...');
+  const handleApproveTokenB = async () => {
+    if (!selectedTokenB || !amountB || !selectedDex) {
+      console.error('❌ Cannot approve Token B - missing data');
+      return;
+    }
+
+    console.log('🔄 Approving Token B only:', selectedTokenB, 'for DEX:', selectedDex);
+    setApproveTokenBLoading(true);
+
     try {
-      await createPool(selectedTokenA, selectedTokenB, selectedDex);
-      setStep("addLiquidity");
-      console.log('Pool creation completed, step set to addLiquidity');
+      await approveToken(selectedTokenB, amountB, selectedDex);
+      setApprovedTokenB(true);
+      console.log('✅ Token B approved successfully');
+      
+      // Reset hook state to prevent interference with pool creation
+      setTimeout(() => {
+        reset();
+        console.log('🔄 Hook state reset after Token B approval');
+      }, 500);
+      
     } catch (e) {
-      console.error("Create pool failed", e);
+      console.error('❌ Token B approval failed:', e);
+    } finally {
+      setApproveTokenBLoading(false);
+    }
+  };
+
+  // ✅ DEPRECATED: Keep old function for backward compatibility but log deprecation
+  const handleApprove = async () => {
+    console.warn('⚠️  DEPRECATED: handleApprove is deprecated, use handleApproveTokenA/B instead');
+    
+    if (!canProceed || !selectedTokenA || !selectedTokenB || !selectedDex) {
+      console.error('❌ Cannot proceed with approval - missing data');
+      return;
+    }
+    
+    console.log('🚀 Starting approval process...', {
+      selectedTokenA,
+      selectedTokenB,
+      selectedDex,
+      contractAddress: DEX_AGGREGATORS[selectedDex].address,
+      amountA,
+      amountB
+    });
+
+    // Reset state before starting
+    reset();
+    setApprovalInProgress(true);
+
+    try {
+      // Approve Token A
+      console.log('📝 Approving Token A:', selectedTokenA, 'for DEX:', selectedDex);
+      await approveToken(selectedTokenA, amountA, selectedDex);
+      
+      // Wait for approval to be confirmed
+      console.log('⏳ Waiting for Token A approval confirmation...');
+      // Small delay to ensure state updates
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setApprovedTokenA(true);
+      console.log('✅ Token A approved successfully');
+
+      // Reset for next approval
+      reset();
+      
+      // Approve Token B
+      console.log('📝 Approving Token B:', selectedTokenB, 'for DEX:', selectedDex);
+      await approveToken(selectedTokenB, amountB, selectedDex);
+      
+      // Wait for approval to be confirmed
+      console.log('⏳ Waiting for Token B approval confirmation...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setApprovedTokenB(true);
+      console.log('✅ Token B approved successfully');
+
+      console.log('🎉 All approvals completed for DEX:', selectedDex);
+      
+    } catch (e) {
+      console.error('❌ Approve failed for DEX:', selectedDex, e);
+      setApprovedTokenA(false);
+      setApprovedTokenB(false);
+    } finally {
+      setApprovalInProgress(false);
+    }
+  };
+
+  // ✅ Enhanced: createPool with better error handling and tracking
+  const handleCreatePool = async () => {
+    if (!selectedTokenA || !selectedTokenB || !selectedDex) {
+      console.error('❌ Cannot create pool - missing required data');
+      return;
+    }
+    
+    console.log('🚀 Starting pool creation...', {
+      selectedTokenA,
+      selectedTokenB,
+      selectedDex,
+      tokenAAddress: POOL_TOKENS[selectedTokenA].address,
+      tokenBAddress: POOL_TOKENS[selectedTokenB].address,
+      contractAddress: DEX_AGGREGATORS[selectedDex].address
+    });
+
+    // Reset any previous transaction state first
+    reset();
+    setPoolCreationInProgress(true);
+
+    try {
+      console.log('📞 Calling createPool function...');
+      
+      // ✅ This should trigger the createPool function in use-pool.ts
+      await createPool(selectedTokenA, selectedTokenB, selectedDex);
+      
+      console.log('✅ createPool call completed - waiting for transaction confirmation...');
+      
+    } catch (e) {
+      console.error('❌ Create pool failed for DEX:', selectedDex, e);
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
     }
   };
 
   const handleAddLiquidity = async () => {
-    if (!selectedTokenA || !selectedTokenB || !poolId) return;
-    console.log('Starting add liquidity...');
+    if (!selectedTokenA || !selectedTokenB || !poolId || !selectedDex) {
+      console.error('❌ Cannot add liquidity - missing required data');
+      return;
+    }
+    
+    console.log('🚀 Starting add liquidity...', {
+      selectedDex,
+      contractAddress: DEX_AGGREGATORS[selectedDex].address,
+      poolId,
+      amountA,
+      amountB
+    });
+
     try {
       await addLiquidity(
         poolId,
@@ -230,25 +453,69 @@ export function useCreatePoolLogic() {
         selectedTokenB,
         selectedDex
       );
-      console.log('Add liquidity completed');
+      console.log('✅ Add liquidity completed successfully for DEX:', selectedDex);
     } catch (e) {
-      console.error("Add liquidity failed", e);
+      console.error('❌ Add liquidity failed for DEX:', selectedDex, e);
     }
   };
 
-  const stepAction =
-    step === "approve"
-      ? handleApprove
-      : step === "create"
-      ? handleCreatePool
-      : handleAddLiquidity;
+  const stepAction = useCallback(() => {
+    console.log('🎯 Step action called, current step:', step, 'selectedDex:', selectedDex);
+    
+    switch (step) {
+      case "approve":
+        console.log('📝 Executing approve step...');
+        return handleApprove();
+      case "create":
+        console.log('🏗️  Executing create pool step...');
+        return handleCreatePool();
+      case "addLiquidity":
+        console.log('💰 Executing add liquidity step...');
+        return handleAddLiquidity();
+      default:
+        console.error('❌ Unknown step:', step);
+    }
+  }, [step, selectedDex, handleApprove, handleCreatePool, handleAddLiquidity]);
 
-  const stepLabel =
-    step === "approve"
-      ? "Approve Tokens"
-      : step === "create"
-      ? "Create Pool"
-      : "Add Liquidity";
+  const stepLabel = (() => {
+    const dexName = selectedDex ? DEX_AGGREGATORS[selectedDex].name : 'DEX';
+    
+    switch (step) {
+      case "approve":
+        if (approvedTokenA && approvedTokenB) {
+          return `✓ Tokens Approved for ${dexName}`;
+        } else if (approvedTokenA || approvedTokenB) {
+          return `Approve ${approvedTokenA ? 'Second' : 'First'} Token for ${dexName}`;
+        }
+        return `Approve Tokens for ${dexName}`;
+      case "create":
+        return `Create Pool on ${dexName}`;
+      case "addLiquidity":
+        return `Add Liquidity to ${dexName}`;
+      default:
+        return "Unknown Step";
+    }
+  })();
+
+  // ✅ Enhanced state summary with more debugging info
+  console.log('📋 Current state summary:', {
+    selectedDex,
+    contractAddress: selectedDex ? DEX_AGGREGATORS[selectedDex].address : 'none',
+    step,
+    approvedTokenA,
+    approvedTokenB,
+    approvalInProgress,
+    poolCreationInProgress,
+    canProceed,
+    isLoading,
+    isSuccess,
+    isError,
+    stepLabel,
+    tokenAddresses: {
+      tokenA: selectedTokenA ? POOL_TOKENS[selectedTokenA].address : 'none',
+      tokenB: selectedTokenB ? POOL_TOKENS[selectedTokenB].address : 'none'
+    }
+  });
 
   return {
     // State
@@ -260,6 +527,16 @@ export function useCreatePoolLogic() {
     step,
     openMenu,
     poolId,
+    
+    // Approval status
+    approvedTokenA,
+    approvedTokenB,
+    approvalInProgress,
+    approveTokenALoading,
+    approveTokenBLoading,
+    poolCreationInProgress,
+    poolCreatedSuccessfully,
+    createPoolTxHash,
     
     // Derived
     canProceed,
@@ -274,6 +551,35 @@ export function useCreatePoolLogic() {
     setOpenMenu,
     stepAction,
     stepLabel,
+    handleApprove,
+    handleApproveTokenA,
+    handleApproveTokenB,
+    handleCreatePool,
+    
+    // Reset function untuk modal
+    resetTransactionState: () => {
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
+      setApprovalInProgress(false);
+      setApproveTokenALoading(false);
+      setApproveTokenBLoading(false);
+      setCreatePoolTxHash(null);
+      reset(); // Reset wagmi state
+    },
+
+    // Reset semua state termasuk approval
+    resetAllState: () => {
+      setApprovedTokenA(false);
+      setApprovedTokenB(false);
+      setPoolCreationInProgress(false);
+      setPoolCreatedSuccessfully(false);
+      setApprovalInProgress(false);
+      setApproveTokenALoading(false);
+      setApproveTokenBLoading(false);
+      setCreatePoolTxHash(null);
+      setStep("approve");
+      reset(); // Reset wagmi state
+    },
     
     // Pool state
     isLoading,
