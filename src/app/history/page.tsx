@@ -19,9 +19,6 @@ export default function HistoryPage() {
   
   const { swaps, loading, error, refetch, refreshKey, isConnected, address } = useUserTradingHistory(selectedDex);
 
-  // Debug: log swaps data to see actual token addresses
-  console.log('Swaps data:', swaps);
-
   // Get unique DEX names from actual data
   const uniqueDexes = useMemo(() => {
     return Array.from(new Set(swaps.map(swap => swap.dex_name)));

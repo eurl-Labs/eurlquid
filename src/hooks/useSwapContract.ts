@@ -3,7 +3,7 @@ import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import { SWAP_ABI, getDexContractAddress } from '@/contracts/abi/swap-abi';
 import { TOKEN_ADDRESSES } from '@/contracts/tokens';
-import { AVAILABLE_POOLS } from '@/lib/debug-available-pools';
+import { AVAILABLE_POOLS, findAvailablePool } from '@/config/pools';
 
 // ERC20 ABI for approval
 const ERC20_ABI = [
@@ -34,14 +34,6 @@ export interface SwapParams {
   tokenOutSymbol: string;
   amountIn: string;
   dexName?: string;
-}
-
-// Helper function to find available pool for token pair
-function findAvailablePool(tokenA: string, tokenB: string) {
-  return AVAILABLE_POOLS.find(pool => 
-    (pool.tokenA === tokenA && pool.tokenB === tokenB) ||
-    (pool.tokenA === tokenB && pool.tokenB === tokenA)
-  );
 }
 
 // Helper function to get token address by symbol
@@ -105,13 +97,10 @@ export function useSwapContract() {
       const currentAllowance = await checkAllowance(tokenAddress, spenderAddress);
       
       if (currentAllowance >= amount) {
-        console.log('✅ Token already approved with sufficient allowance');
         setIsApproving(false);
         return;
       }
 
-      console.log('🔄 Approving token spending...');
-      
       const hash = await walletClient.writeContract({
         address: tokenAddress as `0x${string}`,
         abi: ERC20_ABI,
@@ -119,12 +108,9 @@ export function useSwapContract() {
         args: [spenderAddress as `0x${string}`, amount],
       });
 
-      console.log('📝 Approval transaction sent:', hash);
-      
       // Wait for transaction confirmation
       if (publicClient) {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        console.log('✅ Approval confirmed:', receipt.status);
         
         if (receipt.status === 'reverted') {
           throw new Error('Approval transaction reverted');
@@ -161,26 +147,17 @@ export function useSwapContract() {
         throw new Error(`No pool available for ${tokenInSymbol}/${tokenOutSymbol}`);
       }
 
-      console.log(`🔍 Found pool: ${pool.name} (${pool.poolId})`);
-
       // Get contract address
       const contractAddress = getDexContractAddress(dexName);
       
       // Convert amount to BigInt with 18 decimals (all our tokens have 18 decimals)
       const amountInBigInt = parseUnits(amountIn, 18);
-      
-      console.log(`💰 Swapping ${amountIn} ${tokenInSymbol} -> ${tokenOutSymbol}`);
-      console.log(`📍 Using contract: ${contractAddress}`);
-      console.log(`🏊 Using pool: ${pool.poolId}`);
 
       // Step 1: Check and approve token if needed
       const currentAllowance = await checkAllowance(tokenInAddress, contractAddress);
       
       if (currentAllowance < amountInBigInt) {
-        console.log('🔓 Approving token...');
         await approveToken(tokenInAddress, contractAddress, amountInBigInt);
-      } else {
-        console.log('✅ Token already approved');
       }
 
       // Step 2: Get quote before swap
@@ -192,11 +169,8 @@ export function useSwapContract() {
       });
 
       const quotedAmount = formatUnits(quote as bigint, 18);
-      console.log(`💰 Expected output: ${quotedAmount} ${tokenOutSymbol}`);
 
       // Step 3: Execute swap
-      console.log('🔄 Executing swap...');
-      
       const swapHash = await walletClient.writeContract({
         address: contractAddress as `0x${string}`,
         abi: SWAP_ABI,
@@ -209,11 +183,8 @@ export function useSwapContract() {
         ],
       });
 
-      console.log('📝 Swap transaction sent:', swapHash);
-      
       // Wait for confirmation
       const receipt = await publicClient.waitForTransactionReceipt({ hash: swapHash });
-      console.log('✅ Swap confirmed:', receipt.status);
       
       if (receipt.status === 'reverted') {
         throw new Error('Swap transaction reverted');
@@ -248,8 +219,6 @@ export function useSwapContract() {
 
   // Smart swap function that finds best route
   const smartSwap = useCallback(async (params: SwapParams) => {
-    console.log('🧠 Starting Smart Swap...');
-    
     // For now, just use the direct pool if available
     // In the future, this could implement multi-hop routing
     return executeSwap(params);

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { CheckCircle, AlertTriangle, Info, X, ExternalLink } from 'lucide-react'
 
@@ -135,6 +135,12 @@ function ToastItem({ toast, onRemove }: { toast: ToastNotification; onRemove: (i
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastNotification[]>([])
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Ensure component is mounted on client before rendering portal
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const showToast = useCallback((toast: Omit<ToastNotification, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9)
@@ -164,7 +170,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
-      {typeof window !== 'undefined' && createPortal(
+      {isMounted && createPortal(
         <div className="fixed top-4 right-4 z-50 space-y-3">
           {toasts.map(toast => (
             <ToastItem

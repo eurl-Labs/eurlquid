@@ -5,7 +5,7 @@ import { Clock, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Zap } from
 import Image from 'next/image'
 import { useAnalysisStore } from '@/store/userprompt-store'
 import { useSwapContract } from '@/hooks/useSwapContract'
-import { AVAILABLE_POOLS } from '@/lib/debug-available-pools'
+import { AVAILABLE_POOLS, findAvailablePool } from '@/config/pools'
 import { TOKEN_ADDRESSES } from '@/contracts/tokens'
 import { useToast } from '@/components/ui/Toast'
 
@@ -40,10 +40,7 @@ function isTokenPairAvailable(fromToken: string, toToken: string): boolean {
     
     if (!fromTokenAddress || !toTokenAddress) return false
     
-    return AVAILABLE_POOLS.some(pool => 
-      (pool.tokenA === fromTokenAddress && pool.tokenB === toTokenAddress) ||
-      (pool.tokenA === toTokenAddress && pool.tokenB === fromTokenAddress)
-    )
+    return !!findAvailablePool(fromTokenAddress, toTokenAddress)
   } catch {
     return false
   }
@@ -57,10 +54,7 @@ function getAvailablePool(fromToken: string, toToken: string) {
     
     if (!fromTokenAddress || !toTokenAddress) return null
     
-    return AVAILABLE_POOLS.find(pool => 
-      (pool.tokenA === fromTokenAddress && pool.tokenB === toTokenAddress) ||
-      (pool.tokenA === toTokenAddress && pool.tokenB === fromTokenAddress)
-    )
+    return findAvailablePool(fromTokenAddress, toTokenAddress)
   } catch {
     return null
   }
@@ -104,13 +98,6 @@ export function useSmartSwapExecution(fromAmount: string, fromToken: string, toT
         return
       }
 
-      console.log(`🧠 Smart Swap Execution - AI Optimal Routing:`, {
-        totalRoutes,
-        routes: optimalRoute,
-        confidence: analysis.parsed.prediction?.confidence,
-        expectedSavings: analysis.parsed.expectedSavingsUSD
-      })
-
       showToast({
         type: 'info',
         title: 'Smart Swap Starting',
@@ -138,7 +125,10 @@ export function useSmartSwapExecution(fromAmount: string, fromToken: string, toT
           duration: 8000,
           action: {
             label: 'View Details',
-            onClick: () => console.log('Viewing swap details:', result)
+            onClick: () => {
+              // Open transaction details or swap summary
+              window.open(`https://explorer.soniclabs.com/tx/${result.hash}`, '_blank')
+            }
           }
         })
       }
@@ -192,16 +182,6 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
       const rate = parseFloat(route.rate)
       const slippagePercent = parseFloat(route.slippage.replace('%', ''))
       const minAmountOut = (rate * (100 - slippagePercent) / 100).toString()
-      
-      console.log(`🔥 Manual Swap Execution on ${route.name}:`, {
-        dex: route.id,
-        fromToken,
-        toToken,
-        amount: fromAmount,
-        expectedRate: rate,
-        slippage: slippagePercent,
-        minAmountOut
-      })
       
       // Show approval status
       setApprovalStatus('approving')
@@ -759,7 +739,15 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
                         duration: 4000,
                         action: {
                           label: 'Manage Alerts',
-                          onClick: () => console.log('Managing alerts...')
+                          onClick: () => {
+                            // Future: Implement alert management system
+                            showToast({
+                              type: 'info',
+                              title: 'Feature Coming Soon',
+                              message: 'Alert management will be available in the next update.',
+                              duration: 3000
+                            })
+                          }
                         }
                       })
                     }}
