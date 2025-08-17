@@ -230,7 +230,10 @@ export const SWAP_ABI = [
 ] as const;
 
 // DEX Contract Addresses on Sonic Blaze Testnet
+// Note: These might be different MultiPoolAMM contracts, or the same contract
+// We need to test which ones actually have pools created
 export const DEX_CONTRACTS = {
+  MAIN_POOL: "0xAF3097d87b080F681d8F134FBc649d87A5F84500", // Main MultiPoolAMM
   UNISWAP: "0xAF3097d87b080F681d8F134FBc649d87A5F84500",
   ONEINCH: "0x9Fc1bBfa84B9041dd520BB533bBc2F8845537bBE",
   CURVE: "0x0c144C1CA973E36B499d216da6001D3822B15b57",
@@ -239,6 +242,7 @@ export const DEX_CONTRACTS = {
 
 // Mapping DEX names to contract addresses
 export const DEX_NAME_TO_ADDRESS: Record<string, string> = {
+  main: DEX_CONTRACTS.MAIN_POOL,
   uniswap: DEX_CONTRACTS.UNISWAP,
   oneinch: DEX_CONTRACTS.ONEINCH,
   curve: DEX_CONTRACTS.CURVE,
@@ -272,19 +276,14 @@ export interface QuoteParams {
 }
 
 // Helper function to get contract address by DEX name
-export function getDexContractAddress(dexName: string): string {
-  const normalizedName = dexName.toLowerCase();
-  const address = DEX_NAME_TO_ADDRESS[normalizedName];
-
-  if (!address) {
-    throw new Error(
-      `Unknown DEX: ${dexName}. Supported DEXs: ${Object.keys(
-        DEX_NAME_TO_ADDRESS
-      ).join(", ")}`
-    );
+export function getDexContractAddress(dexName?: string): string {
+  // Default to main pool if no DEX specified
+  if (!dexName || dexName === 'main') {
+    return DEX_CONTRACTS.MAIN_POOL;
   }
-
-  return address;
+  
+  // Return specific DEX contract or fallback to main pool
+  return DEX_NAME_TO_ADDRESS[dexName] || DEX_CONTRACTS.MAIN_POOL;
 }
 
 // Helper function to get pool ID for token pair

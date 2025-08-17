@@ -1,56 +1,91 @@
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
-import { SWAP_ABI, getDexContractAddress, SwapParams } from '@/contracts/abi/swap-abi';
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
-import { 
-  getPoolIdFromContract, 
-  validatePool, 
-  getSwapQuote, 
-  getTokenAllowance,
-  getTokenBalance 
-} from '@/lib/contract-reader';
+import { SWAP_ABI, getDexContractAddress } from '@/contracts/abi/swap-abi';
+import { TOKEN_ADDRESSES } from '@/contracts/tokens';
+import { AVAILABLE_POOLS } from '@/lib/debug-available-pools';
 
-// ERC20 ABI for token approval
+// ERC20 ABI for approval
 const ERC20_ABI = [
   {
     inputs: [
       { internalType: "address", name: "spender", type: "address" },
-      { internalType: "uint256", name: "value", type: "uint256" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
     ],
     name: "approve",
     outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      { internalType: "address", name: "owner", type: "address" },
+      { internalType: "address", name: "spender", type: "address" },
+    ],
+    name: "allowance",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const;
 
-// Hook for token approval
-export function useTokenApproval() {
-  const [isApproving, setIsApproving] = useState(false);
-  const [approvalError, setApprovalError] = useState<string | null>(null);
-  const { address } = useAccount();
-  
-  const { writeContract, data: hash, error, isPending } = useWriteContract();
-  
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+export interface SwapParams {
+  tokenInSymbol: string;
+  tokenOutSymbol: string;
+  amountIn: string;
+  dexName?: string;
+}
 
-  // Check current allowance for a token
+// Helper function to find available pool for token pair
+function findAvailablePool(tokenA: string, tokenB: string) {
+  return AVAILABLE_POOLS.find(pool => 
+    (pool.tokenA === tokenA && pool.tokenB === tokenB) ||
+    (pool.tokenA === tokenB && pool.tokenB === tokenA)
+  );
+}
+
+// Helper function to get token address by symbol
+function getTokenAddressBySymbol(symbol: string): string {
+  const upperSymbol = symbol.toUpperCase() as keyof typeof TOKEN_ADDRESSES;
+  const address = TOKEN_ADDRESSES[upperSymbol];
+  if (!address) {
+    throw new Error(`Token address not found for: ${symbol}`);
+  }
+  return address;
+}
+
+export function useSwapContract() {
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
+
+  // State management
+  const [isApproving, setIsApproving] = useState(false);
+  const [isSwapping, setIsSwapping] = useState(false);
+  const [approvalError, setApprovalError] = useState<string | null>(null);
+  const [swapError, setSwapError] = useState<string | null>(null);
+
+  // Check token allowance
   const checkAllowance = useCallback(async (
     tokenAddress: string,
     spenderAddress: string
   ): Promise<bigint> => {
-    if (!address) return BigInt(0);
-    
+    if (!address || !publicClient) return BigInt(0);
+
     try {
-      const allowance = await getTokenAllowance(tokenAddress, address, spenderAddress);
-      return allowance;
+      const allowance = await publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'allowance',
+        args: [address, spenderAddress as `0x${string}`],
+      });
+
+      return allowance as bigint;
     } catch (err) {
       console.error('Failed to check allowance:', err);
       return BigInt(0);
     }
-  }, [address]);
+  }, [address, publicClient]);
 
   // Approve token spending
   const approveToken = useCallback(async (
@@ -58,6 +93,10 @@ export function useTokenApproval() {
     spenderAddress: string,
     amount: bigint
   ) => {
+    if (!walletClient || !address) {
+      throw new Error('Wallet not connected');
+    }
+
     try {
       setIsApproving(true);
       setApprovalError(null);
@@ -68,224 +107,169 @@ export function useTokenApproval() {
       if (currentAllowance >= amount) {
         console.log('✅ Token already approved with sufficient allowance');
         setIsApproving(false);
-        return true;
+        return;
       }
+
+      console.log('🔄 Approving token spending...');
       
-      console.log(`🔄 Approving token ${tokenAddress} for ${spenderAddress}...`);
-      console.log(`   Amount: ${amount.toString()}`);
-      console.log(`   Current allowance: ${currentAllowance.toString()}`);
-      
-      writeContract({
+      const hash = await walletClient.writeContract({
         address: tokenAddress as `0x${string}`,
         abi: ERC20_ABI,
         functionName: 'approve',
         args: [spenderAddress as `0x${string}`, amount],
       });
+
+      console.log('📝 Approval transaction sent:', hash);
       
-    } catch (err: any) {
-      setApprovalError(err.message || 'Token approval failed');
+      // Wait for transaction confirmation
+      if (publicClient) {
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        console.log('✅ Approval confirmed:', receipt.status);
+        
+        if (receipt.status === 'reverted') {
+          throw new Error('Approval transaction reverted');
+        }
+      }
+
       setIsApproving(false);
-    }
-  }, [writeContract, checkAllowance]);
-
-  // Reset states when approval is completed or failed
-  if (isSuccess || error) {
-    if (isApproving) {
+    } catch (error) {
       setIsApproving(false);
+      setApprovalError(error instanceof Error ? error.message : 'Approval failed');
+      throw error;
     }
-  }
+  }, [walletClient, address, checkAllowance, publicClient]);
 
-  return {
-    approveToken,
-    checkAllowance,
-    isApproving: isApproving || isPending || isConfirming,
-    isSuccess,
-    error: approvalError || error?.message,
-    hash
-  };
-}
-
-// Hook for executing swap
-export function useSwap() {
-  const [isSwapping, setIsSwapping] = useState(false);
-  const [swapError, setSwapError] = useState<string | null>(null);
-  
-  const { writeContract, data: hash, error, isPending } = useWriteContract();
-  
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  const executeSwap = useCallback(async (dexName: string, swapParams: SwapParams) => {
-    try {
-      setIsSwapping(true);
-      setSwapError(null);
-      
-      const contractAddress = getDexContractAddress(dexName);
-      
-      console.log('💱 Executing swap on blockchain:', {
-        contract: contractAddress,
-        poolId: swapParams.poolId,
-        tokenIn: swapParams.tokenIn,
-        amountIn: swapParams.amountIn.toString(),
-        amountOutMin: swapParams.amountOutMin.toString()
-      });
-      
-      writeContract({
-        address: contractAddress as `0x${string}`,
-        abi: SWAP_ABI,
-        functionName: 'swap',
-        args: [
-          swapParams.poolId as `0x${string}`,
-          swapParams.tokenIn as `0x${string}`,
-          swapParams.amountIn,
-          swapParams.amountOutMin
-        ],
-      });
-    } catch (err: any) {
-      setSwapError(err.message || 'Swap failed');
-      setIsSwapping(false);
-    }
-  }, [writeContract]);
-
-  // Reset loading state when transaction is confirmed or failed
-  if (isSuccess || error) {
-    if (isSwapping) {
-      setIsSwapping(false);
-    }
-  }
-
-  return {
-    executeSwap,
-    isSwapping: isSwapping || isPending || isConfirming,
-    isSuccess,
-    error: swapError || error?.message,
-    hash
-  };
-}
-
-// Utility hook for handling token amounts and decimals
-export function useTokenAmount() {
-  const parseTokenAmount = useCallback((amount: string, decimals: number = 18): bigint => {
-    return parseUnits(amount, decimals);
-  }, []);
-
-  const formatTokenAmount = useCallback((amount: bigint, decimals: number = 18): string => {
-    return formatUnits(amount, decimals);
-  }, []);
-
-  return {
-    parseTokenAmount,
-    formatTokenAmount
-  };
-}
-
-// Main hook that combines everything for easy swap execution
-export function useSmartSwap() {
-  const { executeSwap, isSwapping, isSuccess, error, hash } = useSwap();
-  const { approveToken, checkAllowance, isApproving, isSuccess: isApprovalSuccess } = useTokenApproval();
-  const { parseTokenAmount } = useTokenAmount();
-  const { address } = useAccount();
-  
-  const performSwap = useCallback(async (
-    dexName: string,
-    tokenInAddress: string,
-    tokenOutAddress: string,
-    amountIn: string,
-    minimumAmountOut: string,
-    decimals: number = 18
-  ) => {
-    if (!address) {
+  // Execute swap
+  const executeSwap = useCallback(async (params: SwapParams) => {
+    if (!walletClient || !address || !publicClient) {
       throw new Error('Wallet not connected');
     }
 
-    console.log(`🚀 Starting swap on ${dexName}:`, {
-      tokenIn: tokenInAddress,
-      tokenOut: tokenOutAddress,
-      amountIn,
-      minimumAmountOut,
-    });
-
     try {
+      setIsSwapping(true);
+      setSwapError(null);
+
+      const { tokenInSymbol, tokenOutSymbol, amountIn, dexName = 'uniswap' } = params;
+      
+      // Get token addresses
+      const tokenInAddress = getTokenAddressBySymbol(tokenInSymbol);
+      const tokenOutAddress = getTokenAddressBySymbol(tokenOutSymbol);
+      
+      // Find available pool
+      const pool = findAvailablePool(tokenInAddress, tokenOutAddress);
+      if (!pool) {
+        throw new Error(`No pool available for ${tokenInSymbol}/${tokenOutSymbol}`);
+      }
+
+      console.log(`🔍 Found pool: ${pool.name} (${pool.poolId})`);
+
+      // Get contract address
       const contractAddress = getDexContractAddress(dexName);
-      const amountInBigInt = parseTokenAmount(amountIn, decimals);
       
-      // Step 1: Get pool ID from contract
-      console.log('🔍 Getting pool ID from contract...');
-      const poolId = await getPoolIdFromContract(dexName, tokenInAddress, tokenOutAddress);
-      console.log('✅ Pool ID:', poolId);
+      // Convert amount to BigInt with 18 decimals (all our tokens have 18 decimals)
+      const amountInBigInt = parseUnits(amountIn, 18);
+      
+      console.log(`💰 Swapping ${amountIn} ${tokenInSymbol} -> ${tokenOutSymbol}`);
+      console.log(`📍 Using contract: ${contractAddress}`);
+      console.log(`🏊 Using pool: ${pool.poolId}`);
 
-      // Step 2: Validate pool exists and has liquidity
-      console.log('🏊 Validating pool...');
-      const poolData = await validatePool(dexName, poolId);
-      
-      if (!poolData.exists) {
-        throw new Error(`Pool does not exist for ${tokenInAddress}/${tokenOutAddress} on ${dexName}`);
-      }
-      
-      if (poolData.reserveA === BigInt(0) || poolData.reserveB === BigInt(0)) {
-        throw new Error(`Pool has insufficient liquidity on ${dexName}`);
-      }
-      
-      console.log('✅ Pool validation successful:', {
-        exists: poolData.exists,
-        reserveA: poolData.reserveA.toString(),
-        reserveB: poolData.reserveB.toString()
-      });
-
-      // Step 3: Get quote to verify expected output
-      console.log('💰 Getting swap quote...');
-      const quotedAmountOut = await getSwapQuote(dexName, poolId, tokenInAddress, amountInBigInt);
-      const minAmountOutBigInt = parseTokenAmount(minimumAmountOut, decimals);
-      
-      if (quotedAmountOut < minAmountOutBigInt) {
-        console.warn('⚠️ Quoted amount is less than minimum expected');
-      }
-      
-      console.log('💡 Quote result:', {
-        quotedAmountOut: quotedAmountOut.toString(),
-        minAmountOut: minAmountOutBigInt.toString()
-      });
-
-      // Step 4: Check and approve token if needed
-      console.log('🔍 Checking token approval...');
+      // Step 1: Check and approve token if needed
       const currentAllowance = await checkAllowance(tokenInAddress, contractAddress);
       
       if (currentAllowance < amountInBigInt) {
-        console.log('⏳ Token approval required...');
+        console.log('🔓 Approving token...');
         await approveToken(tokenInAddress, contractAddress, amountInBigInt);
-        
-        // Wait for approval to be confirmed
-        console.log('⏳ Waiting for approval confirmation...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
       } else {
         console.log('✅ Token already approved');
       }
 
-      // Step 5: Execute the swap
-      console.log('💱 Executing swap...');
-      const swapParams: SwapParams = {
-        poolId,
-        tokenIn: tokenInAddress,
-        amountIn: amountInBigInt,
-        amountOutMin: minAmountOutBigInt
+      // Step 2: Get quote before swap
+      const quote = await publicClient.readContract({
+        address: contractAddress as `0x${string}`,
+        abi: SWAP_ABI,
+        functionName: 'getQuote',
+        args: [pool.poolId as `0x${string}`, tokenInAddress as `0x${string}`, amountInBigInt],
+      });
+
+      const quotedAmount = formatUnits(quote as bigint, 18);
+      console.log(`💰 Expected output: ${quotedAmount} ${tokenOutSymbol}`);
+
+      // Step 3: Execute swap
+      console.log('🔄 Executing swap...');
+      
+      const swapHash = await walletClient.writeContract({
+        address: contractAddress as `0x${string}`,
+        abi: SWAP_ABI,
+        functionName: 'swap',
+        args: [
+          pool.poolId as `0x${string}`,
+          tokenInAddress as `0x${string}`,
+          amountInBigInt,
+          BigInt(Math.floor(Number(quote) * 0.95)), // 5% slippage tolerance
+        ],
+      });
+
+      console.log('📝 Swap transaction sent:', swapHash);
+      
+      // Wait for confirmation
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: swapHash });
+      console.log('✅ Swap confirmed:', receipt.status);
+      
+      if (receipt.status === 'reverted') {
+        throw new Error('Swap transaction reverted');
+      }
+
+      setIsSwapping(false);
+      return {
+        hash: swapHash,
+        expectedOutput: quotedAmount,
+        pool: pool.name,
       };
 
-      await executeSwap(dexName, swapParams);
-      
-    } catch (err: any) {
-      console.error('Smart swap error:', err);
-      throw err;
+    } catch (error) {
+      setIsSwapping(false);
+      setSwapError(error instanceof Error ? error.message : 'Swap failed');
+      throw error;
     }
-  }, [executeSwap, approveToken, checkAllowance, parseTokenAmount, address]);
+  }, [walletClient, address, publicClient, checkAllowance, approveToken]);
+
+  // Get available pools for UI
+  const getAvailablePools = useCallback(() => {
+    return AVAILABLE_POOLS.map(pool => ({
+      name: pool.name,
+      tokenA: pool.tokenA,
+      tokenB: pool.tokenB,
+      poolId: pool.poolId,
+      // Get token symbols from addresses
+      tokenASymbol: Object.entries(TOKEN_ADDRESSES).find(([, addr]) => addr === pool.tokenA)?.[0] || 'UNKNOWN',
+      tokenBSymbol: Object.entries(TOKEN_ADDRESSES).find(([, addr]) => addr === pool.tokenB)?.[0] || 'UNKNOWN',
+    }));
+  }, []);
+
+  // Smart swap function that finds best route
+  const smartSwap = useCallback(async (params: SwapParams) => {
+    console.log('🧠 Starting Smart Swap...');
+    
+    // For now, just use the direct pool if available
+    // In the future, this could implement multi-hop routing
+    return executeSwap(params);
+  }, [executeSwap]);
 
   return {
-    performSwap,
-    isSwapping: isSwapping || isApproving,
-    isSuccess,
-    error,
-    hash,
+    // Functions
+    executeSwap,
+    smartSwap,
+    approveToken,
+    checkAllowance,
+    getAvailablePools,
+    
+    // State
     isApproving,
-    isApprovalSuccess
+    isSwapping,
+    approvalError,
+    swapError,
+    
+    // Available pools
+    availablePools: AVAILABLE_POOLS,
   };
 }

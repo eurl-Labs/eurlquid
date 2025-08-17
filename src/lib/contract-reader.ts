@@ -3,7 +3,7 @@ import { sonicBlazeTestnet } from '@/config/wagmi';
 import { SWAP_ABI, getDexContractAddress } from '@/contracts/abi/swap-abi';
 
 // Create public client for reading contract data
-const publicClient = createPublicClient({
+export const publicClient = createPublicClient({
   chain: sonicBlazeTestnet,
   transport: http('https://rpc.blaze.soniclabs.com'),
 });
