@@ -7,6 +7,7 @@ import { TokenSelector } from "./TokenSelector";
 import { useTokenBalance, type TokenSymbol } from "@/app/hooks/query/contracts/use-token-balance";
 import { useAnalysisStore } from "@/store/userprompt-store";
 import { useSwapPrice } from "@/hooks/useSwapPrice";
+import { useSmartSwapExecution } from "./RoutesList";
 
 interface SwapCardProps {
   fromAmount: string;
@@ -56,6 +57,17 @@ export function SwapCard({
     fromValueUSD,
     toValueUSD 
   } = useSwapPrice(fromToken, toToken, fromAmount);
+
+  // Smart swap execution hook
+  const {
+    handleSmartSwap,
+    isSmartSwapping,
+    isSwapping,
+    isSuccess,
+    swapError,
+    hash,
+    canExecuteSmartSwap
+  } = useSmartSwapExecution(fromAmount, fromToken, toToken);
 
   // Use calculated amount from price feed instead of static value
   const toAmount = calculatedToAmount;
@@ -268,10 +280,38 @@ export function SwapCard({
           )}
         </div>
 
-        {/* Swap Button */}
-        <button className="w-full bg-white hover:bg-gray-200 text-black font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
-          Execute Smart Swap
+        {/* Smart Swap Button */}
+        <button 
+          onClick={handleSmartSwap}
+          disabled={!canExecuteSmartSwap || isSmartSwapping || isSwapping || !fromAmount.trim()}
+          className="w-full bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+        >
+          {isSmartSwapping ? (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              <span>Executing Smart Swap...</span>
+            </div>
+          ) : (
+            "Execute Smart Swap"
+          )}
         </button>
+
+        {/* Swap Status Feedback */}
+        {swapError && (
+          <div className="mt-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-red-400 text-sm">Error: {swapError}</p>
+          </div>
+        )}
+
+        {isSuccess && hash && (
+          <div className="mt-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <p className="text-green-400 text-sm">
+              🎯 Smart swap successful! 
+              <br />
+              <span className="font-mono text-xs">{hash}</span>
+            </p>
+          </div>
+        )}
       </div>
       {/* Help Modal */}
       <SwapHelpModal 

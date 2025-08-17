@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { Clock, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useAnalysisStore } from '@/store/userprompt-store'
+import { useSmartSwap } from '@/hooks/useSwapContract'
 
 interface RoutesListProps {
   fromAmount: string
@@ -28,9 +29,156 @@ interface DexRoute {
   details: string[]
 }
 
+// Export hook for smart swap functionality to be used by external components
+export function useSmartSwapExecution(fromAmount: string, fromToken: string, toToken: string) {
+  const [swapType, setSwapType] = useState<'smart' | 'manual' | null>(null)
+  const [executingRoute, setExecutingRoute] = useState<string | null>(null)
+  const { analysis, data } = useAnalysisStore()
+  const { performSwap, isSwapping, isSuccess, error: swapError, hash } = useSmartSwap()
+
+  const handleSmartSwap = async () => {
+    try {
+      setSwapType('smart')
+      
+      if (!analysis?.parsed?.optimalRoute) {
+        alert('⚠️ No AI recommendations available. Please wait for analysis to complete.')
+        return
+      }
+
+      const optimalRoute = analysis.parsed.optimalRoute
+      const totalRoutes = optimalRoute.length
+      
+      if (totalRoutes === 0) {
+        alert('⚠️ No optimal routes found in AI analysis.')
+        return
+      }
+
+      console.log(`🧠 Smart Swap Execution - AI Optimal Routing:`, {
+        totalRoutes,
+        routes: optimalRoute,
+        confidence: analysis.parsed.prediction?.confidence,
+        expectedSavings: analysis.parsed.expectedSavingsUSD
+      })
+
+      // Import token addresses
+      const { getTokenAddress, getTokenDecimals } = await import('@/contracts/tokens')
+      
+      const fromTokenAddress = getTokenAddress(fromToken)
+      const toTokenAddress = getTokenAddress(toToken)
+      const fromDecimals = getTokenDecimals(fromToken)
+
+      // Execute swaps according to AI allocation
+      for (const aiRoute of optimalRoute) {
+        if (aiRoute.allocation && aiRoute.allocation > 0) {
+          const allocatedAmount = (parseFloat(fromAmount) * aiRoute.allocation).toString()
+          const dexId = aiRoute.dex?.toLowerCase().includes('uniswap') ? 'uniswap' :
+                       aiRoute.dex?.toLowerCase().includes('curve') ? 'curve' :
+                       aiRoute.dex?.toLowerCase().includes('balancer') ? 'balancer' :
+                       aiRoute.dex?.toLowerCase().includes('1inch') ? '1inch' : 'uniswap'
+          
+          const slippagePercent = 0.5 // Default slippage
+          const rate = 1 // Simplified rate
+          const minAmountOut = (rate * (100 - slippagePercent) / 100 * aiRoute.allocation).toString()
+
+          console.log(`📊 Executing ${(aiRoute.allocation * 100).toFixed(1)}% allocation on ${dexId}:`, {
+            amount: allocatedAmount,
+            expectedMinOut: minAmountOut,
+            slippage: slippagePercent
+          })
+
+          setExecutingRoute(dexId)
+          
+          await performSwap(
+            dexId,
+            fromTokenAddress,
+            toTokenAddress,
+            allocatedAmount,
+            minAmountOut,
+            fromDecimals
+          )
+        }
+      }
+      
+      if (isSuccess) {
+        alert(`🎯 Smart swap completed successfully!\nAI-optimized routing executed\nTransaction hash: ${hash}`)
+      }
+    } catch (err: any) {
+      console.error('Smart swap execution error:', err)
+      alert(`❌ Smart swap failed: ${err.message}`)
+    } finally {
+      setExecutingRoute(null)
+      setSwapType(null)
+    }
+  }
+
+  return {
+    handleSmartSwap,
+    isSmartSwapping: swapType === 'smart' && executingRoute !== null,
+    isSwapping,
+    isSuccess,
+    swapError,
+    hash,
+    canExecuteSmartSwap: analysis?.parsed?.optimalRoute && analysis.parsed.optimalRoute.length > 0
+  }
+}
+
 export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) {
   const [selectedRoute, setSelectedRoute] = useState<string>('curve')
+  const [executingRoute, setExecutingRoute] = useState<string | null>(null)
+  const [swapType, setSwapType] = useState<'smart' | 'manual' | null>(null)
   const { analysis, data, loading, error } = useAnalysisStore()
+  const { performSwap, isSwapping, isSuccess, error: swapError, hash } = useSmartSwap()
+
+  // Handle manual swap execution (specific DEX)
+  const handleManualSwap = async (route: DexRoute) => {
+    try {
+      setExecutingRoute(route.id)
+      setSwapType('manual')
+      
+      // Import token addresses
+      const { getTokenAddress, getTokenDecimals } = await import('@/contracts/tokens')
+      
+      const fromTokenAddress = getTokenAddress(fromToken)
+      const toTokenAddress = getTokenAddress(toToken)
+      const fromDecimals = getTokenDecimals(fromToken)
+      
+      // Calculate minimum amount out based on slippage
+      const rate = parseFloat(route.rate)
+      const slippagePercent = parseFloat(route.slippage.replace('%', ''))
+      const minAmountOut = (rate * (100 - slippagePercent) / 100).toString()
+      
+      console.log(`🔥 Manual Swap Execution on ${route.name}:`, {
+        dex: route.id,
+        fromToken,
+        toToken,
+        amount: fromAmount,
+        expectedRate: rate,
+        slippage: slippagePercent,
+        minAmountOut
+      })
+      
+      await performSwap(
+        route.id,
+        fromTokenAddress,
+        toTokenAddress,
+        fromAmount,
+        minAmountOut,
+        fromDecimals
+      )
+      
+      if (isSuccess) {
+        alert(`✅ Manual swap executed successfully on ${route.name}!\nTransaction hash: ${hash}`)
+      }
+    } catch (err: any) {
+      console.error('Manual swap execution error:', err)
+      alert(`❌ Manual swap failed on ${route.name}: ${err.message}`)
+    } finally {
+      setExecutingRoute(null)
+      setSwapType(null)
+    }
+  }
+
+
 
   // Generate routes from real analysis data
   const routes: DexRoute[] = useMemo(() => {
@@ -314,7 +462,10 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
       {/* Header */}
       <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-white">Smart Route Analysis</h3>
+          <div>
+            <h3 className="text-xl font-bold text-white">Smart Route Analysis</h3>
+            <p className="text-sm text-white/60 mt-1">AI-powered optimization vs Manual DEX selection</p>
+          </div>
           <div className="flex items-center space-x-4 text-sm text-white/60">
             <span>Analyzing {routes.length} DEX aggregators</span>
             <div className="flex items-center space-x-1">
@@ -378,6 +529,8 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
             <p className="text-white/80 text-sm mt-1">{analysis.parsed.advice}</p>
           </div>
         )}
+
+
       </div>
 
       {/* Routes List */}
@@ -460,15 +613,50 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
                 </div>
 
                 {route.status === 'recommended' && (
-                  <button className="px-4 py-2 bg-white hover:bg-gray-200 text-black text-sm font-semibold rounded-lg transition-all duration-200">
-                    Execute Now
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation() // Prevent route selection
+                      handleManualSwap(route)
+                    }}
+                    disabled={executingRoute === route.id || isSwapping}
+                    className="px-4 py-2 bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-sm font-semibold rounded-lg transition-all duration-200"
+                  >
+                    {executingRoute === route.id ? 'Executing...' : 'Execute Now'}
                   </button>
                 )}
                 
                 {route.status === 'wait' && (
-                  <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      alert(`Set alert for ${route.name} - Feature coming soon!`)
+                    }}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10"
+                  >
                     Set Alert
                   </button>
+                )}
+
+                {route.status === 'avoid' && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (confirm(`⚠️ This DEX is not recommended by AI due to poor conditions.\n\nDo you still want to execute manually on ${route.name}?`)) {
+                        handleManualSwap(route)
+                      }
+                    }}
+                    disabled={executingRoute === route.id || isSwapping}
+                    className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 disabled:bg-gray-400 disabled:cursor-not-allowed text-orange-300 text-sm font-semibold rounded-lg transition-all duration-200 border border-orange-500/30"
+                  >
+                    {executingRoute === route.id ? 'Executing...' : 'Force Execute'}
+                  </button>
+                )}
+                
+                {route.status === 'executing' && (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-white text-sm">Executing...</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -484,6 +672,44 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
           </div>
         ))}
       </div>
+
+      {/* Swap Status Notifications */}
+      {swapError && (
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+            <span className="text-red-400 font-medium">Swap Error</span>
+          </div>
+          <p className="text-red-300 text-sm mt-1">{swapError}</p>
+        </div>
+      )}
+
+      {isSuccess && hash && (
+        <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="w-5 h-5 text-green-400" />
+            <span className="text-green-400 font-medium">
+              {swapType === 'manual' 
+                ? `Manual Swap on ${routes.find(r => r.id === executingRoute)?.name || 'DEX'} Successful!` 
+                : 'Smart Swap Successful!'
+              }
+            </span>
+          </div>
+          <p className="text-green-300 text-sm mt-1">
+            Transaction hash: <span className="font-mono">{hash}</span>
+          </p>
+          {swapType === 'smart' && (
+            <p className="text-green-300 text-xs mt-1">
+              🧠 AI-optimized routing executed successfully
+            </p>
+          )}
+          {swapType === 'manual' && (
+            <p className="text-green-300 text-xs mt-1">
+              🔥 Manual execution on selected DEX completed
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
