@@ -63,7 +63,7 @@ async function fetchBalancerData() {
 
 async function fetch1inchData() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/defillama/protocol/1inch`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/defillama/1inch`);
     if (!response.ok) throw new Error('1inch fetch failed');
     return await response.json();
   } catch (error) {
@@ -74,19 +74,34 @@ async function fetch1inchData() {
 
 async function fetchPriceData(fromToken: string, toToken: string) {
   try {
+    // Use well-known mainnet addresses for price data since we're just getting reference prices
+    const tokenPriceMap: Record<string, string> = {
+      'WBTC': 'ethereum:0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // Real WBTC
+      'ETH': 'ethereum:0x0000000000000000000000000000000000000000', // ETH
+      'WETH': 'ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // Real WETH
+      'USDC': 'ethereum:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // Real USDC
+      'USDT': 'ethereum:0xdAC17F958D2ee523a2206206994597C13D831ec7', // Real USDT
+      'WSONIC': 'ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // Use WETH as proxy
+      'PEPE': 'ethereum:0x6982508145454Ce325dDbE47a25d4ec3d2311933', // Real PEPE
+      'PENGU': 'ethereum:0x6982508145454Ce325dDbE47a25d4ec3d2311933', // Use PEPE as proxy
+    };
+
+    const fromKey = tokenPriceMap[fromToken] || tokenPriceMap['USDC'];
+    const toKey = tokenPriceMap[toToken] || tokenPriceMap['USDC'];
+
     const [fromPrice, toPrice] = await Promise.all([
-      getPrices([defillamaKey('ethereum', TOKENS[fromToken].address)]),
-      getPrices([defillamaKey('ethereum', TOKENS[toToken].address)])
+      getPrices([fromKey]),
+      getPrices([toKey])
     ]);
     
     return {
       fromToken: {
         symbol: fromToken,
-        price: fromPrice.coins[defillamaKey('ethereum', TOKENS[fromToken].address)]?.price || 0
+        price: fromPrice.coins[fromKey]?.price || 0
       },
       toToken: {
         symbol: toToken,
-        price: toPrice.coins[defillamaKey('ethereum', TOKENS[toToken].address)]?.price || 0
+        price: toPrice.coins[toKey]?.price || 0
       }
     };
   } catch (error) {
@@ -98,34 +113,37 @@ async function fetchPriceData(fromToken: string, toToken: string) {
 function createAnalysisPrompts(fromToken: string, toToken: string, amount: string, dexData: any, priceData: any) {
   const systemPrompt = LIQUIDITY_ORACLE_SYSTEM_PROMPT;
   
+  const fromPrice = priceData.fromToken.price;
+  const toPrice = priceData.toToken.price;
+  const inputAmount = parseFloat(amount);
+  const inputValueUSD = inputAmount * fromPrice;
+  const theoreticalOutputAmount = fromPrice > 0 && toPrice > 0 ? inputValueUSD / toPrice : 0;
+  
   const userPrompt = `
-Analysis Request:
-- Swap: ${amount} ${fromToken} → ${toToken}
-- From Price: $${priceData.fromToken.price}
-- To Price: $${priceData.toToken.price}
-- Expected Output Value: $${(parseFloat(amount) * priceData.fromToken.price).toFixed(2)}
+SWAP ORDER DETAILS:
+Trading Pair: ${fromToken}/${toToken}
+Input Token: ${fromToken} (${TOKENS[fromToken]?.address || 'N/A'}, ${TOKENS[fromToken]?.decimals || 18} decimals)
+Output Token: ${toToken} (${TOKENS[toToken]?.address || 'N/A'}, ${TOKENS[toToken]?.decimals || 18} decimals)
+Amount to Swap: ${amount} ${fromToken}
+Order Value: $${inputValueUSD.toFixed(2)} USD
 
-IMPORTANT: Analyze ALL FOUR DEXs even if data is limited. Provide estimates for missing data.
+PRICE & CALCULATION DATA:
+${fromToken} Price: $${fromPrice.toFixed(6)} USD
+${toToken} Price: $${toPrice.toFixed(6)} USD
+Expected Output: ${theoreticalOutputAmount.toFixed(6)} ${toToken}
+Exchange Rate: 1 ${fromToken} = ${(fromPrice / toPrice).toFixed(6)} ${toToken}
+Order Size: ${inputValueUSD > 1000 ? 'Large (>$1000)' : inputValueUSD > 100 ? 'Medium ($100-$1000)' : 'Small (<$100)'}
+MEV Risk: ${inputValueUSD > 5000 ? 'High' : inputValueUSD > 500 ? 'Medium' : 'Low'}
 
-DEX Data Status:
-- Uniswap V3: ${dexData.uniswap ? `Available (${dexData.uniswap.data?.pools?.length || 0} pools)` : 'Limited data - use estimates'}
-- Curve: ${dexData.curve ? `Available (${dexData.curve.data?.pools?.length || 0} pools)` : 'Limited data - use estimates'}  
-- Balancer: ${dexData.balancer ? `Available (${dexData.balancer.data?.pools?.length || 0} pools)` : 'Limited data - use estimates'}
-- 1inch: ${dexData.oneinch ? 'Aggregator data available' : 'DeFiLlama estimates only'}
+DEX DATA STATUS:
+Uniswap V3: ${dexData.uniswap ? `✅ ${dexData.uniswap.data?.pools?.length || 0} pools` : '⚠️ Estimates only'}
+Curve: ${dexData.curve ? `✅ ${dexData.curve.data?.pools?.length || 0} pools` : '⚠️ Estimates only'}
+Balancer: ${dexData.balancer ? `✅ ${dexData.balancer.data?.pools?.length || 0} pools` : '⚠️ Estimates only'}
+1inch: ${dexData.oneinch ? '✅ Live routing data' : '⚠️ Estimates only'}
 
-Pool Information:
-${dexData.uniswap ? `Uniswap V3: ${dexData.uniswap.data?.pools?.length || 0} pools with liquidity range` : 'Uniswap V3: Estimate based on token pair popularity'}
-${dexData.curve ? `Curve: ${dexData.curve.data?.pools?.length || 0} stable/crypto pools` : 'Curve: Estimate stable pool characteristics'}
-${dexData.balancer ? `Balancer: ${dexData.balancer.data?.pools?.length || 0} weighted/stable pools` : 'Balancer: Estimate multi-token pool behavior'}
-${dexData.oneinch ? `1inch: Aggregation data available` : '1inch: Estimate aggregation benefits'}
-
-REQUIREMENTS:
-1. Provide dexAnalysis for ALL FOUR DEXs: uniswap, curve, balancer, oneinch
-2. If data is limited, use reasonable estimates based on DEX characteristics
-3. Include rate, status, slippage, liquidity, allocation for each DEX
-4. Explain reasoning even for estimated data
-
-Please provide a comprehensive analysis comparing all available DEX options for this swap.
+ANALYSIS REQUIRED:
+dexAnalysis: Calculate if ALL ${amount} ${fromToken} executed on each DEX individually
+optimalRoute: Best allocation strategy across multiple DEXs
   `.trim();
 
   return { userPrompt, systemPrompt };

@@ -232,249 +232,73 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
 
 
 
-  // Generate routes from real analysis data
+  // Generate routes directly from AI response
   const routes: DexRoute[] = useMemo(() => {
-    // First, check if the token pair is available in our pools
-    const isAvailable = isTokenPairAvailable(fromToken, toToken)
-    const availablePool = getAvailablePool(fromToken, toToken)
-    
-    if (!isAvailable || !availablePool) {
-      return [
-        {
-          id: 'unavailable',
-          name: 'No Pool Available',
-          logo: '/images/logo/eurlquidLogo.png',
-          rate: '0.000000',
-          usdValue: '$0.00',
-          status: 'avoid',
-          slippage: '0.00%',
-          time: 'N/A',
-          confidence: 0,
-          liquidity: 'low',
-          mevRisk: 'high',
-          details: [
-            `No liquidity pool available for ${fromToken}/${toToken}`,
-            `Available pairs: ${AVAILABLE_POOLS.map(p => p.name).join(', ')}`,
-            'Please select from available token pairs above'
-          ],
-          warning: `${fromToken}/${toToken} pair is not supported`
-        }
-      ]
-    }
+    const aiParsed = analysis?.parsed;
+    if (!aiParsed || !aiParsed.dexAnalysis) return [];
 
-    if (!analysis?.parsed || !data) {
-      // Fallback to basic structure if no analysis available but pool exists
-      return [
-        {
-          id: 'uniswap',
-          name: 'Uniswap V3',
-          logo: '/images/logo/uniLogo.svg.png',
-          rate: '0.000000',
-          usdValue: '$0.00',
-          status: 'recommended',
-          slippage: '0.30%',
-          time: '~3 min',
-          confidence: 85,
-          liquidity: 'high',
-          mevRisk: 'medium',
-          details: [
-            `Pool available: ${availablePool.name}`,
-            'Analysis pending...',
-            'Ready for execution'
-          ]
-        }
-      ]
-    }
+    // Map DEX names to logo and display name
+    const dexMeta: Record<string, { name: string; logo: string }> = {
+      uniswap: { name: 'Uniswap V3', logo: '/images/logo/uniLogo.svg.png' },
+      curve: { name: 'Curve', logo: '/images/logo/curveLogo.png' },
+      balancer: { name: 'Balancer', logo: '/images/logo/balancerLogo.png' },
+      oneinch: { name: '1inch', logo: '/images/logo/1inchLogo.png' },
+      uniswapv3: { name: 'Uniswap V3', logo: '/images/logo/uniLogo.svg.png' },
+    };
 
-    const aiData = analysis.parsed
-    const dexData = data.dex
-    const priceData = data.prices
+    // Get optimalRoute for allocation and status
+    const optimalRoute = aiParsed.optimalRoute || [];
 
-    // Use AI dexAnalysis if available, otherwise fallback to calculation
-    const dexAnalysis = aiData.dexAnalysis || {}
+        return Object.entries(aiParsed.dexAnalysis).map(([dexKey, dexDataRaw]) => {
+          const dexData = dexDataRaw as any;
+      // Find matching optimalRoute entry
+      const routeInfo = optimalRoute.find((r: any) =>
+        r.dex?.toLowerCase().includes(dexKey.toLowerCase())
+      );
 
-    // Generate routes based on AI individual DEX analysis
-    const generatedRoutes: DexRoute[] = []
+      // Map status
+      let status: DexRoute['status'] = 'wait';
+      if (routeInfo?.status?.includes('execute_now')) status = 'recommended';
+      else if (routeInfo?.status?.includes('wait')) status = 'wait';
+      else status = 'avoid';
 
-    // DEX configurations with AI analysis integration
-    const dexConfigs = [
-      {
-        id: 'uniswap',
-        name: 'Uniswap V3',
-        logo: '/images/logo/uniLogo.svg.png',
-        hasData: !!dexData?.uniswap?.data?.pools?.length,
-        poolCount: dexData?.uniswap?.data?.pools?.length || 0,
-        aiAnalysis: dexAnalysis.uniswap
-      },
-      {
-        id: 'curve',
-        name: 'Curve',
-        logo: '/images/logo/curveLogo.png',
-        hasData: !!dexData?.curve?.data?.pools?.length,
-        poolCount: dexData?.curve?.data?.pools?.length || 0,
-        aiAnalysis: dexAnalysis.curve
-      },
-      {
-        id: 'balancer',
-        name: 'Balancer',
-        logo: '/images/logo/balancerLogo.png',
-        hasData: !!dexData?.balancer?.data?.pools?.length,
-        poolCount: dexData?.balancer?.data?.pools?.length || 0,
-        aiAnalysis: dexAnalysis.balancer
-      },
-      {
-        id: '1inch',
-        name: '1inch',
-        logo: '/images/logo/1inchLogo.png',
-        hasData: !!dexData?.oneinch,
-        poolCount: 1,
-        aiAnalysis: dexAnalysis.oneinch
-      }
-    ]
+      // Map liquidity
+      let liquidity: DexRoute['liquidity'] = 'medium';
+      if (dexData.liquidity === 'high') liquidity = 'high';
+      else if (dexData.liquidity === 'low') liquidity = 'low';
+      else if (dexData.liquidity === 'aggregated') liquidity = 'high';
 
-    dexConfigs.forEach((dex, index) => {
-      const aiDexData = dex.aiAnalysis
-      
-      // Use AI analysis data if available
-      if (aiDexData) {
-        const status: DexRoute['status'] = 
-          aiDexData.status === 'execute_now' ? 'recommended' :
-          aiDexData.status === 'wait' || aiDexData.status?.includes('wait') ? 'wait' : 'avoid'
+      // Map MEV risk
+      let mevRisk: DexRoute['mevRisk'] = 'medium';
+      if (dexData.mevRisk === 'low') mevRisk = 'low';
+      else if (dexData.mevRisk === 'high') mevRisk = 'high';
 
-        // Parse AI provided data
-        const rate = aiDexData.rate || '0.000000'
-        const usdValue = aiDexData.usdValue || '$0.00'
-        const slippage = aiDexData.slippage || '0.00%'
-        const confidence = Math.round((aiDexData.confidence || 0.5) * 100)
-        const allocation = aiDexData.allocation || 0
-        const timeToOptimal = aiDexData.timeToOptimal || 'unknown'
-        
-        // Determine liquidity level
-        const liquidity: DexRoute['liquidity'] = 
-          aiDexData.liquidity === 'high' ? 'high' :
-          aiDexData.liquidity === 'low' ? 'low' : 'medium'
-        
-        // Determine MEV risk
-        const mevRisk: DexRoute['mevRisk'] = 
-          aiDexData.mevRisk === 'high' ? 'high' :
-          aiDexData.mevRisk === 'low' ? 'low' : 'medium'
+      // Details
+      const details = [
+        dexData.reasoning,
+        `TVL: ${dexData.tvl}`,
+        `Fees: ${dexData.fees}`,
+        `${((routeInfo?.allocation ?? dexData.allocation ?? 0) * 100).toFixed(1)}% allocation recommended`,
+      ].filter(Boolean);
 
-        // Generate details from AI analysis
-        const details = [
-          aiDexData.reasoning || 'AI analysis available',
-          `TVL: ${aiDexData.tvl || 'Unknown'}`,
-          `Fees: ${aiDexData.fees || 'Unknown'}`,
-        ]
-
-        if (allocation > 0) {
-          details.push(`${(allocation * 100).toFixed(1)}% allocation recommended`)
-        }
-
-        // Calculate time display
-        const timeDisplay = status === 'recommended' ? 
-          `~${timeToOptimal === 'now' ? '2' : timeToOptimal}` :
-          `~${timeToOptimal === 'unknown' ? '5' : timeToOptimal}`
-
-        generatedRoutes.push({
-          id: dex.id,
-          name: dex.name,
-          logo: dex.logo,
-          rate: parseFloat(rate).toFixed(6),
-          usdValue: usdValue,
-          status,
-          slippage: slippage,
-          time: timeDisplay.includes('min') ? timeDisplay : `~${timeDisplay} min`,
-          confidence: confidence,
-          savings: allocation > 0.2 ? `+$${(allocation * 10).toFixed(2)}` : undefined,
-          warning: status === 'wait' ? `Better timing in ${timeToOptimal}` : 
-                   status === 'avoid' ? 'Limited liquidity' : undefined,
-          liquidity,
-          mevRisk,
-          details: details.filter(Boolean)
-        })
-      } else {
-        // Fallback calculation if no AI analysis for this DEX
-        const fromPrice = priceData?.fromToken?.price || 0
-        const toPrice = priceData?.toToken?.price || 1
-        const baseRate = fromPrice > 0 && toPrice > 0 ? (parseFloat(fromAmount) * fromPrice) / toPrice : 0
-
-        // Find allocation from optimal route
-        const optimalRoute = aiData.optimalRoute || []
-        const aiRoute = optimalRoute.find((r: any) => 
-          r.dex?.toLowerCase().includes(dex.id) || 
-          (dex.id === 'uniswap' && r.dex?.toLowerCase().includes('uniswap'))
-        )
-        
-        const allocation = aiRoute?.allocation || 0
-        const aiStatus = aiRoute?.status || 'wait'
-        
-        // Calculate estimated rate with some variance
-        let rateMultiplier = 1
-        if (dex.id === 'curve') rateMultiplier = 1.0005
-        if (dex.id === '1inch') rateMultiplier = 0.9998
-        if (dex.id === 'balancer') rateMultiplier = 1.0002
-        if (dex.id === 'uniswap') rateMultiplier = 0.9999
-
-        const estimatedRate = baseRate * rateMultiplier
-        const usdValue = estimatedRate * (toPrice || 1)
-
-        // Determine status
-        let status: DexRoute['status'] = 'wait'
-        if (aiStatus === 'execute_now' && allocation > 0) status = 'recommended'
-        if (allocation === 0 || !dex.hasData) status = 'avoid'
-        if (aiStatus.includes('wait')) status = 'wait'
-
-        const baseSlippage = dex.id === 'curve' ? 0.1 : dex.id === 'uniswap' ? 0.3 : 0.25
-        const slippage = (baseSlippage + (allocation * 0.1)).toFixed(2)
-
-        let liquidity: DexRoute['liquidity'] = 'medium'
-        if (dex.poolCount > 10 || dex.id === '1inch') liquidity = 'high'
-        if (dex.poolCount < 3) liquidity = 'low'
-
-        const mevRisk: DexRoute['mevRisk'] = 
-          dex.id === 'curve' ? 'low' : 
-          dex.id === 'balancer' ? 'low' :
-          dex.id === '1inch' ? 'low' : 'medium'
-
-        const details = []
-        if (dex.hasData) {
-          details.push(`${dex.poolCount} pools available`)
-          if (allocation > 0) {
-            details.push(`${(allocation * 100).toFixed(1)}% allocation recommended`)
-          }
-          if (status === 'recommended') {
-            details.push('Optimal execution timing')
-          }
-        } else {
-          details.push('No liquidity data available')
-        }
-
-        generatedRoutes.push({
-          id: dex.id,
-          name: dex.name,
-          logo: dex.logo,
-          rate: estimatedRate.toFixed(6),
-          usdValue: `$${usdValue.toFixed(2)}`,
-          status,
-          slippage: `${slippage}%`,
-          time: status === 'recommended' ? '~2 min' : status === 'wait' ? '~5 min' : '~N/A',
-          confidence: Math.round((aiData.prediction?.confidence || 0.5) * 100),
-          savings: allocation > 0.3 ? `+$${(allocation * 2.5).toFixed(2)}` : undefined,
-          warning: status === 'wait' ? 'Better timing detected' : status === 'avoid' ? 'Limited liquidity' : undefined,
-          liquidity,
-          mevRisk,
-          details
-        })
-      }
-    })
-
-    // Sort routes: recommended first, then by rate
-    return generatedRoutes.sort((a, b) => {
-      if (a.status === 'recommended' && b.status !== 'recommended') return -1
-      if (b.status === 'recommended' && a.status !== 'recommended') return 1
-      return parseFloat(b.rate) - parseFloat(a.rate)
-    })
-  }, [analysis, data, fromAmount, fromToken, toToken])
+      return {
+        id: dexKey,
+        name: dexMeta[dexKey.toLowerCase()]?.name || dexKey,
+        logo: dexMeta[dexKey.toLowerCase()]?.logo || '/images/logo/eurlquidLogo.png',
+        rate: dexData.rate || '0.000000',
+        usdValue: dexData.usdValue || '$0.00',
+        status,
+        slippage: dexData.slippage || '0.00%',
+        time: dexData.timeToOptimal || 'N/A',
+        confidence: Math.round((dexData.confidence ?? 0) * 100),
+        savings: undefined,
+        warning: status === 'wait' ? `Better timing in ${dexData.timeToOptimal}` : undefined,
+        liquidity,
+        mevRisk,
+        details,
+      };
+    });
+  }, [analysis]);
 
   // Calculate summary stats from AI analysis
   const summaryStats = useMemo(() => {
