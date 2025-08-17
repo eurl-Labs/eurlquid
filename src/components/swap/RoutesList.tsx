@@ -33,12 +33,14 @@ interface DexRoute {
 export function useSmartSwapExecution(fromAmount: string, fromToken: string, toToken: string) {
   const [swapType, setSwapType] = useState<'smart' | 'manual' | null>(null)
   const [executingRoute, setExecutingRoute] = useState<string | null>(null)
+  const [approvalStatus, setApprovalStatus] = useState<'idle' | 'checking' | 'approving' | 'approved' | 'swapping'>('idle')
   const { analysis, data } = useAnalysisStore()
-  const { performSwap, isSwapping, isSuccess, error: swapError, hash } = useSmartSwap()
+  const { performSwap, isSwapping, isSuccess, error: swapError, hash, isApproving } = useSmartSwap()
 
   const handleSmartSwap = async () => {
     try {
       setSwapType('smart')
+      setApprovalStatus('checking')
       
       if (!analysis?.parsed?.optimalRoute) {
         alert('⚠️ No AI recommendations available. Please wait for analysis to complete.')
@@ -66,6 +68,9 @@ export function useSmartSwapExecution(fromAmount: string, fromToken: string, toT
       const fromTokenAddress = getTokenAddress(fromToken)
       const toTokenAddress = getTokenAddress(toToken)
       const fromDecimals = getTokenDecimals(fromToken)
+
+      console.log('💡 User Info: Token approvals required for AI swap execution on testnet')
+      setApprovalStatus('approving')
 
       // Execute swaps according to AI allocation
       for (const aiRoute of optimalRoute) {
@@ -100,14 +105,17 @@ export function useSmartSwapExecution(fromAmount: string, fromToken: string, toT
       }
       
       if (isSuccess) {
+        setApprovalStatus('approved')
         alert(`🎯 Smart swap completed successfully!\nAI-optimized routing executed\nTransaction hash: ${hash}`)
       }
     } catch (err: any) {
       console.error('Smart swap execution error:', err)
+      setApprovalStatus('idle')
       alert(`❌ Smart swap failed: ${err.message}`)
     } finally {
       setExecutingRoute(null)
       setSwapType(null)
+      setTimeout(() => setApprovalStatus('idle'), 3000) // Reset after 3 seconds
     }
   }
 
@@ -118,6 +126,8 @@ export function useSmartSwapExecution(fromAmount: string, fromToken: string, toT
     isSuccess,
     swapError,
     hash,
+    approvalStatus,
+    isApproving,
     canExecuteSmartSwap: analysis?.parsed?.optimalRoute && analysis.parsed.optimalRoute.length > 0
   }
 }
@@ -126,14 +136,16 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
   const [selectedRoute, setSelectedRoute] = useState<string>('curve')
   const [executingRoute, setExecutingRoute] = useState<string | null>(null)
   const [swapType, setSwapType] = useState<'smart' | 'manual' | null>(null)
+  const [approvalStatus, setApprovalStatus] = useState<'idle' | 'checking' | 'approving' | 'approved' | 'swapping'>('idle')
   const { analysis, data, loading, error } = useAnalysisStore()
-  const { performSwap, isSwapping, isSuccess, error: swapError, hash } = useSmartSwap()
+  const { performSwap, isSwapping, isSuccess, error: swapError, hash, isApproving } = useSmartSwap()
 
   // Handle manual swap execution (specific DEX)
   const handleManualSwap = async (route: DexRoute) => {
     try {
       setExecutingRoute(route.id)
       setSwapType('manual')
+      setApprovalStatus('checking')
       
       // Import token addresses
       const { getTokenAddress, getTokenDecimals } = await import('@/contracts/tokens')
@@ -157,6 +169,10 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
         minAmountOut
       })
       
+      // Show approval status
+      setApprovalStatus('approving')
+      console.log('💡 User Info: Token approval required for swap execution on testnet')
+      
       await performSwap(
         route.id,
         fromTokenAddress,
@@ -167,14 +183,17 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
       )
       
       if (isSuccess) {
+        setApprovalStatus('approved')
         alert(`✅ Manual swap executed successfully on ${route.name}!\nTransaction hash: ${hash}`)
       }
     } catch (err: any) {
       console.error('Manual swap execution error:', err)
+      setApprovalStatus('idle')
       alert(`❌ Manual swap failed on ${route.name}: ${err.message}`)
     } finally {
       setExecutingRoute(null)
       setSwapType(null)
+      setTimeout(() => setApprovalStatus('idle'), 3000) // Reset after 3 seconds
     }
   }
 
@@ -530,6 +549,22 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
           </div>
         )}
 
+        {/* Approval Process Info */}
+        {(isApproving || approvalStatus !== 'idle') && (
+          <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-yellow-400" />
+              <span className="text-yellow-400 text-sm font-medium">Token Approval Required</span>
+            </div>
+            <p className="text-white/80 text-xs mt-1">
+              {approvalStatus === 'checking' && 'Checking token allowance...'}
+              {approvalStatus === 'approving' && 'Please confirm token approval in your wallet. This allows the DEX to spend your tokens.'}
+              {approvalStatus === 'approved' && 'Token approved! Executing swap...'}
+              {isSwapping && 'Swap transaction in progress...'}
+            </p>
+          </div>
+        )}
+
 
       </div>
 
@@ -618,10 +653,13 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
                       e.stopPropagation() // Prevent route selection
                       handleManualSwap(route)
                     }}
-                    disabled={executingRoute === route.id || isSwapping}
+                    disabled={executingRoute === route.id || isSwapping || isApproving}
                     className="px-4 py-2 bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-sm font-semibold rounded-lg transition-all duration-200"
                   >
-                    {executingRoute === route.id ? 'Executing...' : 'Execute Now'}
+                    {executingRoute === route.id && approvalStatus === 'checking' && '🔍 Checking...'}
+                    {executingRoute === route.id && approvalStatus === 'approving' && '📝 Approving Token...'}
+                    {executingRoute === route.id && (approvalStatus === 'approved' || isSwapping) && '💱 Swapping...'}
+                    {executingRoute !== route.id && 'Execute Now'}
                   </button>
                 )}
                 
