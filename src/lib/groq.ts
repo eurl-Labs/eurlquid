@@ -22,7 +22,7 @@ export async function queryGroqLLM(systemPrompt: string, userPrompt: string) {
 
     const completion = await groq.chat.completions.create({
       messages,
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-20b',
       temperature: 0.2,
       max_tokens: 2048,
     });
@@ -41,7 +41,7 @@ export async function queryGroqLLMWithAxios(systemPrompt: string, userPrompt: st
   }
 
   const payload = {
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-20b',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },

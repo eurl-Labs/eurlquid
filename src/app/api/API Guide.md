@@ -114,7 +114,7 @@ Respons berisi:
 - timestamp
 
 Catatan:
-- Model default: llama-3.3-70b-versatile
+- Model default: openai/gpt-oss-20b
 - Jangan gunakan `src/lib/groq.ts` di komponen client.
 
 ---
