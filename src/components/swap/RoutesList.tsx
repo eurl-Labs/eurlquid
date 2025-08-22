@@ -127,7 +127,7 @@ export function useSmartSwapExecution(fromAmount: string, fromToken: string, toT
             label: 'View Details',
             onClick: () => {
               // Open transaction details or swap summary
-              window.open(`https://explorer.soniclabs.com/tx/${result.hash}`, '_blank')
+              window.open(`https://testnet.sonicscan.org/tx/${result.hash}`, '_blank')
             }
           }
         })
@@ -210,7 +210,7 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
           duration: 8000,
           action: {
             label: 'View on Explorer',
-            onClick: () => window.open(`https://explorer.soniclabs.com/tx/${result.hash}`, '_blank')
+            onClick: () => window.open(`https://testnet.sonicscan.org/tx/${result.hash}`, '_blank')
           }
         })
       }
@@ -284,7 +284,9 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
       return {
         id: dexKey,
         name: dexMeta[dexKey.toLowerCase()]?.name || dexKey,
-        logo: dexMeta[dexKey.toLowerCase()]?.logo || '/images/logo/eurlquidLogo.png',
+        logo: dexKey.toLowerCase().includes('uniswap')
+          ? '/images/logo/uniLogo.svg.png'
+          : dexMeta[dexKey.toLowerCase()]?.logo || '/images/logo/1inchLogo.png',
         rate: dexData.rate || '0.000000',
         usdValue: dexData.usdValue || '$0.00',
         status,
@@ -563,11 +565,11 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
                       handleManualSwap(route)
                     }}
                     disabled={executingRoute === route.id || isSwapping || isApproving}
-                    className="px-4 py-2 bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-sm font-semibold rounded-lg transition-all duration-200"
+                    className="cursor-pointer px-4 py-2 bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-sm font-semibold rounded-lg transition-all duration-200"
                   >
                     {executingRoute === route.id && approvalStatus === 'checking' && '🔍 Checking...'}
-                    {executingRoute === route.id && approvalStatus === 'approving' && '📝 Approving Token...'}
-                    {executingRoute === route.id && (approvalStatus === 'approved' || isSwapping) && '💱 Swapping...'}
+                    {/* {executingRoute === route.id && approvalStatus === 'approving' && '📝 Approving Token...'} */}
+                    {executingRoute === route.id && (approvalStatus === 'approved' || isSwapping) && 'Swapping...'}
                     {executingRoute !== route.id && 'Execute Now'}
                   </button>
                 )}

@@ -66,7 +66,7 @@ function ToastItem({ toast, onRemove }: { toast: ToastNotification; onRemove: (i
 
   const openTxExplorer = () => {
     if (toast.txHash) {
-      window.open(`https://explorer.soniclabs.com/tx/${toast.txHash}`, '_blank')
+      window.open(`https://testnet.sonicscan.org/tx/${toast.txHash}`, '_blank')
     }
   }
 

@@ -284,7 +284,7 @@ export function SwapCard({
         <button 
           onClick={handleSmartSwap}
           disabled={!canExecuteSmartSwap || isSmartSwapping || isSwapping || !fromAmount.trim()}
-          className="w-full bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="cursor-pointer w-full bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           {isSmartSwapping ? (
             <div className="flex items-center justify-center space-x-2">

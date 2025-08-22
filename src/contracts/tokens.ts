@@ -5,7 +5,7 @@ export const TOKEN_ADDRESSES = {
   USDT: '0xEc3a35b973e9cb9e735123a6e4Ba1b3D237A9F7F', // Tether USD (mock)
   USDC: '0x534dE6164d9314b44c8682Be8E41306A8a8cE2Ae', // USD Coin (mock)
   WBTC: '0xBBc467639fbEeDF5ec1eDFfC7Ed22b4666Cdd4bA', // Wrapped Bitcoin (mock)
-  WETH: '0x74c65d0ac2a1b5FF7E55b1E1D583C9c9bEd1b8a1', // Wrapped Ethereum (mock)
+  WETH: '0x0e07bce15e5Ae4729eE24b6294Aef7bcB6c2a260', // Wrapped Ethereum (mock)
   PEPE: '0x06Cd2E8E04D0F5E2b062Ca02D7CE43Ef7BD0bbfE', // Pepe (mock)
   PENGU: '0x5aDc0e42E95E7E54b8Ab6c0D6Eb0a3d6D9fF70cb', // Pengu (mock)
   DARKPENGU: '0xB4dE3ea89c50e4A1c78eE3b583b5a45bD6Ac1234', // Dark Pengu (mock)
