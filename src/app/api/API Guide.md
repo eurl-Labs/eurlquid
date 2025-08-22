@@ -29,10 +29,11 @@ Buat file `.env.local` dari `.env.example` dan isi placeholder berikut:
 - The Graph
   - (opsional, rekomendasi) THEGRAPH_API_KEY=...  → gunakan gateway
   - (opsional, override ID subgraph)
-    - THEGRAPH_SUBGRAPH_ID_UNISWAP_V3
-    - THEGRAPH_SUBGRAPH_ID_UNISWAP_V2
+    - THEGRAPH_SUBGRAPH_ID_UNISWAP_V3_ETHEREUM
+    - THEGRAPH_SUBGRAPH_ID_UNISWAP_V2_ETHEREUM
     - THEGRAPH_SUBGRAPH_ID_CURVE_ETHEREUM
     - THEGRAPH_SUBGRAPH_ID_CURVE_ARBITRUM
+    - THEGRAPH_SUBGRAPH_ID_BALANCER_ETHEREUM
 
 - Wallet (publik)
   - NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=...
@@ -57,9 +58,14 @@ Terkait keamanan: simpan secrets hanya di `.env.local`. Jangan commit ke repo.
 
 - The Graph
   - GET  /api/thegraph/uniswap-v3-pools?first=5
+  - GET  /api/thegraph/balancer-pools?first=5
 
 - DeFiLlama
   - GET  /api/defillama/price?chain=ethereum&address=0x...
+  - GET  /api/defillama/1inch?chain=ethereum
+
+- Analysis (Smart DEX Comparison)
+  - POST /api/analysis → Compare all 4 DEXs (Uniswap V3, Curve, Balancer, 1inch)
 
 - Alchemy
   - GET  /api/alchemy/latest-block?chain=ethereum|arbitrum|base
@@ -108,7 +114,7 @@ Respons berisi:
 - timestamp
 
 Catatan:
-- Model default: llama-3.3-70b-versatile
+- Model default: openai/gpt-oss-20b
 - Jangan gunakan `src/lib/groq.ts` di komponen client.
 
 ---
@@ -130,10 +136,15 @@ Subgraph IDs default (dapat di-override lewat env):
 - Uniswap V2 (Ethereum): A3Np3RQbaBA6oKJgiwDJeo5T3zrYfGHPWFYayMwtNDum
 - Curve (Ethereum): 3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF
 - Curve (Arbitrum): Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc
+- Balancer (Ethereum): C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV
 
 Endpoint uji:
 ```bash
+# Uniswap V3 pools
 curl -s "http://localhost:3000/api/thegraph/uniswap-v3-pools?first=5" | jq .
+
+# Balancer pools
+curl -s "http://localhost:3000/api/thegraph/balancer-pools?first=5" | jq .
 ```
 
 Parameter:
@@ -153,20 +164,62 @@ Sumber kode:
 
 Endpoint:
 ```bash
+# Token price from DeFiLlama
 curl -s "http://localhost:3000/api/defillama/price?chain=ethereum&address=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" | jq .
+
+# 1inch protocol data from DeFiLlama  
+curl -s "http://localhost:3000/api/defillama/1inch?chain=ethereum" | jq .
 ```
 
 Parameter:
 - chain: ethereum | arbitrum | base
-- address: alamat token ERC-20 (checksum atau lowercased)
+- address: alamat token ERC-20 (checksum atau lowercased) - untuk price endpoint
 
 Keterangan:
 - Tidak memerlukan API key.
-- Menggunakan coins.llama.fi/… di server-side, lalu merapikan output.
+- Price menggunakan coins.llama.fi/…
+- 1inch menggunakan api.llama.fi/protocols untuk data protokol (TVL, volume, dll.)
+- 1inch tidak memiliki subgraph publik, hanya mengandalkan DeFiLlama.
 
 ---
 
-## 6) Alchemy (RPC/WS) – Latest Block
+## 6) Smart DEX Analysis API
+
+Sumber kode:
+- API route: [src/app/api/analysis/route.ts](../src/app/api/analysis/route.ts)
+- Store: [src/store/userprompt-store.ts](../src/store/userprompt-store.ts)
+
+Endpoint untuk analisis cerdas yang membandingkan 4 DEX sekaligus:
+```bash
+curl -s -X POST http://localhost:3000/api/analysis \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "fromToken": "USDC",
+    "toToken": "ETH", 
+    "amount": "1000"
+  }' | jq .
+```
+
+Parameter:
+- fromToken: USDC | USDT | ETH | WETH (dapat diperluas)
+- toToken: USDC | USDT | ETH | WETH 
+- amount: jumlah swap dalam string
+
+DEX yang dianalisis:
+1. **Uniswap V3**: Data dari TheGraph + DeFiLlama
+2. **Curve**: Data dari TheGraph + DeFiLlama  
+3. **Balancer**: Data dari TheGraph + DeFiLlama
+4. **1inch**: Data dari DeFiLlama saja (tidak ada subgraph)
+
+Output:
+- Analisis AI komprehensif menggunakan Groq LLM
+- Rekomendasi route optimal dengan alokasi per-DEX
+- Risk assessment dan timing predictions
+- Expected slippage dan savings estimations
+
+---
+
+## 7) Alchemy (RPC/WS) – Latest Block
 
 Sumber kode:
 - Lib: [src/lib/alchemy.ts](../src/lib/alchemy.ts)
@@ -222,5 +275,10 @@ Tidak berpengaruh ke server API di atas, namun diperlukan untuk koneksi wallet p
 - Tambahkan endpoints:
   - /api/thegraph/uniswap-v2-pairs
   - /api/thegraph/curve-pools?chain=ethereum|arbitrum
+  - /api/defillama/balancer (dedicated endpoint)
+  - /api/analysis/historical (time-series analysis)
+- Integrasikan 1inch Aggregation API untuk real-time quotes
+- Tambahkan Balancer V2 weighted pools analysis
 - Tambah collector WS (Alchemy) untuk Swap/Mint/Burn real-time + rule-based alerts.
 - Timeseries storage untuk swaps/snapshots/prices (Postgres/Timescale) untuk analitik
+- Cross-chain DEX analysis (Arbitrum, Base, Polygon)

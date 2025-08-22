@@ -6,6 +6,7 @@ import { GraphQLProvider } from "@/providers/ApolloProvider";
 import { SimpleFooter } from "@/components/landing/layout/SimpleFooter";
 import { NavigationLoadingProvider } from "@/contexts/NavigationLoadingContext";
 import { NavigationLoadingBar } from "@/components/ui/NavigationLoadingBar";
+import { ToastProvider } from "@/components/ui/Toast";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -37,13 +38,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NavigationLoadingProvider>
-          <NavigationLoadingBar />
-          <GraphQLProvider>
-            <WalletProviders>{children}</WalletProviders>
-          </GraphQLProvider>
-          <SimpleFooter />
-        </NavigationLoadingProvider>
+        <ToastProvider>
+          <NavigationLoadingProvider>
+            <NavigationLoadingBar />
+            <GraphQLProvider>
+              <WalletProviders>{children}</WalletProviders>
+            </GraphQLProvider>
+            <SimpleFooter />
+          </NavigationLoadingProvider>
+        </ToastProvider>
       </body>
     </html>
   );

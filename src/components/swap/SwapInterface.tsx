@@ -14,6 +14,19 @@ export function SwapInterface() {
   const [toToken, setToToken] = useState("USDC");
   const [isInputActive, setIsInputActive] = useState(false);
 
+  // Keep RoutesList visible when there's an amount, regardless of input focus
+  const shouldShowRoutes = fromAmount.trim() !== "";
+  const shouldShowSearching = isInputActive && !shouldShowRoutes;
+  const shouldShowWelcome = !isInputActive && !shouldShowRoutes;
+
+  // Handle amount change and reset input active state when empty
+  const handleAmountChange = (amount: string) => {
+    setFromAmount(amount);
+    if (amount.trim() === "") {
+      setIsInputActive(false); // Reset to welcome screen when input is empty
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <SwapNavbar />
@@ -24,13 +37,13 @@ export function SwapInterface() {
           <div className="lg:col-span-1">
             <SwapCard
               fromAmount={fromAmount}
-              setFromAmount={setFromAmount}
+              setFromAmount={handleAmountChange}
               fromToken={fromToken}
               setFromToken={setFromToken}
               toToken={toToken}
               setToToken={setToToken}
               onInputFocus={() => setIsInputActive(true)}
-              onInputBlur={() => setIsInputActive(false)}
+              // Remove onInputBlur to prevent RoutesList from disappearing when clicking buttons
             />
 
             {/* Smart Features */}
@@ -65,9 +78,10 @@ export function SwapInterface() {
 
           {/* Routes Panel - DEX Aggregator */}
           <div className="lg:col-span-2">
-            <AnimatePresence>
-              {isInputActive ? (
+            <AnimatePresence mode="wait">
+              {shouldShowRoutes ? (
                 <motion.div
+                  key="routes-list"
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -76,96 +90,105 @@ export function SwapInterface() {
                     ease: "easeOut",
                   }}
                 >
-                  {fromAmount ? (
-                    <RoutesList
-                      fromAmount={fromAmount}
-                      fromToken={fromToken}
-                      toToken={toToken}
-                    />
-                  ) : (
-                    <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-8">
-                      <div className="flex flex-col items-center justify-center space-y-6">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex space-x-1">
-                            <motion.div
-                              className="w-2 h-2 bg-white rounded-full"
-                              animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [0.6, 1, 0.6],
-                              }}
-                              transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                delay: 0,
-                              }}
-                            />
-                            <motion.div
-                              className="w-2 h-2 bg-white rounded-full"
-                              animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [0.6, 1, 0.6],
-                              }}
-                              transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                delay: 0.2,
-                              }}
-                            />
-                            <motion.div
-                              className="w-2 h-2 bg-white rounded-full"
-                              animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [0.6, 1, 0.6],
-                              }}
-                              transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                delay: 0.4,
-                              }}
-                            />
-                          </div>
-                          <span className="text-white font-medium text-lg">
-                            Searching for aggregators
-                          </span>
-                        </div>
+                  <RoutesList
+                    fromAmount={fromAmount}
+                    fromToken={fromToken}
+                    toToken={toToken}
+                  />
+                </motion.div>
+              ) : shouldShowSearching ? (
+                <motion.div
+                  key="searching"
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                  className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-8"
+                >
+                  <div className="flex flex-col items-center justify-center space-y-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex space-x-1">
+                        <motion.div
+                          className="w-2 h-2 bg-white rounded-full"
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.6, 1, 0.6],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: 0,
+                          }}
+                        />
+                        <motion.div
+                          className="w-2 h-2 bg-white rounded-full"
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.6, 1, 0.6],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: 0.2,
+                          }}
+                        />
+                        <motion.div
+                          className="w-2 h-2 bg-white rounded-full"
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.6, 1, 0.6],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: 0.4,
+                          }}
+                        />
+                      </div>
+                      <span className="text-white font-medium text-lg">
+                        Searching for aggregators
+                      </span>
+                    </div>
 
-                        <div className="text-center space-y-2">
-                          <p className="text-white/60">
-                            Enter an amount to discover the best routes
-                          </p>
-                          <div className="flex items-center justify-center space-x-4 text-sm text-white/40">
-                            <span>• Real-time pricing</span>
-                            <span>• MEV protection</span>
-                            <span>• AI optimization</span>
-                          </div>
-                        </div>
-
-                        <div className="w-full max-w-md">
-                          <motion.div
-                            className="h-1 bg-white/10 rounded-full overflow-hidden"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                          >
-                            <motion.div
-                              className="h-full bg-gradient-to-r from-white/20 to-white/60 rounded-full"
-                              animate={{
-                                x: ["-100%", "100%"],
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                              }}
-                            />
-                          </motion.div>
-                        </div>
+                    <div className="text-center space-y-2">
+                      <p className="text-white/60">
+                        Enter an amount to discover the best routes
+                      </p>
+                      <div className="flex items-center justify-center space-x-4 text-sm text-white/40">
+                        <span>• Real-time pricing</span>
+                        <span>• MEV protection</span>
+                        <span>• AI optimization</span>
                       </div>
                     </div>
-                  )}
+
+                    <div className="w-full max-w-md">
+                      <motion.div
+                        className="h-1 bg-white/10 rounded-full overflow-hidden"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-white/20 to-white/60 rounded-full"
+                          animate={{
+                            x: ["-100%", "100%"],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
+                      </motion.div>
+                    </div>
+                  </div>
                 </motion.div>
-              ) : (
+              ) : shouldShowWelcome ? (
                 <motion.div
+                  key="start-swap"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
@@ -232,15 +255,15 @@ export function SwapInterface() {
                         <div className="flex flex-col items-center space-y-2">
                           <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <Image
-                              src="/images/logo/sushiLogo.png"
-                              alt="SushiSwap logo"
+                              src="/images/logo/curveLogo.png"
+                              alt="Curve logo"
                               width={24}
                               height={24}
                               className="rounded-full"
                             />
                           </div>
                           <span className="text-white text-sm font-medium">
-                            SushiSwap
+                            Curve
                           </span>
                           <span className="text-white/60 text-xs">
                             Medium Liquidity
@@ -302,7 +325,7 @@ export function SwapInterface() {
                     <span>Choose your preferred DEX with deep liquidity pools.</span>
                   </div>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
         </div>

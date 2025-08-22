@@ -1,51 +1,12 @@
-// Import filesystem and path modules for reading mock data
-import fs from 'fs';
-import path from 'path';
-
 // GET endpoint for testing - will be triggered when you visit /api/groq in browser
 export async function GET() {
   console.log('GET request received at /api/groq');
   
-  try {
-    // Load mock data from file
-    const mockPath = path.resolve(process.cwd(), 'src/mock/liquidity_oracle_input.json');
-    console.log('Loading mock data from:', mockPath);
-    const mockData = fs.readFileSync(mockPath, 'utf-8');
-    
-    // Log the request data being sent to Groq
-    console.log('Sending request to Groq with system prompt and mock data');
-    
-    // Make the actual request to Groq LLM API using SDK
-    const groqRes = await queryGroqLLM(SYSTEM_PROMPT, mockData);
-    console.log('Received response from Groq API');
-    
-    // Extract the AI-generated content
-    const aiMessage = groqRes.choices?.[0]?.message?.content || '';
-    let parsed: GroqLiquidityOracleResponse | null = null;
-    let error = null;
-    
-    // Try to parse the response as JSON
-    try {
-      parsed = JSON.parse(aiMessage);
-      console.log('Successfully parsed AI response as JSON');
-    } catch (e) {
-      error = 'AI response is not valid JSON';
-      console.error('Failed to parse AI response:', e);
-    }
-    
-    // Return full response details for inspection
-    return NextResponse.json({
-      parsed,
-      raw: aiMessage,
-      groqResponse: groqRes,
-      error,
-      timestamp: new Date().toISOString()
-    });
-  } catch (err) {
-    console.error('Error in /api/groq endpoint:', err);
-    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: errorMsg }, { status: 500 });
-  }
+  // This endpoint should only be used for real data requests, not mock data.
+  return NextResponse.json({
+    error: 'GET /api/groq is disabled for production. Use POST with real data.',
+    timestamp: new Date().toISOString()
+  }, { status: 400 });
 }
 // src/app/api/groq/route.ts
 import { NextRequest, NextResponse } from 'next/server';
