@@ -249,8 +249,8 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
     // Get optimalRoute for allocation and status
     const optimalRoute = aiParsed.optimalRoute || [];
 
-        return Object.entries(aiParsed.dexAnalysis).map(([dexKey, dexDataRaw]) => {
-          const dexData = dexDataRaw as any;
+        const mappedRoutes = Object.entries(aiParsed.dexAnalysis).map(([dexKey, dexDataRaw]) => {
+      const dexData = dexDataRaw as any;
       // Find matching optimalRoute entry
       const routeInfo = optimalRoute.find((r: any) =>
         r.dex?.toLowerCase().includes(dexKey.toLowerCase())
@@ -297,6 +297,26 @@ export function RoutesList({ fromAmount, fromToken, toToken }: RoutesListProps) 
         mevRisk,
         details,
       };
+    });
+
+    // Sort routes based on profitability
+    const liquidityValue = { high: 3, medium: 2, low: 1 };
+
+    return mappedRoutes.sort((a, b) => {
+      // 1. Highest rate (desc)
+      const rateDiff = parseFloat(b.rate) - parseFloat(a.rate);
+      if (rateDiff !== 0) return rateDiff;
+
+      // 2. Lowest slippage (asc)
+      const slippageA = parseFloat(String(a.slippage).replace('%', ''));
+      const slippageB = parseFloat(String(b.slippage).replace('%', ''));
+      const slippageDiff = slippageA - slippageB;
+      if (slippageDiff !== 0) return slippageDiff;
+
+      // 3. Highest liquidity (desc)
+      const liquidityA = liquidityValue[a.liquidity];
+      const liquidityB = liquidityValue[b.liquidity];
+      return liquidityB - liquidityA;
     });
   }, [analysis]);
 

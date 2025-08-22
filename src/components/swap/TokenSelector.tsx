@@ -307,7 +307,7 @@ function TokenListItem({
 }) {
   // Convert display symbol to pool symbol for balance lookup
   const SWAP_TO_POOL_TOKEN: Record<string, string> = {
-    "ETH": "WETH",
+    "WETH": "WETH",
     "USDC": "USDC", 
     "USDT": "USDT",
     "WBTC": "WBTC",

@@ -28,9 +28,9 @@ const TOKENS: Record<string, { chain: Chain; address: string; decimals: number; 
 };
 
 // Helper functions for fetching DEX data
-async function fetchUniswapData() {
+async function fetchUniswapData(fromToken: string, toToken: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/thegraph/uniswap-v3-pools?first=5`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/thegraph/uniswap-v3-pools?first=5&fromToken=${fromToken}&toToken=${toToken}`);
     if (!response.ok) throw new Error('Uniswap fetch failed');
     return await response.json();
   } catch (error) {
@@ -39,9 +39,9 @@ async function fetchUniswapData() {
   }
 }
 
-async function fetchCurveData() {
+async function fetchCurveData(fromToken: string, toToken: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/thegraph/curve-pools?first=5`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/thegraph/curve-pools?first=5&fromToken=${fromToken}&toToken=${toToken}`);
     if (!response.ok) throw new Error('Curve fetch failed');
     return await response.json();
   } catch (error) {
@@ -50,9 +50,9 @@ async function fetchCurveData() {
   }
 }
 
-async function fetchBalancerData() {
+async function fetchBalancerData(fromToken: string, toToken: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/thegraph/balancer-pools?first=5`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/thegraph/balancer-pools?first=5&fromToken=${fromToken}&toToken=${toToken}`);
     if (!response.ok) throw new Error('Balancer fetch failed');
     return await response.json();
   } catch (error) {
@@ -125,11 +125,11 @@ Trading Pair: ${fromToken}/${toToken}
 Input Token: ${fromToken} (${TOKENS[fromToken]?.address || 'N/A'}, ${TOKENS[fromToken]?.decimals || 18} decimals)
 Output Token: ${toToken} (${TOKENS[toToken]?.address || 'N/A'}, ${TOKENS[toToken]?.decimals || 18} decimals)
 Amount to Swap: ${amount} ${fromToken}
-Order Value: $${inputValueUSD.toFixed(2)} USD
+Order Value: ${inputValueUSD.toFixed(2)} USD
 
 PRICE & CALCULATION DATA:
-${fromToken} Price: $${fromPrice.toFixed(6)} USD
-${toToken} Price: $${toPrice.toFixed(6)} USD
+${fromToken} Price: ${fromPrice.toFixed(6)} USD
+${toToken} Price: ${toPrice.toFixed(6)} USD
 Expected Output: ${theoreticalOutputAmount.toFixed(6)} ${toToken}
 Exchange Rate: 1 ${fromToken} = ${(fromPrice / toPrice).toFixed(6)} ${toToken}
 Order Size: ${inputValueUSD > 1000 ? 'Large (>$1000)' : inputValueUSD > 100 ? 'Medium ($100-$1000)' : 'Small (<$100)'}
@@ -165,9 +165,9 @@ export async function POST(req: NextRequest) {
     // Step 1: Gather DEX data
     console.log('🔍 Step 1: Gathering DEX data...');
     const dexDataPromise = Promise.allSettled([
-      fetchUniswapData(),
-      fetchCurveData(), 
-      fetchBalancerData(),
+      fetchUniswapData(fromToken, toToken),
+      fetchCurveData(fromToken, toToken), 
+      fetchBalancerData(fromToken, toToken),
       fetch1inchData()
     ]);
 

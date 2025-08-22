@@ -115,8 +115,8 @@ Output Format (must follow exactly):
   "expectedSavingsUSD": "float (estimated cost savings in USD, must be ≥0, 2 decimal places, format ###.##)",
   "dexAnalysis": {
     "{dexName}": {
-      "rate": "float (TOTAL output tokens received if ALL input amount is executed on this DEX, format ###.######)",
-      "usdValue": "float (USD value of the rate amount using current token prices, format ###.##)",
+      "rate": "float (TOTAL output tokens received if ALL input amount is executed on this DEX)",
+      "usdValue": "float (USD value of the rate amount using current token prices)",
       "status": "enum {execute_now, wait, illiquid}",
       "slippage": "float (slippage %, must be ≥0, typical range 0.0–10.0)",
       "liquidity": "enum {aggregated, single_pool}",

@@ -81,46 +81,47 @@ export const queries = {
     `,
   },
   curve: {
-    tokens: (first = 10) => `
-      {
-        tokens(first: ${first}) {
-          id
-          name
-          symbol
-          decimals
-        }
-      }
-    `,
+    // Curve subgraph is complex, queries are not straightforward.
+    // We will rely on DefiLlama for Curve data for now.
+    poolsByTokens: () => null,
   },
   balancer: {
     pools: (first = 5) => `
       query ($first: Int!) {
-        balancers(first: $first) {
-          id
-          poolCount
-          pools {
-            id
-          }
-          snapshots {
-            id
-          }
-        }
-        pools(first: $first) {
+        pools(first: $first, orderBy: totalLiquidity, orderDirection: desc) {
           id
           address
           poolType
-          poolTypeVersion
+          tokensList
+          totalLiquidity
+          totalSwapVolume
+          totalSwapFee
+          tokens { 
+            address
+            symbol
+            decimals
+          }
         }
       }
     `,
-    poolsByTokens: (first = 5) => `
-      query ($first: Int!) {
-        pools(first: $first) {
+    poolsByTokens: (token0: string, token1: string, first = 5) => `
+    query ($first: Int!) {
+        pools(
+          first: $first, 
+          orderBy: totalLiquidity, 
+          orderDirection: desc, 
+          where: {
+            tokensList_contains: ["${token0.toLowerCase()}", "${token1.toLowerCase()}"]
+          }
+        ) {
           id
           address
           poolType
-          poolTypeVersion
-          tokens {
+          tokensList
+          totalLiquidity
+          totalSwapVolume
+          totalSwapFee
+          tokens { 
             address
             symbol
             decimals
