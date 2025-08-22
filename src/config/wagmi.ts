@@ -10,7 +10,6 @@ import {
 import { defineChain } from 'viem/chains/utils';
 import { http } from 'wagmi';
 
-// Define Sonic Blaze Testnet
 export const sonicBlazeTestnet = defineChain({
   id: 57054,
   name: 'Sonic Blaze Testnet',
@@ -33,12 +32,10 @@ export const sonicBlazeTestnet = defineChain({
   testnet: true,
 });
 
-// ✅ Enhanced: Get WalletConnect Project ID with fallback
 const getWalletConnectProjectId = () => {
   const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
   if (!projectId || projectId === 'default-project-id') {
     console.warn('⚠️ WalletConnect Project ID not found. Please set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID');
-    // Return a dummy project ID for development - this might cause connection issues
     return '2f5e91765e9e8ac4e8e36a0b0e7c4c5b'; 
   }
   return projectId;
@@ -58,7 +55,6 @@ export const config = getDefaultConfig({
     },
   ],
   ssr: true,
-  // ✅ Enhanced: Add transport configuration with better error handling
   transports: {
     [mainnet.id]: http(),
     [arbitrum.id]: http(),
@@ -69,9 +65,7 @@ export const config = getDefaultConfig({
       retryDelay: 1000,
     }),
   },
-  // ✅ Enhanced: Add connection options
   multiInjectedProviderDiscovery: false,
-  // ✅ Enhanced: Better batch options
   batch: {
     multicall: {
       batchSize: 1024 * 200,

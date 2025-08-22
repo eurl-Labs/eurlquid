@@ -1,13 +1,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ChevronDown, Search, X } from "lucide-react";
-import {
-  POOL_TOKENS,
-  type TokenSymbol,
-} from "../../../hooks/query/contracts/use-pool";
+import { type TokenSymbol } from "../../../hooks/query/contracts/use-pool";
 import { useTokenBalance } from "../../../hooks/query/contracts/use-token-balance";
 import { motion, AnimatePresence } from "framer-motion";
-
 interface TokenSelectorProps {
   label: string;
   selectedToken: TokenSymbol | null;
@@ -21,7 +17,6 @@ interface TokenSelectorProps {
   disabled?: boolean;
 }
 
-// Sonic network token data
 type SonicTokenInfo = {
   name: string;
   symbol: string;
@@ -143,25 +138,24 @@ export function TokenSelector({
   onToggle,
   onSelect,
   onAmountChange,
-  // zIndex,
   disabled = false,
 }: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // Get real balance for selected token
-  const { formattedBalance, isLoading: balanceLoading } = useTokenBalance(selectedToken);
 
-  // Component for getting real token balance
+  const { formattedBalance, isLoading: balanceLoading } =
+    useTokenBalance(selectedToken);
   const TokenBalanceDisplay = ({ tokenSymbol }: { tokenSymbol: string }) => {
-    const { formattedBalance, isLoading } = useTokenBalance(tokenSymbol as TokenSymbol);
-    
+    const { formattedBalance, isLoading } = useTokenBalance(
+      tokenSymbol as TokenSymbol
+    );
+
     if (isLoading) return <span className="text-white/40">Loading...</span>;
-    
-    const displayBalance = parseFloat(formattedBalance) > 0 ? formattedBalance : "0.00";
+
+    const displayBalance =
+      parseFloat(formattedBalance) > 0 ? formattedBalance : "0.00";
     return <span>{formatBalance(displayBalance)}</span>;
   };
 
-  // Filter tokens based on search only (Sonic network only)
   const filteredTokens = Object.entries(SONIC_TOKENS).filter(
     ([symbol, token]) => {
       const matchesSearch =
@@ -194,7 +188,6 @@ export function TokenSelector({
       </label>
 
       <div className="flex space-x-3">
-        {/* Token Selection */}
         <div className="flex-1 relative">
           <button
             type="button"
@@ -254,11 +247,9 @@ export function TokenSelector({
             )}
           </button>
 
-          {/* Enhanced Token Dropdown - Centered Modal Style */}
           <AnimatePresence>
             {isOpen && !disabled && (
               <>
-                {/* Backdrop */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -270,8 +261,7 @@ export function TokenSelector({
                     onToggle();
                   }}
                 />
-                
-                {/* Centered Modal */}
+
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -281,176 +271,171 @@ export function TokenSelector({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="rounded-2xl border border-white/20 backdrop-blur-xl bg-black/90 overflow-hidden">
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-white/10">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-6 h-6 rounded-full overflow-hidden">
-                        <Image
-                          src="/images/logoCoin/sonicLogo.png"
-                          alt="Sonic Network"
-                          width={24}
-                          height={24}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "/images/logoCoin/ethLogo.png";
-                          }}
+                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-6 h-6 rounded-full overflow-hidden">
+                          <Image
+                            src="/images/logoCoin/sonicLogo.png"
+                            alt="Sonic Network"
+                            width={24}
+                            height={24}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                "/images/logoCoin/ethLogo.png";
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">
+                            Select Token
+                          </h3>
+                          <p className="text-xs text-white/60">Sonic Network</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggle();
+                        }}
+                        className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                      >
+                        <X className="w-5 h-5 text-white/70" />
+                      </button>
+                    </div>
+
+                    <div className="p-4 border-b border-white/10">
+                      <div className="relative">
+                        <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" />
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search tokens..."
+                          className="w-full bg-white/5 border border-white/20 rounded-xl pl-10 pr-4 py-3 text-white placeholder-white/40 outline-none focus:border-white/40 transition-colors"
                         />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">
-                          Select Token
-                        </h3>
-                        <p className="text-xs text-white/60">Sonic Network</p>
-                      </div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggle();
-                      }}
-                      className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                    >
-                      <X className="w-5 h-5 text-white/70" />
-                    </button>
-                  </div>
 
-                  {/* Search */}
-                  <div className="p-4 border-b border-white/10">
-                    <div className="relative">
-                      <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search tokens..."
-                        className="w-full bg-white/5 border border-white/20 rounded-xl pl-10 pr-4 py-3 text-white placeholder-white/40 outline-none focus:border-white/40 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Token List */}
-                  <div className="max-h-80 overflow-auto">
-                    {filteredTokens.length === 0 ? (
-                      <div className="p-6 text-center">
-                        <div className="text-white/40 mb-2">
-                          No tokens found
+                    <div className="max-h-80 overflow-auto">
+                      {filteredTokens.length === 0 ? (
+                        <div className="p-6 text-center">
+                          <div className="text-white/40 mb-2">
+                            No tokens found
+                          </div>
+                          <div className="text-sm text-white/30">
+                            Try adjusting your search
+                          </div>
                         </div>
-                        <div className="text-sm text-white/30">
-                          Try adjusting your search
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-2 space-y-1">
-                        {filteredTokens.map(([symbol, token]) => {
-                          const isDisabled = otherToken === symbol;
+                      ) : (
+                        <div className="p-2 space-y-1">
+                          {filteredTokens.map(([symbol, token]) => {
+                            const isDisabled = otherToken === symbol;
 
-                          return (
-                            <button
-                              key={symbol}
-                              disabled={isDisabled}
-                              onClick={(e) => {
-                                if (isDisabled) return;
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleTokenSelection(symbol as TokenSymbol);
-                              }}
-                              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors text-left ${
-                                isDisabled
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "hover:bg-white/10"
-                              } ${
-                                selectedToken === symbol
-                                  ? "bg-white/20 ring-2 ring-blue-400/40"
-                                  : ""
-                              }`}
-                            >
-                              <div className="flex items-center space-x-3 flex-1">
-                                <div className="relative">
-                                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 flex-shrink-0">
-                                    <Image
-                                      src={token.logo}
-                                      alt={symbol}
-                                      width={40}
-                                      height={40}
-                                      className="object-cover w-full h-full"
-                                      onError={(e) => {
-                                        e.currentTarget.src =
-                                          "/images/logoCoin/ethLogo.png";
-                                      }}
-                                    />
+                            return (
+                              <button
+                                key={symbol}
+                                disabled={isDisabled}
+                                onClick={(e) => {
+                                  if (isDisabled) return;
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleTokenSelection(symbol as TokenSymbol);
+                                }}
+                                className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors text-left ${
+                                  isDisabled
+                                    ? "opacity-40 cursor-not-allowed"
+                                    : "hover:bg-white/10"
+                                } ${
+                                  selectedToken === symbol
+                                    ? "bg-white/20 ring-2 ring-blue-400/40"
+                                    : ""
+                                }`}
+                              >
+                                <div className="flex items-center space-x-3 flex-1">
+                                  <div className="relative">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 flex-shrink-0">
+                                      <Image
+                                        src={token.logo}
+                                        alt={symbol}
+                                        width={40}
+                                        height={40}
+                                        className="object-cover w-full h-full"
+                                        onError={(e) => {
+                                          e.currentTarget.src =
+                                            "/images/logoCoin/ethLogo.png";
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="w-4 h-4 rounded-full overflow-hidden border border-white/30 absolute -bottom-1 -right-1 bg-gray-900">
+                                      <Image
+                                        src="/images/logoCoin/sonicLogo.png"
+                                        alt="Sonic"
+                                        width={16}
+                                        height={16}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.src =
+                                            "/images/logoCoin/ethLogo.png";
+                                        }}
+                                      />
+                                    </div>
                                   </div>
-                                  {/* Sonic Network Badge */}
-                                  <div className="w-4 h-4 rounded-full overflow-hidden border border-white/30 absolute -bottom-1 -right-1 bg-gray-900">
-                                    <Image
-                                      src="/images/logoCoin/sonicLogo.png"
-                                      alt="Sonic"
-                                      width={16}
-                                      height={16}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.currentTarget.src =
-                                          "/images/logoCoin/ethLogo.png";
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center space-x-2">
-                                    <span className="text-white font-medium text-base">
-                                      {symbol}
-                                    </span>
-                                    <span className="text-sm text-white/60">
-                                      {token.name}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center space-x-2 mt-0.5">
-                                    <span className="text-xs text-white/50">
-                                      Sonic Network
-                                    </span>
-                                    {token.price && (
-                                      <span className="text-xs text-green-400 font-medium">
-                                        {token.price}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-white font-medium text-base">
+                                        {symbol}
                                       </span>
-                                    )}
+                                      <span className="text-sm text-white/60">
+                                        {token.name}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 mt-0.5">
+                                      <span className="text-xs text-white/50">
+                                        Sonic Network
+                                      </span>
+                                      {token.price && (
+                                        <span className="text-xs text-green-400 font-medium">
+                                          {token.price}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-white font-medium">
-                                  <TokenBalanceDisplay tokenSymbol={symbol} />
-                                </div>
-                                <div className="text-xs text-white/60 mt-0.5">
-                                  Balance
-                                </div>
-                                {selectedToken === symbol && (
-                                  <div className="flex items-center justify-end mt-1">
-                                    <div className="w-2 h-2 rounded-full bg-blue-400" />
+                                <div className="text-right">
+                                  <div className="text-white font-medium">
+                                    <TokenBalanceDisplay tokenSymbol={symbol} />
                                   </div>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer Info */}
-                  <div className="p-4 border-t border-white/10 bg-white/5">
-                    <div className="flex items-center justify-center space-x-2 text-xs text-white/60">
-                      <div className="w-4 h-4 rounded-full overflow-hidden">
-                        <Image
-                          src="/images/logoCoin/sonicLogo.png"
-                          alt="Sonic"
-                          width={16}
-                          height={16}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span>Powered by Sonic Network</span>
+                                  <div className="text-xs text-white/60 mt-0.5">
+                                    Balance
+                                  </div>
+                                  {selectedToken === symbol && (
+                                    <div className="flex items-center justify-end mt-1">
+                                      <div className="w-2 h-2 rounded-full bg-blue-400" />
+                                    </div>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  </div>
+
+                    <div className="p-4 border-t border-white/10 bg-white/5">
+                      <div className="flex items-center justify-center space-x-2 text-xs text-white/60">
+                        <div className="w-4 h-4 rounded-full overflow-hidden">
+                          <Image
+                            src="/images/logoCoin/sonicLogo.png"
+                            alt="Sonic"
+                            width={16}
+                            height={16}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span>Powered by Sonic Network</span>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               </>
@@ -458,7 +443,6 @@ export function TokenSelector({
           </AnimatePresence>
         </div>
 
-        {/* Amount Input */}
         <div className="flex-1">
           <input
             type="number"
@@ -470,18 +454,18 @@ export function TokenSelector({
         </div>
       </div>
 
-      {/* Balance Display */}
       {selectedToken && (
         <div className="flex justify-between items-center mt-2 px-1">
-          <span className="text-xs text-white/60">
-            Available Balance:
-          </span>
+          <span className="text-xs text-white/60">Available Balance:</span>
           <div className="flex items-center space-x-2">
             {balanceLoading ? (
               <span className="text-xs text-white/40">Loading...</span>
             ) : (
               <span className="text-xs text-white font-medium">
-                {parseFloat(formattedBalance) > 0 ? parseFloat(formattedBalance).toFixed(4) : "0.00"} {selectedToken}
+                {parseFloat(formattedBalance) > 0
+                  ? parseFloat(formattedBalance).toFixed(4)
+                  : "0.00"}{" "}
+                {selectedToken}
               </span>
             )}
             <button

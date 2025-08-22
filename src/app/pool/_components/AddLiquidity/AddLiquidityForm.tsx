@@ -2,14 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import {
-  Plus,
-  ArrowLeft,
-  Info,
-  AlertTriangle,
-  Settings,
-  Droplets,
-} from "lucide-react";
+import { Plus, ArrowLeft, Settings, Droplets } from "lucide-react";
 import { useAccount } from "wagmi";
 import { parseEther } from "viem";
 import {
@@ -18,7 +11,6 @@ import {
   DEX_AGGREGATORS,
   type DexName,
   usePool,
-  EXISTING_POOLS,
 } from "../../../hooks/query/contracts/use-pool";
 import { TokenSelector } from "./TokenSelectorLiquidity";
 import { motion } from "framer-motion";
@@ -69,8 +61,6 @@ export function AddLiquidityForm({
     null
   );
   const [openDexSelect, setOpenDexSelect] = useState(false);
-
-  // Approval states
   const [approvedTokenA, setApprovedTokenA] = useState(false);
   const [approvedTokenB, setApprovedTokenB] = useState(false);
 
@@ -87,8 +77,6 @@ export function AddLiquidityForm({
     txHash,
     reset,
   } = usePool();
-
-  // Separate states for different operations
   const [approveTokenALoading, setApproveTokenALoading] = useState(false);
   const [approveTokenBLoading, setApproveTokenBLoading] = useState(false);
   const [addLiquidityLoading, setAddLiquidityLoading] = useState(false);
@@ -96,8 +84,6 @@ export function AddLiquidityForm({
   const [addLiquidityTxHash, setAddLiquidityTxHash] = useState<string | null>(
     null
   );
-
-  // Mock pool ratios for calculation
   const poolRatios = {
     "WBTC/USDT": { reserveA: "5.25", reserveB: "245678.50" },
     "WETH/USDC": { reserveA: "150.25", reserveB: "485623.75" },
@@ -113,7 +99,6 @@ export function AddLiquidityForm({
       ]
     : null;
 
-  // Auto calculate amounts based on pool ratio
   const handleAmountAChange = (value: string) => {
     setAmountA(value);
     if (value && currentPoolRatio) {
@@ -136,31 +121,29 @@ export function AddLiquidityForm({
     }
   };
 
-  // Calculate pool ID
-  const computePoolId = (
-    tokenA: TokenSymbol,
-    tokenB: TokenSymbol
-  ): `0x${string}` => {
-    try {
-      const aAddr = POOL_TOKENS[tokenA].address.toLowerCase();
-      const bAddr = POOL_TOKENS[tokenB].address.toLowerCase();
-      const [token0, token1] = aAddr < bAddr ? [aAddr, bAddr] : [bAddr, aAddr];
+  // const computePoolId = (
+  //   tokenA: TokenSymbol,
+  //   tokenB: TokenSymbol
+  // ): `0x${string}` => {
+  //   try {
+  //     const aAddr = POOL_TOKENS[tokenA].address.toLowerCase();
+  //     const bAddr = POOL_TOKENS[tokenB].address.toLowerCase();
+  //     const [token0, token1] = aAddr < bAddr ? [aAddr, bAddr] : [bAddr, aAddr];
 
-      const poolId = keccak256(
-        encodePacked(
-          ["address", "address"],
-          [token0 as `0x${string}`, token1 as `0x${string}`]
-        )
-      );
+  //     const poolId = keccak256(
+  //       encodePacked(
+  //         ["address", "address"],
+  //         [token0 as `0x${string}`, token1 as `0x${string}`]
+  //       )
+  //     );
 
-      return poolId;
-    } catch (error) {
-      console.error("Error computing poolId:", error);
-      return "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`;
-    }
-  };
+  //     return poolId;
+  //   } catch (error) {
+  //     console.error("Error computing poolId:", error);
+  //     return "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`;
+  //   }
+  // };
 
-  // Token approval handlers
   const handleApproveTokenA = async () => {
     if (!selectedTokenA || !amountA || !selectedDex) {
       console.error("Missing data for token A approval");
@@ -180,15 +163,10 @@ export function AddLiquidityForm({
 
       await approveToken(selectedTokenA, amountA, selectedDex);
       setApprovedTokenA(true);
-      console.log("Token A approved successfully");
-
-      // Reset hook state to prevent interference with add liquidity detection
       setTimeout(() => {
         reset();
         console.log("🔄 Hook state reset after Token A approval");
       }, 500);
-
-      // If this is from modal, move to next step
       if (isModalOpen) {
         setTimeout(() => {
           setModalStep("approve-second-token");
@@ -220,15 +198,11 @@ export function AddLiquidityForm({
 
       await approveToken(selectedTokenB, amountB, selectedDex);
       setApprovedTokenB(true);
-      console.log("Token B approved successfully");
-
-      // Reset hook state to prevent interference with add liquidity detection
       setTimeout(() => {
         reset();
         console.log("🔄 Hook state reset after Token B approval");
       }, 500);
 
-      // If this is from modal, move to add liquidity step
       if (isModalOpen) {
         setTimeout(() => {
           setModalStep("add-liquidity");
@@ -241,7 +215,6 @@ export function AddLiquidityForm({
     }
   };
 
-  // Modal handlers
   const handleModalApproveFirst = () => {
     handleApproveTokenA();
   };
@@ -253,7 +226,6 @@ export function AddLiquidityForm({
   const handleModalAddLiquidity = async () => {
     try {
       await handleAddLiquidity();
-      // The useEffect will handle the success state transition
     } catch (err) {
       console.error("Modal add liquidity failed:", err);
     }
@@ -264,14 +236,10 @@ export function AddLiquidityForm({
     setIsModalOpen(false);
     setModalStep("approve-first-token");
 
-    // Reset success states when closing modal
     setAddLiquiditySuccess(false);
     setAddLiquidityTxHash(null);
     setAddLiquidityLoading(false);
-
-    // Reset hook state if there was an error or success
     if (isError || isSuccess) {
-      console.log("🔄 Resetting hook state...");
       reset();
     }
   };
@@ -285,24 +253,16 @@ export function AddLiquidityForm({
     }
   };
 
-  const handleAddLiquidityWithModal = () => {
-    setIsModalOpen(true);
-    setModalStep("add-liquidity");
-  };
+  // const handleAddLiquidityWithModal = () => {
+  //   setIsModalOpen(true);
+  //   setModalStep("add-liquidity");
+  // };
 
-  // Pre-transaction validation helper
   const validateTransaction = async () => {
-    console.log("🔍 PRE-TRANSACTION VALIDATION:");
-
     try {
-      // Use existing pool ID if available, otherwise get from smart contract
       if (existingPool?.id) {
-        console.log("✅ Using existing pool ID:", existingPool.id);
         return existingPool.id;
       }
-
-      // 🚀 Get pool ID from smart contract using the hook
-      console.log("📞 Getting Pool ID from smart contract...");
       const contractPoolId = await getPoolId(
         selectedTokenA!,
         selectedTokenB!,
@@ -310,18 +270,12 @@ export function AddLiquidityForm({
       );
 
       if (!contractPoolId) {
-        console.log("🆕 Pool does not exist, need to create it first");
-
-        // Ask user if they want to create the pool
         const shouldCreate = window.confirm(
           `Pool for ${selectedTokenA}/${selectedTokenB} does not exist. Do you want to create it first?`
         );
 
         if (shouldCreate) {
-          console.log("🚀 Creating new pool...");
           await createPool(selectedTokenA!, selectedTokenB!, selectedDex);
-
-          // After creating, try to get pool ID again
           const newPoolId = await getPoolId(
             selectedTokenA!,
             selectedTokenB!,
@@ -336,9 +290,6 @@ export function AddLiquidityForm({
         }
       }
 
-      console.log("✅ Pool ID retrieved from smart contract:", contractPoolId);
-
-      // Additional validation
       if (!contractPoolId.startsWith("0x") || contractPoolId.length !== 66) {
         throw new Error(`Invalid pool ID format: ${contractPoolId}`);
       }
@@ -369,44 +320,13 @@ export function AddLiquidityForm({
 
     try {
       setAddLiquidityLoading(true);
-
-      // Reset previous success state
       setAddLiquiditySuccess(false);
       setAddLiquidityTxHash(null);
 
-      // 🔍 Get validated pool ID from smart contract
       const validatedPoolId = await validateTransaction();
-
-      // 🔍 Enhanced debugging for transaction failure analysis
       const tokenAInfo = POOL_TOKENS[selectedTokenA];
       const tokenBInfo = POOL_TOKENS[selectedTokenB];
       const dexInfo = DEX_AGGREGATORS[selectedDex];
-
-      console.log("🚀 EXECUTING ADD LIQUIDITY TRANSACTION:");
-      console.log("==========================================");
-      console.log("📊 Pool Information:");
-      console.log(`   - Final Pool ID: ${validatedPoolId}`);
-      console.log(
-        `   - Pool Source: ${existingPool ? "Existing Pool" : "Smart Contract"}`
-      );
-      console.log("💰 Token Information:");
-      console.log(`   - Token A: ${selectedTokenA} (${tokenAInfo.address})`);
-      console.log(`   - Token B: ${selectedTokenB} (${tokenBInfo.address})`);
-      console.log(
-        `   - Amount A: ${amountA} (${parseEther(amountA).toString()} wei)`
-      );
-      console.log(
-        `   - Amount B: ${amountB} (${parseEther(amountB).toString()} wei)`
-      );
-      console.log("🏦 DEX Information:");
-      console.log(`   - DEX: ${selectedDex}`);
-      console.log(`   - DEX Contract: ${dexInfo.address}`);
-      console.log("✅ Approval Status:");
-      console.log(`   - Token A Approved: ${approvedTokenA}`);
-      console.log(`   - Token B Approved: ${approvedTokenB}`);
-      console.log("==========================================");
-
-      console.log("📤 Sending transaction to blockchain...");
 
       await addLiquidity(
         validatedPoolId,
@@ -416,12 +336,6 @@ export function AddLiquidityForm({
         selectedTokenB,
         selectedDex
       );
-
-      console.log("✅ Transaction sent successfully!");
-      console.log("⏳ Waiting for transaction confirmation...");
-
-      // Note: Success state will be handled by the useEffect monitoring hook states
-      // Don't set loading to false here - let the success detection handle it
     } catch (err) {
       console.error("❌ Add liquidity failed:", err);
       console.error("Error details:", {
@@ -431,92 +345,71 @@ export function AddLiquidityForm({
         cause: (err as any)?.cause,
       });
       setAddLiquiditySuccess(false);
-      setAddLiquidityLoading(false); // Only set to false on error
+      setAddLiquidityLoading(false);
     }
   };
 
-  // Reset approval states when tokens or DEX change
   useEffect(() => {
     if (!existingPool) {
       setApprovedTokenA(false);
       setApprovedTokenB(false);
       setAddLiquiditySuccess(false);
       setAddLiquidityTxHash(null);
-      // Don't call reset() here as it causes infinite re-renders
     }
   }, [selectedTokenA, selectedTokenB, selectedDex, existingPool]);
 
-  // Monitor hook success for add liquidity - Enhanced detection
   useEffect(() => {
-    console.log("🔍 Success Detection Monitor:", {
-      isSuccess,
-      txHash,
-      addLiquidityLoading,
-      isModalOpen,
-      modalStep,
-      currentTxHash: addLiquidityTxHash,
-      approveTokenALoading,
-      approveTokenBLoading,
-    });
+    // console.log("🔍 Success Detection Monitor:", {
+    //   isSuccess,
+    //   txHash,
+    //   addLiquidityLoading,
+    //   isModalOpen,
+    //   modalStep,
+    //   currentTxHash: addLiquidityTxHash,
+    //   approveTokenALoading,
+    //   approveTokenBLoading,
+    // });
 
-    // DETECT successful ADD LIQUIDITY transactions
-    // We detect this when:
-    // 1. We have a successful transaction (isSuccess && txHash)
-    // 2. AND we're currently in the add-liquidity modal step OR we were processing add liquidity
     if (isSuccess && txHash) {
-      // Check if this is an add liquidity success
       const isAddLiquiditySuccess =
         modalStep === "add-liquidity" || addLiquidityLoading;
 
       if (isAddLiquiditySuccess) {
-        console.log("🎉 Add Liquidity Success Detected!");
-        console.log("   Transaction Hash:", txHash);
-        console.log("   Current Modal State:", { isModalOpen, modalStep });
-        console.log("   Detection Criteria:", {
-          modalStep,
-          addLiquidityLoading,
-        });
+        // console.log("🎉 Add Liquidity Success Detected!");
+        // console.log("   Transaction Hash:", txHash);
+        // console.log("   Current Modal State:", { isModalOpen, modalStep });
+        // console.log("   Detection Criteria:", {
+        //   modalStep,
+        //   addLiquidityLoading,
+        // });
 
-        // Always update success state
         setAddLiquiditySuccess(true);
         setAddLiquidityTxHash(txHash);
         setAddLiquidityLoading(false);
 
-        // Handle modal transition based on current state
         if (isModalOpen) {
           if (modalStep === "add-liquidity") {
-            console.log("   ✅ Transitioning modal to success step...");
             const timer = setTimeout(() => {
               setModalStep("success");
-              console.log(
-                "   ✅ Modal step set to success with txHash:",
-                txHash
-              );
             }, 1500);
 
             return () => clearTimeout(timer);
           } else {
-            console.log(
-              "   🔄 Modal is open but not in add-liquidity step, opening success modal..."
-            );
             setModalStep("success");
             setIsModalOpen(true);
           }
         } else {
-          // If modal is closed, open it in success state
-          console.log("   🔄 Modal is closed, opening success modal...");
           setModalStep("success");
           setIsModalOpen(true);
         }
       } else {
-        // Log when approval transactions complete (for debugging)
-        console.log(
-          "✅ Token Approval Success Detected (not triggering success modal)"
-        );
-        console.log("   Approval Transaction Hash:", txHash);
-        console.log("   Current Modal Step:", modalStep);
-        console.log("   Token A Loading:", approveTokenALoading);
-        console.log("   Token B Loading:", approveTokenBLoading);
+        // console.log(
+        //   "✅ Token Approval Success Detected (not triggering success modal)"
+        // );
+        // console.log("   Approval Transaction Hash:", txHash);
+        // console.log("   Current Modal Step:", modalStep);
+        // console.log("   Token A Loading:", approveTokenALoading);
+        // console.log("   Token B Loading:", approveTokenBLoading);
       }
     }
   }, [
@@ -529,24 +422,13 @@ export function AddLiquidityForm({
     approveTokenBLoading,
   ]);
 
-  // Additional success detection using different approach - watch for transition from loading to success
   useEffect(() => {
-    // If we were loading add liquidity and now we have success + txHash, trigger success modal
     if (isSuccess && txHash && !addLiquidityLoading && !addLiquiditySuccess) {
-      // Check if we're in the right context (modal is open and in add-liquidity step)
       if (isModalOpen && modalStep === "add-liquidity") {
-        console.log("🚀 Alternative Add Liquidity Success Detection!");
-        console.log("   Transaction Hash:", txHash);
-        console.log("   Triggering success modal...");
-
         setAddLiquiditySuccess(true);
         setAddLiquidityTxHash(txHash);
-
         setTimeout(() => {
           setModalStep("success");
-          console.log(
-            "   ✅ Success modal triggered via alternative detection"
-          );
         }, 1000);
       }
     }
@@ -559,22 +441,18 @@ export function AddLiquidityForm({
     modalStep,
   ]);
 
-  // Fallback success detection - force success modal after transaction is confirmed
   useEffect(() => {
     let fallbackTimer: NodeJS.Timeout;
 
     if (isModalOpen && modalStep === "add-liquidity" && isSuccess && txHash) {
-      console.log("🔔 Fallback timer started for success modal...");
       fallbackTimer = setTimeout(() => {
         if (!addLiquiditySuccess && modalStep === "add-liquidity") {
-          console.log("🚨 Fallback success modal trigger activated!");
-          console.log("   Transaction Hash:", txHash);
           setAddLiquiditySuccess(true);
           setAddLiquidityTxHash(txHash);
           setAddLiquidityLoading(false);
           setModalStep("success");
         }
-      }, 3000); // 3 second fallback
+      }, 3000);
     }
 
     return () => {
@@ -584,31 +462,26 @@ export function AddLiquidityForm({
     };
   }, [isModalOpen, modalStep, isSuccess, txHash, addLiquiditySuccess]);
 
-  // 🔍 Debug: Monitor addLiquidityTxHash state changes
   useEffect(() => {
     if (addLiquidityTxHash) {
-      console.log("🔍 addLiquidityTxHash updated:", addLiquidityTxHash);
-      console.log("   Modal Step:", modalStep);
-      console.log("   Modal Open:", isModalOpen);
+      // console.log("🔍 addLiquidityTxHash updated:", addLiquidityTxHash);
+      // console.log("   Modal Step:", modalStep);
+      // console.log("   Modal Open:", isModalOpen);
     }
   }, [addLiquidityTxHash, modalStep, isModalOpen]);
 
-  // Reset loading state when error occurs
   useEffect(() => {
     if (isError && addLiquidityLoading) {
       setAddLiquidityLoading(false);
     }
   }, [isError, addLiquidityLoading]);
 
-  // Reset states when modal is closed after success or error
   useEffect(() => {
     if (!isModalOpen && (addLiquiditySuccess || isError)) {
-      // Reset all states after modal close to allow retry
       const timer = setTimeout(() => {
         setAddLiquiditySuccess(false);
         setAddLiquidityTxHash(null);
         setAddLiquidityLoading(false);
-        // Also reset hook state
         reset();
       }, 500);
 
@@ -629,7 +502,6 @@ export function AddLiquidityForm({
       transition={{ duration: 0.3 }}
       className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           {onBack && (
@@ -659,7 +531,6 @@ export function AddLiquidityForm({
         </button>
       </div>
 
-      {/* Settings Panel */}
       {showSettings && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -710,7 +581,6 @@ export function AddLiquidityForm({
         </motion.div>
       )}
 
-      {/* Existing Pool Info */}
       {existingPool && (
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -789,7 +659,6 @@ export function AddLiquidityForm({
         </div>
       )}
 
-      {/* DEX Selector */}
       {!existingPool && (
         <div className="mb-6">
           <DexSelector
@@ -804,7 +673,6 @@ export function AddLiquidityForm({
         </div>
       )}
 
-      {/* Token Inputs */}
       <div className="space-y-4">
         <TokenSelector
           label="First Token"
@@ -843,7 +711,6 @@ export function AddLiquidityForm({
         />
       </div>
 
-      {/* Token Approval Buttons */}
       {!existingPool && (
         <div className="space-y-3 mt-6">
           <h3 className="text-white font-medium text-sm mb-3">
@@ -862,22 +729,22 @@ export function AddLiquidityForm({
               !isConnected
             }
             className="w-full
-  bg-gradient-to-b from-neutral-900 to-black
-  text-white
-  font-semibold
-  py-4 px-6
-  rounded-xl
-  border border-white/10
-  shadow-[0_4px_12px_rgba(0,0,0,0.4)]
-  hover:bg-gradient-to-b hover:from-white/10 hover:to-white/20
-  hover:text-white
-  hover:border-white/20
-  hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)]
-  transition-all duration-200
-  disabled:from-white/10 disabled:to-white/10
-  disabled:text-white/40
-  disabled:shadow-none
-  cursor-pointer disabled:cursor-not-allowedcursor-pointer disabled:cursor-not-allowed"
+            bg-gradient-to-b from-neutral-900 to-black
+            text-white
+            font-semibold
+            py-4 px-6
+            rounded-xl
+            border border-white/10
+            shadow-[0_4px_12px_rgba(0,0,0,0.4)]
+            hover:bg-gradient-to-b hover:from-white/10 hover:to-white/20
+            hover:text-white
+            hover:border-white/20
+            hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)]
+            transition-all duration-200
+            disabled:from-white/10 disabled:to-white/10
+            disabled:text-white/40
+            disabled:shadow-none
+            cursor-pointer disabled:cursor-not-allowedcursor-pointer disabled:cursor-not-allowed"
           >
             {approvedTokenA && approvedTokenB
               ? "✓ Tokens Approved"
@@ -894,14 +761,12 @@ export function AddLiquidityForm({
         </div>
       )}
 
-      {/* Error State Only */}
       {isError && error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mt-4 truncate">
           <strong className="font-bold truncate">Error:</strong> {error.message}
         </div>
       )}
 
-      {/* Action Button */}
       {/* <button
         onClick={
           existingPool ? handleAddLiquidity : handleAddLiquidityWithModal
@@ -938,12 +803,11 @@ export function AddLiquidityForm({
         </div>
       </button> */}
 
-      {/* Transaction Modal */}
       <PoolTransactionModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
         step={modalStep}
-        mode="add-liquidity" // Specify add-liquidity mode
+        mode="add-liquidity"
         tokenA={
           selectedTokenA
             ? {

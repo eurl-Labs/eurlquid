@@ -194,7 +194,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       lerp: 0.1,
       syncTouch: true,
       syncTouchLerp: 0.075,
-      smoothTouch: true,
     });
 
     lenis.on('scroll', handleScroll);

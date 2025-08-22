@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Build correct URL using subgraph ID.
 // If THEGRAPH_API_KEY exists, use gateway form:
@@ -13,13 +13,22 @@ function graphUrlForId(subgraphId: string) {
   return `https://api.thegraph.com/subgraphs/id/${subgraphId}`;
 }
 
-// Provided subgraph IDs
 const SUBGRAPH_IDS = {
-  uniswapV3Ethereum: process.env.THEGRAPH_SUBGRAPH_ID_UNISWAP_V3_ETHEREUM || '5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV',
-  uniswapV2Ethereum: process.env.THEGRAPH_SUBGRAPH_ID_UNISWAP_V2_ETHEREUM || 'A3Np3RQbaBA6oKJgiwDJeo5T3zrYfGHPWFYayMwtNDum',
-  curveEthereum: process.env.THEGRAPH_SUBGRAPH_ID_CURVE_ETHEREUM || '3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF',
-  curveArbitrum: process.env.THEGRAPH_SUBGRAPH_ID_CURVE_ARBITRUM || 'Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc',
-  balancerEthereum: process.env.THEGRAPH_SUBGRAPH_ID_BALANCER_ETHEREUM || 'C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV',
+  uniswapV3Ethereum:
+    process.env.THEGRAPH_SUBGRAPH_ID_UNISWAP_V3_ETHEREUM ||
+    "5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV",
+  uniswapV2Ethereum:
+    process.env.THEGRAPH_SUBGRAPH_ID_UNISWAP_V2_ETHEREUM ||
+    "A3Np3RQbaBA6oKJgiwDJeo5T3zrYfGHPWFYayMwtNDum",
+  curveEthereum:
+    process.env.THEGRAPH_SUBGRAPH_ID_CURVE_ETHEREUM ||
+    "3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF",
+  curveArbitrum:
+    process.env.THEGRAPH_SUBGRAPH_ID_CURVE_ARBITRUM ||
+    "Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc",
+  balancerEthereum:
+    process.env.THEGRAPH_SUBGRAPH_ID_BALANCER_ETHEREUM ||
+    "C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV",
 } as const;
 
 export type Subgraph = keyof typeof SUBGRAPH_IDS;
@@ -32,9 +41,17 @@ const endpoints: Record<Subgraph, string> = {
   balancerEthereum: graphUrlForId(SUBGRAPH_IDS.balancerEthereum),
 };
 
-export async function theGraphQuery<T = any>(subgraph: Subgraph, query: string, variables?: Record<string, any>): Promise<T> {
+export async function theGraphQuery<T = any>(
+  subgraph: Subgraph,
+  query: string,
+  variables?: Record<string, any>
+): Promise<T> {
   const url = endpoints[subgraph];
-  const res = await axios.post(url, { query, variables }, { headers: { 'Content-Type': 'application/json' } });
+  const res = await axios.post(
+    url,
+    { query, variables },
+    { headers: { "Content-Type": "application/json" } }
+  );
   if (res.data?.errors) throw new Error(JSON.stringify(res.data.errors));
   return res.data.data as T;
 }
@@ -81,8 +98,6 @@ export const queries = {
     `,
   },
   curve: {
-    // Curve subgraph is complex, queries are not straightforward.
-    // We will rely on DefiLlama for Curve data for now.
     poolsByTokens: () => null,
   },
   balancer: {
@@ -129,5 +144,5 @@ export const queries = {
         }
       }
     `,
-  }
+  },
 };

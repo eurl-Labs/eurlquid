@@ -7,6 +7,7 @@ import { SimpleFooter } from "@/components/landing/layout/SimpleFooter";
 import { NavigationLoadingProvider } from "@/contexts/NavigationLoadingContext";
 import { NavigationLoadingBar } from "@/components/ui/NavigationLoadingBar";
 import { ToastProvider } from "@/components/ui/Toast";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

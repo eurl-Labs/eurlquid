@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { calculateSwapRate, getTokenPriceUSD } from '@/lib/pyth-price';
+import { useState, useEffect } from "react";
+import { calculateSwapRate, getTokenPriceUSD } from "@/lib/pyth-price";
 
 interface UseSwapPriceResult {
   toAmount: string;
@@ -13,7 +13,7 @@ interface UseSwapPriceResult {
 
 export function useSwapPrice(
   fromToken: string,
-  toToken: string, 
+  toToken: string,
   fromAmount: string
 ): UseSwapPriceResult {
   const [toAmount, setToAmount] = useState<string>("0");
@@ -23,7 +23,13 @@ export function useSwapPrice(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!fromToken || !toToken || !fromAmount || fromAmount === "0" || fromAmount === "") {
+    if (
+      !fromToken ||
+      !toToken ||
+      !fromAmount ||
+      fromAmount === "0" ||
+      fromAmount === ""
+    ) {
       setToAmount("0");
       setFromPriceUSD(null);
       setToPriceUSD(null);
@@ -34,7 +40,7 @@ export function useSwapPrice(
     const fetchPrices = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const fromAmountNum = parseFloat(fromAmount);
         if (isNaN(fromAmountNum) || fromAmountNum <= 0) {
@@ -42,23 +48,26 @@ export function useSwapPrice(
           return;
         }
 
-        console.log(`Fetching prices for ${fromToken} -> ${toToken}, amount: ${fromAmountNum}`);
-        
-        const result = await calculateSwapRate(fromToken, toToken, fromAmountNum);
-        
-        console.log(`Price calculation result:`, {
+        // console.log(`Fetching prices for ${fromToken} -> ${toToken}, amount: ${fromAmountNum}`);
+
+        const result = await calculateSwapRate(
           fromToken,
           toToken,
-          fromAmountNum,
-          fromPriceUSD: result.fromPriceUSD,
-          toPriceUSD: result.toPriceUSD,
-          toAmount: result.toAmount
-        });
+          fromAmountNum
+        );
+
+        // console.log(`Price calculation result:`, {
+        //   fromToken,
+        //   toToken,
+        //   fromAmountNum,
+        //   fromPriceUSD: result.fromPriceUSD,
+        //   toPriceUSD: result.toPriceUSD,
+        //   toAmount: result.toAmount
+        // });
 
         setFromPriceUSD(result.fromPriceUSD);
         setToPriceUSD(result.toPriceUSD);
         setToAmount(result.toAmount.toFixed(6));
-        
       } catch (err) {
         console.error("Error fetching swap prices:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch prices");
@@ -68,15 +77,15 @@ export function useSwapPrice(
       }
     };
 
-    // Debounce the API calls
     const timeoutId = setTimeout(fetchPrices, 500);
-    
+
     return () => clearTimeout(timeoutId);
   }, [fromToken, toToken, fromAmount]);
 
-  // Calculate USD values
-  const fromValueUSD = fromPriceUSD && fromAmount ? fromPriceUSD * parseFloat(fromAmount) : null;
-  const toValueUSD = toPriceUSD && toAmount ? toPriceUSD * parseFloat(toAmount) : null;
+  const fromValueUSD =
+    fromPriceUSD && fromAmount ? fromPriceUSD * parseFloat(fromAmount) : null;
+  const toValueUSD =
+    toPriceUSD && toAmount ? toPriceUSD * parseFloat(toAmount) : null;
 
   return {
     toAmount,
@@ -85,6 +94,6 @@ export function useSwapPrice(
     isLoading,
     error,
     fromValueUSD,
-    toValueUSD
+    toValueUSD,
   };
 }

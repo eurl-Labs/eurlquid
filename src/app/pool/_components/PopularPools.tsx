@@ -2,29 +2,36 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Droplets, ExternalLink, TrendingUp, Loader2, AlertCircle } from "lucide-react";
+import {
+  Droplets,
+  ExternalLink,
+  TrendingUp,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import Image from "next/image";
 import { usePopularPools, DEX_OPTIONS } from "@/hooks/usePopularPools";
 import { getTokenInfo, getDexInfo } from "@/lib/token-mapping";
 import { Pool } from "@/types/history";
 
 export function PopularPools() {
-  const [selectedDex, setSelectedDex] = useState('Uniswap');
-  const { pools, loading, error, refetch, refreshKey } = usePopularPools(selectedDex);
+  const [selectedDex, setSelectedDex] = useState("Uniswap");
+  const { pools, loading, error, refetch, refreshKey } =
+    usePopularPools(selectedDex);
 
   const getTokenDisplay = (tokenAddress: string) => {
     const tokenInfo = getTokenInfo(tokenAddress);
-    
+
     if (tokenInfo) {
       return {
         symbol: tokenInfo.symbol,
-        logo: tokenInfo.logo
+        logo: tokenInfo.logo,
       };
     }
-    
+
     return {
       symbol: `${tokenAddress.slice(0, 6)}...${tokenAddress.slice(-4)}`,
-      logo: '/images/logoCoin/defaultLogo.png'
+      logo: "/images/logoCoin/usdcLogo.png",
     };
   };
 
@@ -32,35 +39,32 @@ export function PopularPools() {
     const dexInfo = getDexInfo(dexName);
     return {
       name: dexInfo?.name || dexName,
-      logo: dexInfo?.logo || '/images/logo/defaultDex.png'
+      logo: dexInfo?.logo || "/images/logo/defaultDex.png",
     };
   };
 
   const formatDate = (timestamp: string) => {
-    return new Date(parseInt(timestamp) * 1000).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return new Date(parseInt(timestamp) * 1000).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   const openTransaction = (txHash: string) => {
-    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, '_blank');
+    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank");
   };
 
-  // Calculate estimated APR (mock calculation for demo)
   const calculateAPR = (pool: Pool) => {
     const reserveA = parseFloat(pool.reserve_a);
     const reserveB = parseFloat(pool.reserve_b);
-    const totalValue = (reserveA + reserveB) / 1e18;
-    return (Math.random() * 50 + 5).toFixed(1); // Mock APR 5-55%
+    return (Math.random() * 50 + 5).toFixed(1);
   };
 
-  // Calculate estimated TVL (mock calculation for demo)
   const calculateTVL = (pool: Pool) => {
     const reserveA = parseFloat(pool.reserve_a);
     const reserveB = parseFloat(pool.reserve_b);
-    const totalValue = (reserveA + reserveB) / 1e18 * 100; // Mock price
+    const totalValue = ((reserveA + reserveB) / 1e18) * 100;
     if (totalValue > 1000000) {
       return `$${(totalValue / 1000000).toFixed(1)}M`;
     } else if (totalValue > 1000) {
@@ -96,7 +100,11 @@ export function PopularPools() {
           >
             <motion.div
               animate={loading ? { rotate: 360 } : { rotate: 0 }}
-              transition={loading ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 0.3 }}
+              transition={
+                loading
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 0.3 }
+              }
             >
               {loading ? (
                 <Loader2 className="w-4 h-4" />
@@ -121,7 +129,6 @@ export function PopularPools() {
         </div>
       </div>
 
-      {/* DEX Filter Buttons */}
       <div className="mb-6">
         <div className="flex items-center space-x-2 mb-4">
           <span className="text-sm text-white/60">Filter by DEX:</span>
@@ -137,8 +144,8 @@ export function PopularPools() {
                 whileTap={{ scale: 0.95 }}
                 className={`cursor-pointer flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   selectedDex === dex
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-white/5 text-white/70 hover:text-white hover:bg-white/10 border border-white/10'
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-white/5 text-white/70 hover:text-white hover:bg-white/10 border border-white/10"
                 }`}
               >
                 <Image
@@ -148,7 +155,9 @@ export function PopularPools() {
                   height={16}
                   className="w-4 h-4"
                 />
-                <span className="font-medium">{dex === 'OneInch' ? '1Inch' : dex }</span>
+                <span className="font-medium">
+                  {dex === "OneInch" ? "1Inch" : dex}
+                </span>
               </motion.button>
             );
           })}
@@ -160,7 +169,9 @@ export function PopularPools() {
           <div className="flex items-center space-x-3">
             <AlertCircle className="w-5 h-5 text-red-400" />
             <div>
-              <p className="text-red-400 font-medium">Error loading popular pools</p>
+              <p className="text-red-400 font-medium">
+                Error loading popular pools
+              </p>
               <p className="text-red-400/80 text-sm">{error.message}</p>
             </div>
           </div>
@@ -187,8 +198,8 @@ export function PopularPools() {
       )}
 
       {!loading && !error && pools.length > 0 && (
-        <motion.div 
-          key={`${selectedDex}-${refreshKey}`} // Key berubah saat filter atau refresh
+        <motion.div
+          key={`${selectedDex}-${refreshKey}`}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -200,7 +211,7 @@ export function PopularPools() {
             const dex = getDexDisplay(pool.dex_name);
             const apr = calculateAPR(pool);
             const tvl = calculateTVL(pool);
-            
+
             return (
               <motion.div
                 key={pool.id}
@@ -262,7 +273,8 @@ export function PopularPools() {
                         </span>
                       </div>
                       <div className="text-xs text-white/50 mt-1">
-                        Pool ID: {`${pool.id.slice(0, 8)}...${pool.id.slice(-6)}`}
+                        Pool ID:{" "}
+                        {`${pool.id.slice(0, 8)}...${pool.id.slice(-6)}`}
                       </div>
                     </div>
                   </div>
@@ -278,14 +290,14 @@ export function PopularPools() {
                       </div>
                     </div>
                     <div className="flex items-center justify-end space-x-2">
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="text-xs px-3 py-1 bg-white/20 text-white hover:bg-white hover:text-black rounded-lg transition-colors"
                       >
                         Add Liquidity
                       </motion.button>
-                      <motion.button 
+                      <motion.button
                         onClick={() => openTransaction(pool.transaction_hash)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}

@@ -2,7 +2,10 @@ import Image from "next/image";
 import { ChevronDown, Search, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { POOL_TOKENS, type TokenSymbol } from "../../../hooks/query/contracts/use-pool";
+import {
+  POOL_TOKENS,
+  type TokenSymbol,
+} from "../../../hooks/query/contracts/use-pool";
 
 interface TokenSelectorProps {
   label: string;
@@ -25,25 +28,26 @@ export function TokenSelector({
   onToggle,
   onSelect,
   onAmountChange,
-  zIndex
+  zIndex,
 }: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  
-  console.log('TokenSelector render:', { 
-    label, 
-    selectedToken, 
-    otherToken, 
-    isOpen, 
-    availableTokens: Object.keys(POOL_TOKENS) 
-  });
 
-  // Filter tokens based on search
-  const filteredTokens = Object.entries(POOL_TOKENS).filter(([symbol, token]) => {
-    const matchesSearch = 
-      symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      token.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
+  // console.log('TokenSelector render:', {
+  //   label,
+  //   selectedToken,
+  //   otherToken,
+  //   isOpen,
+  //   availableTokens: Object.keys(POOL_TOKENS)
+  // });
+
+  const filteredTokens = Object.entries(POOL_TOKENS).filter(
+    ([symbol, token]) => {
+      const matchesSearch =
+        symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    }
+  );
 
   const handleTokenSelection = (tokenSymbol: TokenSymbol) => {
     onSelect(tokenSymbol);
@@ -63,7 +67,7 @@ export function TokenSelector({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('Token toggle button clicked for:', label);
+              console.log("Token toggle button clicked for:", label);
               onToggle();
             }}
             className="w-full flex items-center justify-between p-4 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl transition-colors cursor-pointer"
@@ -79,9 +83,7 @@ export function TokenSelector({
                     className="object-cover w-full h-full"
                   />
                 </div>
-                <span className="text-white font-medium">
-                  {selectedToken}
-                </span>
+                <span className="text-white font-medium">{selectedToken}</span>
               </div>
             ) : (
               <span className="text-white/60">Select token</span>
@@ -92,12 +94,9 @@ export function TokenSelector({
               }`}
             />
           </button>
-
-          {/* Enhanced Token Dropdown - Centered Modal Style */}
           <AnimatePresence>
             {isOpen && (
               <>
-                {/* Backdrop */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -109,8 +108,6 @@ export function TokenSelector({
                     onToggle();
                   }}
                 />
-                
-                {/* Centered Modal */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -120,14 +117,15 @@ export function TokenSelector({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="rounded-2xl border border-white/20 backdrop-blur-xl bg-black/90 overflow-hidden">
-                    {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
                       <div className="flex items-center space-x-3">
                         <div>
                           <h3 className="text-lg font-semibold text-white">
                             Select Token
                           </h3>
-                          <p className="text-xs text-white/60">Choose a token for your pool</p>
+                          <p className="text-xs text-white/60">
+                            Choose a token for your pool
+                          </p>
                         </div>
                       </div>
                       <button
@@ -141,7 +139,6 @@ export function TokenSelector({
                       </button>
                     </div>
 
-                    {/* Search */}
                     <div className="p-4 border-b border-white/10">
                       <div className="relative">
                         <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" />
@@ -155,7 +152,6 @@ export function TokenSelector({
                       </div>
                     </div>
 
-                    {/* Token List */}
                     <div className="max-h-80 overflow-auto">
                       {filteredTokens.length === 0 ? (
                         <div className="p-6 text-center">
@@ -170,8 +166,11 @@ export function TokenSelector({
                         <div className="p-2 space-y-1">
                           {filteredTokens.map(([symbol, token]) => {
                             const disabled = otherToken === symbol;
-                            console.log('Rendering token option:', symbol, { disabled, selected: selectedToken === symbol });
-                            
+                            // console.log("Rendering token option:", symbol, {
+                            //   disabled,
+                            //   selected: selectedToken === symbol,
+                            // });
+
                             return (
                               <button
                                 key={symbol}
@@ -181,7 +180,11 @@ export function TokenSelector({
                                   if (disabled) return;
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  console.log('Token option clicked:', symbol, token.name);
+                                  // console.log(
+                                  //   "Token option clicked:",
+                                  //   symbol,
+                                  //   token.name
+                                  // );
                                   handleTokenSelection(symbol as TokenSymbol);
                                 }}
                                 className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors text-left cursor-pointer ${
@@ -189,7 +192,9 @@ export function TokenSelector({
                                     ? "opacity-40 cursor-not-allowed"
                                     : "hover:bg-white/10"
                                 } ${
-                                  selectedToken === symbol ? "bg-white/20 ring-2 ring-blue-400/40" : ""
+                                  selectedToken === symbol
+                                    ? "bg-white/20 ring-2 ring-blue-400/40"
+                                    : ""
                                 }`}
                               >
                                 <div className="flex items-center space-x-3 flex-1">
@@ -201,8 +206,12 @@ export function TokenSelector({
                                       height={40}
                                       className="object-cover w-full h-full"
                                       onError={(e) => {
-                                        console.error('Token logo failed:', token.logo);
-                                        e.currentTarget.src = "/images/logoCoin/ethLogo.png";
+                                        console.error(
+                                          "Token logo failed:",
+                                          token.logo
+                                        );
+                                        e.currentTarget.src =
+                                          "/images/logoCoin/ethLogo.png";
                                       }}
                                     />
                                   </div>

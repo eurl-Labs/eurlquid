@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import { ArrowDownUp, Brain, HelpCircle } from "lucide-react";
 import { SwapHelpModal } from "./SwapHelpModal";
 import { TokenSelector } from "./TokenSelector";
-import { useTokenBalance, type TokenSymbol } from "@/app/hooks/query/contracts/use-token-balance";
+import {
+  useTokenBalance,
+  type TokenSymbol,
+} from "@/app/hooks/query/contracts/use-token-balance";
 import { useAnalysisStore } from "@/store/userprompt-store";
 import { useSwapPrice } from "@/hooks/useSwapPrice";
 import { useSmartSwapExecution } from "./RoutesList";
@@ -20,19 +23,18 @@ interface SwapCardProps {
   onInputBlur?: () => void;
 }
 
-// Token mapping for display (swap format -> pool format)
 const SWAP_TO_POOL_TOKEN: Record<string, string> = {
-  "ETH": "WETH", // Display as ETH but use WETH internally
-  "USDC": "USDC",
-  "USDT": "USDT", 
-  "WBTC": "WBTC",
-  "WSONIC": "WSONIC",
-  "PEPE": "PEPE",
-  "PENGU": "PENGU",
-  "DPENGU": "DARKPENGU", // Pool uses DARKPENGU
-  "GOONER": "GOONER",
-  "ABSTER": "ABSTER",
-  "POLLY": "POLLY",
+  ETH: "WETH",
+  USDC: "USDC",
+  USDT: "USDT",
+  WBTC: "WBTC",
+  WSONIC: "WSONIC",
+  PEPE: "PEPE",
+  PENGU: "PENGU",
+  DPENGU: "DARKPENGU",
+  GOONER: "GOONER",
+  ABSTER: "ABSTER",
+  POLLY: "POLLY",
 };
 
 export function SwapCard({
@@ -47,18 +49,14 @@ export function SwapCard({
 }: SwapCardProps) {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
 
-  // Get real-time price calculation from Pyth
-  const { 
-    toAmount: calculatedToAmount, 
-    fromPriceUSD, 
-    toPriceUSD, 
-    isLoading: priceLoading, 
+  const {
+    toAmount: calculatedToAmount,
+    isLoading: priceLoading,
     error: priceError,
     fromValueUSD,
-    toValueUSD 
+    toValueUSD,
   } = useSwapPrice(fromToken, toToken, fromAmount);
 
-  // Smart swap execution hook
   const {
     handleSmartSwap,
     isSmartSwapping,
@@ -66,24 +64,20 @@ export function SwapCard({
     isSuccess,
     swapError,
     hash,
-    canExecuteSmartSwap
+    canExecuteSmartSwap,
   } = useSmartSwapExecution(fromAmount, fromToken, toToken);
 
-  // Use calculated amount from price feed instead of static value
   const toAmount = calculatedToAmount;
 
-  // Get token balances (convert display symbols to pool symbols)
   const fromPoolToken = SWAP_TO_POOL_TOKEN[fromToken] as TokenSymbol;
   const toPoolToken = SWAP_TO_POOL_TOKEN[toToken] as TokenSymbol;
-  
+
   const { formattedBalance: fromTokenBalance } = useTokenBalance(fromPoolToken);
   const { formattedBalance: toTokenBalance } = useTokenBalance(toPoolToken);
-
-  // Integration with analysis store
-  const { setInput, runAnalysis, analysis, loading, error } = useAnalysisStore();
+  const { setInput, runAnalysis, analysis, loading, error } =
+    useAnalysisStore();
   const parsed = analysis?.parsed;
 
-  // Helper functions
   const formatDisplayBalance = (balance: string | undefined) => {
     if (!balance) return "0.0000";
     const num = parseFloat(balance);
@@ -102,16 +96,14 @@ export function SwapCard({
     }
   };
 
-  // Update store when tokens or amount change
   useEffect(() => {
-    setInput(fromToken, toToken, fromAmount || '0');
+    setInput(fromToken, toToken, fromAmount || "0");
     if (fromAmount && Number(fromAmount) > 0) {
       runAnalysis();
     }
   }, [fromToken, toToken, fromAmount, setInput, runAnalysis]);
 
   const handleSwapTokens = () => {
-    // Only swap tokens, let the price calculation handle the amounts
     setFromToken(toToken);
     setToToken(fromToken);
     setFromAmount(toAmount || "0");
@@ -132,7 +124,6 @@ export function SwapCard({
         </div>
       </div>
 
-      {/* From Token */}
       <div className="space-y-4">
         <div className="relative">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
@@ -157,9 +148,13 @@ export function SwapCard({
             />
             <div className="mt-2">
               <span className="text-sm text-white/60">
-                {priceLoading ? "Loading..." : 
-                 fromValueUSD ? `≈ $${fromValueUSD.toFixed(2)}` : 
-                 priceError ? "Price unavailable" : "≈ $0.00"}
+                {priceLoading
+                  ? "Loading..."
+                  : fromValueUSD
+                  ? `≈ $${fromValueUSD.toFixed(2)}`
+                  : priceError
+                  ? "Price unavailable"
+                  : "≈ $0.00"}
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -180,7 +175,6 @@ export function SwapCard({
           </div>
         </div>
 
-        {/* Swap Button */}
         <div className="flex justify-center relative">
           <button
             onClick={handleSwapTokens}
@@ -191,7 +185,6 @@ export function SwapCard({
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur-lg -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
         </div>
 
-        {/* To Token */}
         <div className="relative">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
@@ -211,9 +204,13 @@ export function SwapCard({
             />
             <div className="mt-2">
               <span className="text-sm text-white/60">
-                {priceLoading ? "Calculating..." : 
-                 toValueUSD ? `≈ $${toValueUSD.toFixed(2)}` : 
-                 priceError ? "Price unavailable" : "≈ $0.00"}
+                {priceLoading
+                  ? "Calculating..."
+                  : toValueUSD
+                  ? `≈ $${toValueUSD.toFixed(2)}`
+                  : priceError
+                  ? "Price unavailable"
+                  : "≈ $0.00"}
               </span>
             </div>
             <div className="flex justify-end">
@@ -224,12 +221,13 @@ export function SwapCard({
           </div>
         </div>
 
-        {/* Smart Analysis */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <Brain className="w-4 h-4 text-white" />
-              <span className="text-sm font-medium text-white">Smart Analysis</span>
+              <span className="text-sm font-medium text-white">
+                Smart Analysis
+              </span>
             </div>
             {parsed?.prediction?.confidence != null ? (
               <span className="text-xs text-white/60">
@@ -239,17 +237,23 @@ export function SwapCard({
               <span className="text-xs text-white/60">85% Confidence</span>
             )}
           </div>
-          
+
           {loading && (
             <div className="space-y-1 text-sm">
-              <div className="text-white/70">Analyzing live liquidity and routes…</div>
-              <div className="text-white/60">Fetching data from DeFiLlama and TheGraph</div>
+              <div className="text-white/70">
+                Analyzing live liquidity and routes…
+              </div>
+              <div className="text-white/60">
+                Fetching data from DeFiLlama and TheGraph
+              </div>
             </div>
           )}
 
           {error && (
             <div className="space-y-1 text-sm">
-              <div className="text-red-300">Analysis temporarily unavailable</div>
+              <div className="text-red-300">
+                Analysis temporarily unavailable
+              </div>
               <div className="text-white/60">AI have trouble with analysis</div>
               <div className="text-white">do your own research</div>
             </div>
@@ -257,12 +261,19 @@ export function SwapCard({
 
           {!loading && !error && parsed && (
             <div className="space-y-1 text-sm">
-              <div className="text-white/90">{parsed.advice || 'Execute via Curve for best rate'}</div>
+              <div className="text-white/90">
+                {parsed.advice || "Execute via Curve for best rate"}
+              </div>
               <div className="text-white/60">
-                MEV risk: {parsed.riskAlerts?.length > 0 ? 'Medium' : 'Low'} • Expected slippage: {parsed.expectedSlippage || '0.12%'}
+                MEV risk: {parsed.riskAlerts?.length > 0 ? "Medium" : "Low"} •
+                Expected slippage: {parsed.expectedSlippage || "0.12%"}
               </div>
               <div className="text-white">
-                Potential savings: {parsed.expectedSavingsUSD ? `$${parsed.expectedSavingsUSD}` : '+$0.16'} vs market
+                Potential savings:{" "}
+                {parsed.expectedSavingsUSD
+                  ? `$${parsed.expectedSavingsUSD}`
+                  : "+$0.16"}{" "}
+                vs market
               </div>
             </div>
           )}
@@ -273,17 +284,19 @@ export function SwapCard({
               <div className="text-white/60">
                 MEV risk: unknown • Expected slippage: unknown
               </div>
-              <div className="text-white">
-                Potential savings: unknown
-              </div>
+              <div className="text-white">Potential savings: unknown</div>
             </div>
           )}
         </div>
 
-        {/* Smart Swap Button */}
-        <button 
+        <button
           onClick={handleSmartSwap}
-          disabled={!canExecuteSmartSwap || isSmartSwapping || isSwapping || !fromAmount.trim()}
+          disabled={
+            !canExecuteSmartSwap ||
+            isSmartSwapping ||
+            isSwapping ||
+            !fromAmount.trim()
+          }
           className="cursor-pointer w-full bg-white hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           {isSmartSwapping ? (
@@ -296,7 +309,6 @@ export function SwapCard({
           )}
         </button>
 
-        {/* Swap Status Feedback */}
         {swapError && (
           <div className="mt-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
             <p className="text-red-400 text-sm">Error: {swapError}</p>
@@ -306,17 +318,16 @@ export function SwapCard({
         {isSuccess && hash && (
           <div className="mt-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
             <p className="text-green-400 text-sm">
-              🎯 Smart swap successful! 
+              🎯 Smart swap successful!
               <br />
               <span className="font-mono text-xs">{hash}</span>
             </p>
           </div>
         )}
       </div>
-      {/* Help Modal */}
-      <SwapHelpModal 
-        isOpen={helpModalOpen} 
-        onClose={() => setHelpModalOpen(false)} 
+      <SwapHelpModal
+        isOpen={helpModalOpen}
+        onClose={() => setHelpModalOpen(false)}
       />
     </div>
   );

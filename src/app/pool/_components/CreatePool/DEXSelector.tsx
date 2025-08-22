@@ -1,5 +1,8 @@
 import Image from "next/image";
-import { DEX_AGGREGATORS, type DexName } from "../../../hooks/query/contracts/use-pool";
+import {
+  DEX_AGGREGATORS,
+  type DexName,
+} from "../../../hooks/query/contracts/use-pool";
 
 interface DexSelectorProps {
   selectedDex: DexName;
@@ -10,7 +13,7 @@ interface DexSelectorProps {
 
 export function DexSelector({ selectedDex, onSelect }: DexSelectorProps) {
   const handleDexSelection = (dexKey: string) => {
-    console.log('DEX selector - tab clicked:', dexKey);
+    console.log("DEX selector - tab clicked:", dexKey);
     onSelect(dexKey as DexName);
   };
 
@@ -19,8 +22,7 @@ export function DexSelector({ selectedDex, onSelect }: DexSelectorProps) {
       <label className="block text-sm text-white/70 font-medium mb-3">
         Select DEX Aggregator
       </label>
-      
-      {/* Horizontal Tab Layout */}
+
       <div className="grid grid-cols-2 gap-3">
         {Object.entries(DEX_AGGREGATORS).map(([key, dex]) => (
           <button

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export interface AnalysisState {
   fromToken: string;
@@ -24,9 +24,9 @@ export interface AnalysisState {
 }
 
 export const useAnalysisStore = create<AnalysisState>((set, get) => ({
-  fromToken: 'USDC',
-  toToken: 'ETH',
-  amount: '0',
+  fromToken: "USDC",
+  toToken: "ETH",
+  amount: "0",
   data: null,
   prompts: null,
   analysis: null,
@@ -38,29 +38,30 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     const { fromToken, toToken, amount } = get();
     set({ loading: true, error: null });
     try {
-      const res = await fetch('/api/analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fromToken, toToken, amount }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const json = await res.json();
-      
-      // Structure AI response properly
-      const analysis = json.ai ? {
-        raw: json.ai.raw || '',
-        parsed: json.ai.parsed || null
-      } : null;
-      
-      set({ 
+
+      const analysis = json.ai
+        ? {
+            raw: json.ai.raw || "",
+            parsed: json.ai.parsed || null,
+          }
+        : null;
+
+      set({
         data: json.data,
-        prompts: json.prompts, 
+        prompts: json.prompts,
         analysis: analysis,
         metadata: json.metadata,
-        loading: false 
+        loading: false,
       });
     } catch (e: any) {
-      set({ error: e?.message || 'Unknown error', loading: false });
+      set({ error: e?.message || "Unknown error", loading: false });
     }
-  }
+  },
 }));

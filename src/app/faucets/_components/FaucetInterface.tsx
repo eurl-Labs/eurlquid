@@ -4,12 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { SwapNavbar } from "@/components/swap/SwapNavbar";
 import { FaucetCard } from "./FaucetCard";
 import { FaucetList } from "./FaucetList";
-import { motion } from "framer-motion";
-import { Droplets, Shield, Clock, Zap, AlertCircle } from "lucide-react";
+import { Shield, Clock, Zap, AlertCircle } from "lucide-react";
 import { type TokenSymbol } from "../../hooks/query/contracts/use-faucet-tokens";
 import { useAccount } from "wagmi";
 
-// New interface for claim history with timestamps
 interface ClaimRecord {
   token: TokenSymbol;
   timestamp: number;
@@ -21,22 +19,24 @@ export function FaucetInterface() {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const { address } = useAccount();
 
-  // 24 hours in milliseconds
   const COOLDOWN_PERIOD = 24 * 60 * 60 * 1000;
 
-  // Helper functions (using currentTime for real-time updates)
   const isTokenOnCooldown = (tokenSymbol: TokenSymbol): boolean => {
-    const claimRecord = claimHistory.find(record => record.token === tokenSymbol);
+    const claimRecord = claimHistory.find(
+      (record) => record.token === tokenSymbol
+    );
     if (!claimRecord) return false;
-    
+
     const timeSinceClaim = currentTime - claimRecord.timestamp;
     return timeSinceClaim < COOLDOWN_PERIOD;
   };
 
   const getTimeUntilAvailable = (tokenSymbol: TokenSymbol): number => {
-    const claimRecord = claimHistory.find(record => record.token === tokenSymbol);
+    const claimRecord = claimHistory.find(
+      (record) => record.token === tokenSymbol
+    );
     if (!claimRecord) return 0;
-    
+
     const timeSinceClaim = currentTime - claimRecord.timestamp;
     const timeRemaining = COOLDOWN_PERIOD - timeSinceClaim;
     return Math.max(0, timeRemaining);
@@ -44,10 +44,9 @@ export function FaucetInterface() {
 
   const cleanExpiredClaims = (claims: ClaimRecord[]): ClaimRecord[] => {
     const now = Date.now();
-    return claims.filter(claim => (now - claim.timestamp) < COOLDOWN_PERIOD);
+    return claims.filter((claim) => now - claim.timestamp < COOLDOWN_PERIOD);
   };
 
-  // Load claim history from localStorage
   useEffect(() => {
     if (address) {
       const storageKey = `faucet-claims-${address}`;
@@ -55,55 +54,55 @@ export function FaucetInterface() {
       if (savedHistory) {
         try {
           const parsedHistory = JSON.parse(savedHistory);
-          
-          // Handle migration from old format (array of strings) to new format (array of objects)
           if (Array.isArray(parsedHistory) && parsedHistory.length > 0) {
-            if (typeof parsedHistory[0] === 'string') {
-              // Old format - convert to new format but expire them (since we don't have timestamps)
-              console.log('Migrating old claim history format...');
+            if (typeof parsedHistory[0] === "string") {
+              // console.log("Migrating old claim history format...");
               const migratedHistory: ClaimRecord[] = [];
               setClaimHistory(migratedHistory);
               localStorage.setItem(storageKey, JSON.stringify(migratedHistory));
             } else {
-              // New format - clean expired claims and update
               const cleanedHistory = cleanExpiredClaims(parsedHistory);
               setClaimHistory(cleanedHistory);
               if (cleanedHistory.length !== parsedHistory.length) {
-                localStorage.setItem(storageKey, JSON.stringify(cleanedHistory));
+                localStorage.setItem(
+                  storageKey,
+                  JSON.stringify(cleanedHistory)
+                );
               }
             }
           }
         } catch (error) {
-          console.error('Error parsing claim history:', error);
+          console.error("Error parsing claim history:", error);
           setClaimHistory([]);
         }
       }
     }
   }, [address]);
 
-  // Save claim history to localStorage - memoized to prevent infinite re-renders
-  const handleClaim = useCallback((tokenSymbol: TokenSymbol) => {
-    if (!address || isTokenOnCooldown(tokenSymbol)) return;
+  const handleClaim = useCallback(
+    (tokenSymbol: TokenSymbol) => {
+      if (!address || isTokenOnCooldown(tokenSymbol)) return;
 
-    const newClaimRecord: ClaimRecord = {
-      token: tokenSymbol,
-      timestamp: Date.now()
-    };
+      const newClaimRecord: ClaimRecord = {
+        token: tokenSymbol,
+        timestamp: Date.now(),
+      };
+      const filteredHistory = claimHistory.filter(
+        (record) => record.token !== tokenSymbol
+      );
+      const newHistory = [...filteredHistory, newClaimRecord];
+      setClaimHistory(newHistory);
 
-    // Remove any existing claim for this token and add new one
-    const filteredHistory = claimHistory.filter(record => record.token !== tokenSymbol);
-    const newHistory = [...filteredHistory, newClaimRecord];
-    setClaimHistory(newHistory);
+      const storageKey = `faucet-claims-${address}`;
+      localStorage.setItem(storageKey, JSON.stringify(newHistory));
+    },
+    [address, claimHistory, isTokenOnCooldown]
+  );
 
-    const storageKey = `faucet-claims-${address}`;
-    localStorage.setItem(storageKey, JSON.stringify(newHistory));
-  }, [address, claimHistory, isTokenOnCooldown]);
-
-  // Auto-refresh timer for real-time countdown updates
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(Date.now());
-    }, 1000); // Update every second
+    }, 1000);
 
     return () => clearInterval(timer);
   }, []);
@@ -113,7 +112,6 @@ export function FaucetInterface() {
       <SwapNavbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Network Notice */}
         <div className="mb-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
           <div className="flex items-center space-x-3">
             <AlertCircle className="w-5 h-5 text-white" />
@@ -128,7 +126,6 @@ export function FaucetInterface() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Faucet Panel */}
           <div className="lg:col-span-1">
             <FaucetCard
               selectedToken={selectedToken}
@@ -139,7 +136,6 @@ export function FaucetInterface() {
               getTimeUntilAvailable={getTimeUntilAvailable}
             />
 
-            {/* Faucet Features */}
             <div className="mt-6 space-y-3">
               <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
                 <div className="flex items-center space-x-3">
@@ -171,7 +167,6 @@ export function FaucetInterface() {
             </div>
           </div>
 
-          {/* Faucet List Panel */}
           <div className="lg:col-span-2">
             <FaucetList
               onSelectToken={setSelectedToken}

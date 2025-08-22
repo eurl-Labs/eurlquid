@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import { Manrope } from 'next/font/google'
 
-// Lazy load BridgeInterface to reduce initial bundle
 const BridgeInterface = dynamic(() => import('@/components/bridge/BridgeInterface').then(mod => ({ default: mod.BridgeInterface })), {
   loading: () => (
     <div className="min-h-screen bg-black flex items-center justify-center">

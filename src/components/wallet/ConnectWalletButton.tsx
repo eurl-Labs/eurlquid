@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { ReownConnectButton } from './ReownConnectButton';
+import { ReownConnectButton } from "./ReownConnectButton";
 
 export function ConnectWalletButton() {
   return <ReownConnectButton />;

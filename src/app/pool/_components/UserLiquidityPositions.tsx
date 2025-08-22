@@ -11,10 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useUserLiquidityPools } from "@/hooks/useUserLiquidityPools";
-import {
-  getTokenInfo,
-  getDexInfo,
-} from "@/lib/token-mapping";
+import { getTokenInfo, getDexInfo } from "@/lib/token-mapping";
 import { Pool } from "@/types/history";
 
 export function UserLiquidityPositions() {
@@ -33,7 +30,7 @@ export function UserLiquidityPositions() {
 
     return {
       symbol: `${tokenAddress.slice(0, 6)}...${tokenAddress.slice(-4)}`,
-      logo: "/images/logoCoin/defaultLogo.png",
+      logo: "/images/logoCoin/usdcLogo.png",
     };
   };
 
@@ -41,7 +38,7 @@ export function UserLiquidityPositions() {
     const dexInfo = getDexInfo(dexName);
     return {
       name: dexInfo?.name || dexName,
-      logo: dexInfo?.logo || "/images/logo/defaultDex.png",
+      logo: dexInfo?.logo || "/images/logo/uniLogo.svg.png",
     };
   };
 
@@ -57,7 +54,6 @@ export function UserLiquidityPositions() {
     window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank");
   };
 
-  // Show wallet connection prompt if not connected
   if (!isConnected) {
     return (
       <motion.div
@@ -106,7 +102,11 @@ export function UserLiquidityPositions() {
           >
             <motion.div
               animate={loading ? { rotate: 360 } : { rotate: 0 }}
-              transition={loading ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 0.3 }}
+              transition={
+                loading
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 0.3 }
+              }
             >
               {loading ? (
                 <Loader2 className="w-4 h-4" />
@@ -169,8 +169,8 @@ export function UserLiquidityPositions() {
       )}
 
       {!loading && !error && pools.length > 0 && (
-        <motion.div 
-          key={refreshKey} // Key berubah setiap kali refresh diklik
+        <motion.div
+          key={refreshKey}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -194,7 +194,6 @@ export function UserLiquidityPositions() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
-                      {/* Token A Logo */}
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
                         <Image
                           src={tokenA.logo}
@@ -204,7 +203,6 @@ export function UserLiquidityPositions() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      {/* Token B Logo - Overlapping */}
                       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/20 absolute -bottom-1 -right-2 bg-black">
                         <Image
                           src={tokenB.logo}

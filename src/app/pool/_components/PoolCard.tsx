@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  ChevronDown, 
-  Plus, 
-  HelpCircle, 
+import {
+  ChevronDown,
+  Plus,
+  HelpCircle,
   Droplets,
   Settings,
-  Info
+  Info,
 } from "lucide-react";
 
 interface PoolCardProps {
@@ -29,7 +29,12 @@ const tokens = {
   USDC: { name: "USD Coin", symbol: "USDC", price: 1, balance: "5000" },
   USDT: { name: "Tether", symbol: "USDT", price: 1, balance: "3000" },
   DAI: { name: "Dai", symbol: "DAI", price: 1, balance: "1500" },
-  WBTC: { name: "Wrapped Bitcoin", symbol: "WBTC", price: 35000, balance: "0.1" },
+  WBTC: {
+    name: "Wrapped Bitcoin",
+    symbol: "WBTC",
+    price: 35000,
+    balance: "0.1",
+  },
 };
 
 export function PoolCard({
@@ -38,9 +43,7 @@ export function PoolCard({
   token1Amount,
   setToken1Amount,
   token0,
-  setToken0,
   token1,
-  setToken1,
   onInputFocus,
   onInputBlur,
   isCreateMode,
@@ -53,11 +56,11 @@ export function PoolCard({
 
   const calculatePoolShare = () => {
     if (!token0Amount || !token1Amount) return "0";
-    return "0.01"; // Mock calculation
+    return "0.01";
   };
 
   const calculateAPR = () => {
-    return "24.5"; // Mock APR
+    return "24.5";
   };
 
   return (
@@ -83,11 +86,11 @@ export function PoolCard({
       </div>
 
       <div className="space-y-4">
-
-        {/* Token 0 Input */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-white/60 font-medium">First Token</span>
+            <span className="text-sm text-white/60 font-medium">
+              First Token
+            </span>
             <button className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1 transition-colors">
               <span className="text-sm text-white font-medium">{token0}</span>
               <ChevronDown className="w-3 h-3 text-white/60" />
@@ -107,7 +110,8 @@ export function PoolCard({
           </div>
           <div className="mt-3 flex items-center justify-between">
             <span className="text-sm text-white/60">
-              ≈ ${((parseFloat(token0Amount) || 0) * token0Data?.price).toFixed(2)}
+              ≈ $
+              {((parseFloat(token0Amount) || 0) * token0Data?.price).toFixed(2)}
             </span>
             <button className="text-sm text-white/60 hover:text-white transition-colors">
               Max: {token0Data?.balance}
@@ -115,17 +119,17 @@ export function PoolCard({
           </div>
         </div>
 
-        {/* Plus Icon */}
         <div className="flex justify-center">
           <div className="p-2 bg-white/10 rounded-lg border border-white/10">
             <Plus className="w-5 h-5 text-white" />
           </div>
         </div>
 
-        {/* Token 1 Input */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-white/60 font-medium">Second Token</span>
+            <span className="text-sm text-white/60 font-medium">
+              Second Token
+            </span>
             <button className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1 transition-colors">
               <span className="text-sm text-white font-medium">{token1}</span>
               <ChevronDown className="w-3 h-3 text-white/60" />
@@ -145,7 +149,8 @@ export function PoolCard({
           </div>
           <div className="mt-3 flex items-center justify-between">
             <span className="text-sm text-white/60">
-              ≈ ${((parseFloat(token1Amount) || 0) * token1Data?.price).toFixed(2)}
+              ≈ $
+              {((parseFloat(token1Amount) || 0) * token1Data?.price).toFixed(2)}
             </span>
             <button className="text-sm text-white/60 hover:text-white transition-colors">
               Max: {token1Data?.balance}
@@ -153,12 +158,13 @@ export function PoolCard({
           </div>
         </div>
 
-        {/* Pool Information */}
         {(token0Amount || token1Amount) && (
           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
             <div className="flex items-center space-x-2 mb-3">
               <Droplets className="w-5 h-5 text-white" />
-              <span className="text-sm font-medium text-white">Pool Information</span>
+              <span className="text-sm font-medium text-white">
+                Pool Information
+              </span>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
@@ -177,13 +183,10 @@ export function PoolCard({
           </div>
         )}
 
-        {/* Action Button */}
         <button className="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
           <div className="flex items-center justify-center space-x-2">
             <Droplets className="w-5 h-5" />
-            <span>
-              {isCreateMode ? "Create Pool" : "Add Liquidity"}
-            </span>
+            <span>{isCreateMode ? "Create Pool" : "Add Liquidity"}</span>
           </div>
         </button>
       </div>

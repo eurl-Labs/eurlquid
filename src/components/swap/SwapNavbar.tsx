@@ -7,8 +7,8 @@ import {
   Menu,
   X,
   Search,
-  Droplets, // For Pool - represents liquidity pools
-  TrendingUp, // Alternative for Pool
+  Droplets,
+  TrendingUp,
   ArrowLeftRight,
   Compass,
 } from "lucide-react";
@@ -45,7 +45,6 @@ export function SwapNavbar() {
     <nav className="sticky top-0 z-50 backdrop-blur-lg bg-black/20 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left side - Logo and Page Title */}
           <div className="flex items-center space-x-4">
             <NavigationLink
               href="/"
@@ -60,15 +59,14 @@ export function SwapNavbar() {
               />
               <span className="text-lg font-bold text-white">eurlquid</span>
             </NavigationLink>
-            
+
             <div className="hidden sm:block w-px h-6 bg-white/20"></div>
-            
+
             <span className="hidden sm:block text-sm text-white/60 font-medium">
               {getPageTitle()}
             </span>
           </div>
 
-          {/* Center - Navigation Menu (Desktop) */}
           <div className="hidden lg:flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10">
             <NavigationLink
               href="/swap"
@@ -93,7 +91,6 @@ export function SwapNavbar() {
               <span>Bridge</span>
             </NavigationLink> */}
 
-            {/* Explore dropdown/menu */}
             <div className="relative group">
               <NavigationLink
                 href="/pool"
@@ -107,7 +104,6 @@ export function SwapNavbar() {
                 <span>Explore</span>
               </NavigationLink>
 
-              {/* Dropdown menu for Explore */}
               <div className="absolute top-full left-0 mt-2 w-48 bg-white backdrop-blur-lg border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="p-2">
                   <NavigationLink
@@ -160,16 +156,11 @@ export function SwapNavbar() {
             </NavigationLink>
           </div>
 
-          {/* Right side - Actions */}
           <div className="flex items-center space-x-3">
-            {/* Desktop Connect Wallet */}
             <div className="hidden md:block">
               <ConnectWalletButton />
             </div>
 
-      
-
-            {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
@@ -183,16 +174,13 @@ export function SwapNavbar() {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-white/10 bg-black/40 backdrop-blur-lg">
             <div className="px-4 py-4 space-y-2">
-              {/* Mobile Wallet Connection */}
               <div className="mb-4">
                 <ConnectWalletButton />
               </div>
 
-              {/* Navigation Links */}
               <NavigationLink
                 href="/swap"
                 onClick={() => setMobileMenuOpen(false)}
@@ -218,7 +206,6 @@ export function SwapNavbar() {
                 <span>Bridge Assets</span>
               </NavigationLink>
 
-              {/* Explore Section */}
               <div className="space-y-1">
                 <div className="px-4 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">
                   Explore
@@ -275,8 +262,6 @@ export function SwapNavbar() {
                 <Clock className="w-5 h-5" />
                 <span>Transaction History</span>
               </NavigationLink>
-
-
             </div>
           </div>
         )}

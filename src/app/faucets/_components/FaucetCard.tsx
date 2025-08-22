@@ -56,18 +56,18 @@ export function FaucetCard({
     address &&
     !isTokenOnCooldown(selectedToken);
 
-  // Only disable button if actually loading for the current token or if token is already claimed
-  const isButtonDisabled = !canClaim || (isLoading && claimInitiatedRef.current === selectedToken);
+  const isButtonDisabled =
+    !canClaim || (isLoading && claimInitiatedRef.current === selectedToken);
 
   const handleClaim = async () => {
     if (!selectedToken || !canClaim) return;
 
     try {
-      claimInitiatedRef.current = selectedToken; // Track which token we're claiming
+      claimInitiatedRef.current = selectedToken;
       await claimToken(selectedToken);
     } catch (err) {
       console.error("Claim failed:", err);
-      claimInitiatedRef.current = null; // Reset on error
+      claimInitiatedRef.current = null;
     }
   };
 
@@ -75,7 +75,6 @@ export function FaucetCard({
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  // Format time remaining for display
   const formatTimeRemaining = (milliseconds: number): string => {
     const totalSeconds = Math.ceil(milliseconds / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -91,32 +90,32 @@ export function FaucetCard({
     }
   };
 
-  // Handle successful claim - only for manually initiated claims
   useEffect(() => {
-    // Only trigger onClaim if:
-    // 1. We have a successful transaction
-    // 2. We actually initiated a claim (tracked by ref)
-    // 3. The claimed token matches what we initiated
-    // 4. The token is not on cooldown (available to claim)
-    if (isSuccess && txHash && claimInitiatedRef.current && !isTokenOnCooldown(claimInitiatedRef.current)) {
+    if (
+      isSuccess &&
+      txHash &&
+      claimInitiatedRef.current &&
+      !isTokenOnCooldown(claimInitiatedRef.current)
+    ) {
       onClaim(claimInitiatedRef.current);
-      claimInitiatedRef.current = null; // Reset after successful claim
+      claimInitiatedRef.current = null;
     }
   }, [isSuccess, txHash, onClaim, isTokenOnCooldown]);
 
-  // Reset error/success state when changing tokens
   const handleTokenSelect = (token: TokenSymbol) => {
     setSelectedToken(token);
     setShowTokenSelect(false);
-    claimInitiatedRef.current = null; // Reset claim tracking
-    reset(); // This resets the useFaucet hook state including isLoading
+    claimInitiatedRef.current = null;
+    reset();
   };
 
-  // Additional reset when success modal is shown but user wants to claim another token
   useEffect(() => {
-    // If we have a success state but user selected a different token that's available,
-    // reset the success state to allow claiming the new token
-    if (isSuccess && selectedToken && !isTokenOnCooldown(selectedToken) && !claimInitiatedRef.current) {
+    if (
+      isSuccess &&
+      selectedToken &&
+      !isTokenOnCooldown(selectedToken) &&
+      !claimInitiatedRef.current
+    ) {
       reset();
     }
   }, [selectedToken, isSuccess, isTokenOnCooldown, reset]);
@@ -138,7 +137,6 @@ export function FaucetCard({
       </div>
 
       <div className="space-y-6">
-        {/* Connected Wallet Display */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
           <label className="block text-sm text-white/60 font-medium mb-3">
             Connected Wallet
@@ -182,7 +180,6 @@ export function FaucetCard({
           )}
         </div>
 
-        {/* Token Selection */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 ">
           <label className="block text-sm text-white/60 font-medium mb-3">
             Select Token
@@ -217,7 +214,6 @@ export function FaucetCard({
             <ChevronDown className="w-5 h-5 text-white/60" />
           </button>
 
-          {/* Token Dropdown */}
           {showTokenSelect && (
             <div className="mt-2 space-y-1 bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-2 max-h-60 overflow-y-auto">
               {Object.entries(FAUCET_TOKENS).map(([symbol, token]) => (
@@ -249,7 +245,6 @@ export function FaucetCard({
           )}
         </div>
 
-        {/* Transaction Status */}
         {(isSuccess || isError || txHash) && (
           <div
             className={`bg-white/5 border rounded-xl p-4 ${
@@ -309,7 +304,6 @@ export function FaucetCard({
           </div>
         )}
 
-        {/* Claim Information */}
         {selectedTokenData && (
           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
             <div className="flex items-center space-x-2 mb-3">
@@ -338,11 +332,16 @@ export function FaucetCard({
                     <div>
                       <div className="text-red-400 font-medium">Cooldown</div>
                       <div className="text-xs text-white/60">
-                        Available in {formatTimeRemaining(getTimeUntilAvailable(selectedToken))}
+                        Available in{" "}
+                        {formatTimeRemaining(
+                          getTimeUntilAvailable(selectedToken)
+                        )}
                       </div>
                     </div>
                   ) : (
-                    <span className="text-green-400 font-medium">Available</span>
+                    <span className="text-green-400 font-medium">
+                      Available
+                    </span>
                   )}
                 </div>
               </div>
@@ -350,7 +349,6 @@ export function FaucetCard({
           </div>
         )}
 
-        {/* Claim Button */}
         <button
           onClick={handleClaim}
           disabled={isButtonDisabled}
@@ -370,7 +368,9 @@ export function FaucetCard({
                   ) : !selectedToken ? (
                     "Select Token"
                   ) : selectedToken && isTokenOnCooldown(selectedToken) ? (
-                    `Available in ${formatTimeRemaining(getTimeUntilAvailable(selectedToken))}`
+                    `Available in ${formatTimeRemaining(
+                      getTimeUntilAvailable(selectedToken)
+                    )}`
                   ) : (
                     <span className="flex items-center space-x-2">
                       <span>

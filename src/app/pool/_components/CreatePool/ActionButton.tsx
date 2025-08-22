@@ -13,7 +13,7 @@ export function ActionButton({
   isLoading,
   isConnected,
   canProceed,
-  stepLabel
+  stepLabel,
 }: ActionButtonProps) {
   const getButtonText = () => {
     if (isLoading) return "Processing...";

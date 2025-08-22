@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 
-// User Trading History - Main query for history page
 export const GET_USER_TRADING_HISTORY = gql`
   query GetUserTradingHistory($walletAddress: String!, $limit: Int = 50) {
     swapss(
@@ -26,7 +25,6 @@ export const GET_USER_TRADING_HISTORY = gql`
   }
 `;
 
-// Trading by DEX - For filtering by specific DEX
 export const GET_TRADING_BY_DEX = gql`
   query GetTradingByDEX($dexName: String!, $limit: Int = 50) {
     swapss(
@@ -52,7 +50,6 @@ export const GET_TRADING_BY_DEX = gql`
   }
 `;
 
-// Trading by DEX and User - For user-specific DEX filtering
 export const GET_TRADING_BY_DEX_AND_TRADER = gql`
   query GetTradingByDEXAndTrader($dexName: String!, $trader: String!, $limit: Int = 50) {
     swapss(
@@ -81,7 +78,6 @@ export const GET_TRADING_BY_DEX_AND_TRADER = gql`
   }
 `;
 
-// All Trading Data with Optional Filters
 export const GET_ALL_TRADING_DATA = gql`
   query GetAllTradingData($dexName: String, $trader: String, $limit: Int = 50) {
     swapss(
@@ -110,7 +106,6 @@ export const GET_ALL_TRADING_DATA = gql`
   }
 `;
 
-// Get Pool by Wallet Address - For user's liquidity positions
 export const GET_POOL_BY_WALLET_ADDRESS = gql`
   query GetPoolsByCreator($creatorAddress: String!) {
     poolss(
@@ -135,7 +130,6 @@ export const GET_POOL_BY_WALLET_ADDRESS = gql`
   }
 `;
 
-// Get Pool by Dex Aggregator - For popular pools filtering
 export const GET_POOL_BY_DEX_AGGREGATOR = gql`
   query GetPoolsByDEX($dexName: String!, $limit: Int = 6) {
     poolss(

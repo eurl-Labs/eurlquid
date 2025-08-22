@@ -1,8 +1,6 @@
 import { useReadContract, useAccount } from "wagmi";
 import { POOL_TOKENS, type TokenSymbol } from "./use-pool";
 import { formatEther } from "viem";
-
-// Re-export TokenSymbol for external use
 export type { TokenSymbol };
 
 const ERC20_ABI = [
@@ -23,7 +21,9 @@ interface UseTokenBalanceReturn {
   refetch: () => void;
 }
 
-export function useTokenBalance(tokenSymbol: TokenSymbol | null): UseTokenBalanceReturn {
+export function useTokenBalance(
+  tokenSymbol: TokenSymbol | null
+): UseTokenBalanceReturn {
   const { address } = useAccount();
 
   const {
@@ -38,9 +38,9 @@ export function useTokenBalance(tokenSymbol: TokenSymbol | null): UseTokenBalanc
     args: address ? [address] : undefined,
     query: {
       enabled: !!tokenSymbol && !!address,
-      refetchInterval: 30000, // Reduced to 30 seconds
-      staleTime: 20000, // Cache for 20 seconds
-      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchInterval: 30000,
+      staleTime: 20000,
+      refetchOnWindowFocus: false,
     },
   });
 
@@ -57,20 +57,24 @@ export function useTokenBalance(tokenSymbol: TokenSymbol | null): UseTokenBalanc
 }
 
 interface UseMultipleTokenBalancesReturn {
-  balances: Record<TokenSymbol, {
-    balance: string;
-    formattedBalance: string;
-    isLoading: boolean;
-    error: Error | null;
-  }>;
+  balances: Record<
+    TokenSymbol,
+    {
+      balance: string;
+      formattedBalance: string;
+      isLoading: boolean;
+      error: Error | null;
+    }
+  >;
   refetchAll: () => void;
 }
 
-export function useMultipleTokenBalances(tokens: TokenSymbol[]): UseMultipleTokenBalancesReturn {
+export function useMultipleTokenBalances(
+  tokens: TokenSymbol[]
+): UseMultipleTokenBalancesReturn {
   const { address } = useAccount();
 
-  // Create multiple balance queries for each token
-  const balanceQueries = tokens.map(tokenSymbol => {
+  const balanceQueries = tokens.map((tokenSymbol) => {
     const {
       data: balance,
       isLoading,
@@ -83,9 +87,9 @@ export function useMultipleTokenBalances(tokens: TokenSymbol[]): UseMultipleToke
       args: address ? [address] : undefined,
       query: {
         enabled: !!address,
-        refetchInterval: 30000, // Reduced to 30 seconds
-        staleTime: 20000, // Cache for 20 seconds
-        refetchOnWindowFocus: false, // Don't refetch on window focus
+        refetchInterval: 30000,
+        staleTime: 20000,
+        refetchOnWindowFocus: false,
       },
     });
 
@@ -102,24 +106,29 @@ export function useMultipleTokenBalances(tokens: TokenSymbol[]): UseMultipleToke
     };
   });
 
-  // Convert to object format
-  const balances = balanceQueries.reduce((acc, query) => {
-    acc[query.tokenSymbol] = {
-      balance: query.balance,
-      formattedBalance: query.formattedBalance,
-      isLoading: query.isLoading,
-      error: query.error,
-    };
-    return acc;
-  }, {} as Record<TokenSymbol, {
-    balance: string;
-    formattedBalance: string;
-    isLoading: boolean;
-    error: Error | null;
-  }>);
+  const balances = balanceQueries.reduce(
+    (acc, query) => {
+      acc[query.tokenSymbol] = {
+        balance: query.balance,
+        formattedBalance: query.formattedBalance,
+        isLoading: query.isLoading,
+        error: query.error,
+      };
+      return acc;
+    },
+    {} as Record<
+      TokenSymbol,
+      {
+        balance: string;
+        formattedBalance: string;
+        isLoading: boolean;
+        error: Error | null;
+      }
+    >
+  );
 
   const refetchAll = () => {
-    balanceQueries.forEach(query => query.refetch());
+    balanceQueries.forEach((query) => query.refetch());
   };
 
   return {

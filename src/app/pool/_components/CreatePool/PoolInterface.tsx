@@ -5,7 +5,7 @@ import { SwapNavbar } from "@/components/swap/SwapNavbar";
 import { CreatePoolForm } from "./CreatePool";
 import { PoolList } from "../PoolList";
 import { AddLiquidityForm } from "../AddLiquidity/AddLiquidityForm";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Droplets, Plus, History } from "lucide-react";
 
 export function PoolInterface() {
@@ -14,10 +14,10 @@ export function PoolInterface() {
   >("create");
   const [selectedPool, setSelectedPool] = useState<any>(null);
 
-  const handleAddLiquidity = (pool?: any) => {
-    setSelectedPool(pool);
-    setActiveTab("addLiquidity");
-  };
+  // const handleAddLiquidity = (pool?: any) => {
+  //   setSelectedPool(pool);
+  //   setActiveTab("addLiquidity");
+  // };
 
   const handleBackToList = () => {
     setSelectedPool(null);
@@ -36,20 +36,16 @@ export function PoolInterface() {
               : "grid-cols-1 lg:grid-cols-3"
           }`}
         >
-          {/* Left Panel - Create Pool (Hidden when Add Liquidity is active) */}
           {activeTab !== "addLiquidity" && (
             <div className="lg:col-span-1">
               <CreatePoolForm />
             </div>
           )}
-
-          {/* Right Panel - Pool List & Add Liquidity */}
           <div
             className={
               activeTab === "addLiquidity" ? "col-span-1" : "lg:col-span-2"
             }
           >
-            {/* Tab Navigation */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-1 bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10 w-fit">
                 <button
@@ -90,7 +86,6 @@ export function PoolInterface() {
               </div>
             </div>
 
-            {/* Content */}
             <AnimatePresence mode="wait">
               {activeTab === "addLiquidity" ? (
                 <AddLiquidityForm

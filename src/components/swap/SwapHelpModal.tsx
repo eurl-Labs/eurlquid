@@ -1,16 +1,24 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { X, ArrowRight, Wallet, ArrowUpDown, CheckCircle, Shield, Zap } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import {
+  X,
+  ArrowRight,
+  Wallet,
+  ArrowUpDown,
+  CheckCircle,
+  Shield,
+  Zap,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SwapHelpModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
     {
@@ -21,8 +29,8 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
         "Click the 'Connect Wallet' button in the top right",
         "Choose your preferred wallet (MetaMask, WalletConnect, etc.)",
         "Make sure you're connected to Sonic Blaze Testnet",
-        "Your wallet address will appear once connected"
-      ]
+        "Your wallet address will appear once connected",
+      ],
     },
     {
       title: "2. Select Your Tokens",
@@ -32,8 +40,8 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
         "Click 'Select Token' in the 'From' section",
         "Choose the token you want to trade",
         "Click 'Select Token' in the 'To' section",
-        "Choose the token you want to receive"
-      ]
+        "Choose the token you want to receive",
+      ],
     },
     {
       title: "3. Enter Amount",
@@ -43,8 +51,8 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
         "Enter the amount in the 'From' input field",
         "The 'To' amount will automatically calculate",
         "Check your wallet balance to ensure you have enough",
-        "Review the exchange rate and fees"
-      ]
+        "Review the exchange rate and fees",
+      ],
     },
     {
       title: "4. Review & Swap",
@@ -54,30 +62,12 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
         "Review all transaction details carefully",
         "Check the route and estimated gas fees",
         "Click 'Swap' to initiate the transaction",
-        "Confirm the transaction in your wallet"
-      ]
-    }
-  ]
-
-  const features = [
-    {
-      icon: <Shield className="w-5 h-5 text-white" />,
-      title: "MEV Protection",
-      description: "Protected from front-running and sandwich attacks"
+        "Confirm the transaction in your wallet",
+      ],
     },
-    {
-      icon: <Zap className="w-5 h-5 text-white" />,
-      title: "Smart Routing",
-      description: "Automatically finds the best prices across multiple DEXs"
-    },
-    {
-      icon: <CheckCircle className="w-5 h-5 text-white" />,
-      title: "Real-time Data",
-      description: "Live market data for optimal trading decisions"
-    }
-  ]
+  ];
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -95,10 +85,11 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
           className="relative bg-black border border-white/20 rounded-xl max-w-2xl w-full my-8 mx-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="sticky top-0 bg-black border-b border-white/20 p-4 sm:p-6 rounded-t-xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">How to Swap?</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white">
+                How to Swap?
+              </h2>
               <button
                 onClick={onClose}
                 className="cursor-pointer p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -111,9 +102,7 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
             </p>
           </div>
 
-          {/* Content */}
           <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-h-[50vh] overflow-y-auto">
-            {/* Steps */}
             <div className="space-y-4">
               {steps.map((step, index) => (
                 <motion.div
@@ -123,8 +112,8 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
                   transition={{ delay: index * 0.1 }}
                   className={`p-4 rounded-lg border transition-all cursor-pointer ${
                     currentStep === index
-                      ? 'bg-white/10 border-white/30'
-                      : 'bg-white/5 border-white/20 hover:border-white/40 hover:bg-white/10'
+                      ? "bg-white/10 border-white/30"
+                      : "bg-white/5 border-white/20 hover:border-white/40 hover:bg-white/10"
                   }`}
                   onClick={() => setCurrentStep(index)}
                 >
@@ -139,12 +128,12 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
                       <p className="text-gray-300 mb-3 text-sm sm:text-base">
                         {step.description}
                       </p>
-                      
+
                       <AnimatePresence>
                         {currentStep === index && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
+                            animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             className="space-y-2"
                           >
@@ -171,7 +160,6 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
               ))}
             </div>
 
-            {/* CTA */}
             <div className="text-center pt-4 border-t border-white/20">
               <button
                 onClick={onClose}
@@ -184,5 +172,5 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
         </motion.div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }

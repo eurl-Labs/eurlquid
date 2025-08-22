@@ -5,7 +5,6 @@ import { useQuery } from '@apollo/client';
 import { GET_POOL_BY_DEX_AGGREGATOR } from '@/lib/queries';
 import { PoolsResponse } from '@/types/history';
 
-// Available DEX aggregators
 export const DEX_OPTIONS = ['Uniswap', 'Balancer', 'Curve', 'OneInch'];
 
 export function usePopularPools(selectedDex: string = 'Uniswap') {
@@ -16,7 +15,7 @@ export function usePopularPools(selectedDex: string = 'Uniswap') {
       dexName: selectedDex, 
       limit: 6 
     },
-    pollInterval: 30000, // Refresh every 30 seconds
+    pollInterval: 30000,
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true
   });

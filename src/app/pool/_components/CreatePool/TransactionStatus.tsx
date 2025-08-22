@@ -80,7 +80,6 @@ export function TransactionStatus({
       )}
 
       {error && (
-        // <div className="text-xs text-red-400">{error.message}</div>
         <div className="text-xs text-red-400 mt-2">
           Create Pool Failed. Please try again.
         </div>

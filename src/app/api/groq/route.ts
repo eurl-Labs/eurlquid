@@ -1,17 +1,19 @@
-// GET endpoint for testing - will be triggered when you visit /api/groq in browser
 export async function GET() {
-  console.log('GET request received at /api/groq');
-  
-  // This endpoint should only be used for real data requests, not mock data.
-  return NextResponse.json({
-    error: 'GET /api/groq is disabled for production. Use POST with real data.',
-    timestamp: new Date().toISOString()
-  }, { status: 400 });
+  console.log("GET request received at /api/groq");
+
+  return NextResponse.json(
+    {
+      error:
+        "GET /api/groq is disabled for production. Use POST with real data.",
+      timestamp: new Date().toISOString(),
+    },
+    { status: 400 }
+  );
 }
-// src/app/api/groq/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { queryGroqLLM } from '@/lib/groq';
-import { GroqLiquidityOracleResponse } from '@/types';
+
+import { NextRequest, NextResponse } from "next/server";
+import { queryGroqLLM } from "@/lib/groq";
+import { GroqLiquidityOracleResponse } from "@/types";
 
 const SYSTEM_PROMPT = `You are LiquidityOracle AI, an advanced DeFi Liquidity Intelligence Assistant.  
 Your role is to analyze real-time and predictive liquidity conditions across multiple DEXs and blockchains.  
@@ -59,46 +61,40 @@ Output Format (must follow exactly):
 }`;
 
 export async function POST(req: NextRequest) {
-  console.log('POST request received at /api/groq');
-  
+  console.log("POST request received at /api/groq");
+
   try {
-    // Parse the JSON body from the request
     const body = await req.json();
-    console.log('Request body received:', body);
-    
-    // Convert to string for sending to Groq
+    console.log("Request body received:", body);
+
     const userPrompt = JSON.stringify(body);
-    console.log('Sending request to Groq API...');
-    
-    // Make the actual request to Groq using SDK
+    console.log("Sending request to Groq API...");
+
     const groqRes = await queryGroqLLM(SYSTEM_PROMPT, userPrompt);
-    console.log('Received response from Groq API');
-    
-    // Extract AI-generated content
-    const aiMessage = groqRes.choices?.[0]?.message?.content || '';
+    console.log("Received response from Groq API");
+
+    const aiMessage = groqRes.choices?.[0]?.message?.content || "";
     let parsed: GroqLiquidityOracleResponse | null = null;
     let error = null;
-    
-    // Try to parse as JSON
+
     try {
       parsed = JSON.parse(aiMessage);
-      console.log('Successfully parsed AI response as JSON');
+      console.log("Successfully parsed AI response as JSON");
     } catch (e) {
-      error = 'AI response is not valid JSON';
-      console.error('Failed to parse AI response:', e);
+      error = "AI response is not valid JSON";
+      console.error("Failed to parse AI response:", e);
     }
-    
-    // Return full response for inspection
+
     return NextResponse.json({
       parsed,
       raw: aiMessage,
       groqResponse: groqRes,
       error,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (err) {
-    console.error('Error in POST /api/groq:', err);
-    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+    console.error("Error in POST /api/groq:", err);
+    const errorMsg = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }

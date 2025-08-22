@@ -229,30 +229,24 @@ export const SWAP_ABI = [
   },
 ] as const;
 
-// DEX Contract Addresses on Sonic Blaze Testnet
-// Note: These might be different MultiPoolAMM contracts, or the same contract
-// We need to test which ones actually have pools created
 export const DEX_CONTRACTS = {
-  MAIN_POOL: "0xAF3097d87b080F681d8F134FBc649d87A5F84500", // Main MultiPoolAMM
+  MAIN_POOL: "0xAF3097d87b080F681d8F134FBc649d87A5F84500",
   UNISWAP: "0xAF3097d87b080F681d8F134FBc649d87A5F84500",
   ONEINCH: "0x9Fc1bBfa84B9041dd520BB533bBc2F8845537bBE",
   CURVE: "0x0c144C1CA973E36B499d216da6001D3822B15b57",
   BALANCER: "0xacC58C9D66c849B7877B857ce00212DD721BCab9",
 } as const;
 
-// Mapping DEX names to contract addresses
 export const DEX_NAME_TO_ADDRESS: Record<string, string> = {
   main: DEX_CONTRACTS.MAIN_POOL,
   uniswap: DEX_CONTRACTS.UNISWAP,
   oneinch: DEX_CONTRACTS.ONEINCH,
   curve: DEX_CONTRACTS.CURVE,
   balancer: DEX_CONTRACTS.BALANCER,
-  // Aliases
   uniswapv3: DEX_CONTRACTS.UNISWAP,
   "1inch": DEX_CONTRACTS.ONEINCH,
 };
 
-// Type definitions for better TypeScript support
 export interface SwapParams {
   poolId: string;
   tokenIn: string;
@@ -275,25 +269,23 @@ export interface QuoteParams {
   amountIn: bigint;
 }
 
-// Helper function to get contract address by DEX name
 export function getDexContractAddress(dexName?: string): string {
-  // Default to main pool if no DEX specified
-  if (!dexName || dexName === 'main') {
+  if (!dexName || dexName === "main") {
     return DEX_CONTRACTS.MAIN_POOL;
   }
-  
-  // Return specific DEX contract or fallback to main pool
   return DEX_NAME_TO_ADDRESS[dexName] || DEX_CONTRACTS.MAIN_POOL;
 }
 
-// Helper function to get pool ID for token pair
 export function getPoolId(tokenA: string, tokenB: string): string {
-  // Import keccak256 and encodePacked from viem
-  const { keccak256, encodePacked } = require('viem');
-  
-  // Sort addresses to ensure consistent pool ID (same as contract logic)
-  const [sortedTokenA, sortedTokenB] = [tokenA.toLowerCase(), tokenB.toLowerCase()].sort();
-  
-  // Create proper bytes32 hash using keccak256
-  return keccak256(encodePacked(['address', 'address'], [sortedTokenA as `0x${string}`, sortedTokenB as `0x${string}`]));
+  const { keccak256, encodePacked } = require("viem");
+  const [sortedTokenA, sortedTokenB] = [
+    tokenA.toLowerCase(),
+    tokenB.toLowerCase(),
+  ].sort();
+  return keccak256(
+    encodePacked(
+      ["address", "address"],
+      [sortedTokenA as `0x${string}`, sortedTokenB as `0x${string}`]
+    )
+  );
 }

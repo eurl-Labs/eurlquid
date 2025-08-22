@@ -6,7 +6,6 @@ import {
 import { parseEther } from "viem";
 import { useState } from "react";
 
-// Token configurations
 export const FAUCET_TOKENS = {
   WSONIC: {
     name: "Wrapped Sonic",
@@ -14,14 +13,14 @@ export const FAUCET_TOKENS = {
     address: "0x6e943f6BFb751512C68d7fB32dB4C3A51011656a" as `0x${string}`,
     decimals: 18,
     amount: "100000",
-    logo: "/images/logoCoin/sonicLogo.png", // fallback
+    logo: "/images/logoCoin/sonicLogo.png",
   },
   USDT: {
     name: "Tether USD",
     symbol: "USDT",
     address: "0xEc3a35b973e9cb9e735123a6e4Ba1b3D237A9F7F" as `0x${string}`,
     decimals: 18,
-    amount: "100000", // 100k tokens
+    amount: "100000",
     logo: "/images/logoCoin/usdtLogo.png",
   },
   USDC: {
@@ -88,7 +87,7 @@ export const FAUCET_TOKENS = {
     decimals: 18,
     logo: "/images/logoCoin/goonerLogo.png",
   },
-    ABSTER: {
+  ABSTER: {
     name: "Abster",
     symbol: "ABSTER",
     address: "0xa989FAf5595228A42C701590515152c2aE0eaC39" as `0x${string}`,
@@ -98,7 +97,6 @@ export const FAUCET_TOKENS = {
   },
 } as const;
 
-// ERC20 ABI with mint function
 const ERC20_ABI = [
   {
     inputs: [
@@ -189,7 +187,6 @@ export function useFaucet(): UseFaucetReturn {
     resetWrite();
   };
 
-  // Update loading state based on transaction status
   const finalIsLoading = isLoading || isConfirming;
   const finalError = error || writeError || receiptError;
 

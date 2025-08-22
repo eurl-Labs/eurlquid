@@ -5,25 +5,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SwapNavbar } from "./SwapNavbar";
 import { SwapCard } from "./SwapCard";
 import { RoutesList } from "./RoutesList";
-import { Zap, TrendingUp, Shield, Search, ArrowUp, Brain } from "lucide-react";
+import { Zap, TrendingUp, Shield, Search } from "lucide-react";
 import Image from "next/image";
 
 export function SwapInterface() {
   const [fromAmount, setFromAmount] = useState("");
-  const [fromToken, setFromToken] = useState("ETH");
-  const [toToken, setToToken] = useState("USDC");
+  const [fromToken, setFromToken] = useState("WBTC");
+  const [toToken, setToToken] = useState("USDT");
   const [isInputActive, setIsInputActive] = useState(false);
 
-  // Keep RoutesList visible when there's an amount, regardless of input focus
   const shouldShowRoutes = fromAmount.trim() !== "";
   const shouldShowSearching = isInputActive && !shouldShowRoutes;
   const shouldShowWelcome = !isInputActive && !shouldShowRoutes;
 
-  // Handle amount change and reset input active state when empty
   const handleAmountChange = (amount: string) => {
     setFromAmount(amount);
     if (amount.trim() === "") {
-      setIsInputActive(false); // Reset to welcome screen when input is empty
+      setIsInputActive(false);
     }
   };
 
@@ -33,7 +31,6 @@ export function SwapInterface() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Swap Panel */}
           <div className="lg:col-span-1">
             <SwapCard
               fromAmount={fromAmount}
@@ -43,10 +40,8 @@ export function SwapInterface() {
               toToken={toToken}
               setToToken={setToToken}
               onInputFocus={() => setIsInputActive(true)}
-              // Remove onInputBlur to prevent RoutesList from disappearing when clicking buttons
             />
 
-            {/* Smart Features */}
             <div className="mt-6 space-y-3">
               <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
                 <div className="flex items-center space-x-3">
@@ -76,7 +71,6 @@ export function SwapInterface() {
             </div>
           </div>
 
-          {/* Routes Panel - DEX Aggregator */}
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
               {shouldShowRoutes ? (
@@ -322,7 +316,9 @@ export function SwapInterface() {
                       </motion.div>
                     </div>
 
-                    <span>Choose your preferred DEX with deep liquidity pools.</span>
+                    <span>
+                      Choose your preferred DEX with deep liquidity pools.
+                    </span>
                   </div>
                 </motion.div>
               ) : null}

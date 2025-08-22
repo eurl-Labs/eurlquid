@@ -1,20 +1,13 @@
 interface SeparateActionButtonsProps {
-  // Enhanced approval props
   onApprove: () => void;
   approvedTokenA: boolean;
   approvedTokenB: boolean;
   approvalInProgress: boolean;
   approveTokenALoading: boolean;
   approveTokenBLoading: boolean;
-
-  // Create pool props
   onCreatePool: () => void;
   poolCreationInProgress: boolean;
-
-  // Add liquidity props
   onAddLiquidity: () => void;
-
-  // General props
   isConnected: boolean;
   canProceed: boolean;
   selectedDex: string | null;
@@ -35,16 +28,11 @@ export function SeparateActionButtons({
   approvalInProgress,
   approveTokenALoading,
   approveTokenBLoading,
-  onCreatePool,
   poolCreationInProgress,
-  onAddLiquidity,
   isConnected,
   canProceed,
   selectedDex,
-  selectedTokenA,
-  selectedTokenB,
   isLoading,
-  isSuccess,
   isError,
   txHash,
   poolCreatedSuccessfully,
@@ -69,17 +57,16 @@ export function SeparateActionButtons({
     return `Approve Tokens for ${selectedDex}`;
   };
 
-  const getCreatePoolButtonText = () => {
-    if (poolCreationInProgress || isLoading) return "Creating Pool...";
-    if (isError) return `Create Pool on ${selectedDex}`; // Reset button text on error
-    if (poolCreatedSuccessfully) return `✓ Pool Created on ${selectedDex}`;
-    if (!bothTokensApproved) return "Approve Tokens First";
-    return `Create Pool on ${selectedDex}`;
-  };
+  // const getCreatePoolButtonText = () => {
+  //   if (poolCreationInProgress || isLoading) return "Creating Pool...";
+  //   if (isError) return `Create Pool on ${selectedDex}`; // Reset button text on error
+  //   if (poolCreatedSuccessfully) return `✓ Pool Created on ${selectedDex}`;
+  //   if (!bothTokensApproved) return "Approve Tokens First";
+  //   return `Create Pool on ${selectedDex}`;
+  // };
 
   return (
     <div className="space-y-3">
-      {/* Enhanced Approval Button with Loading Spinner */}
       <button
         type="button"
         onClick={onApprove}
@@ -90,24 +77,24 @@ export function SeparateActionButtons({
           !isConnected
         }
         className="
-  w-full
-  bg-gradient-to-b from-neutral-900 to-black
-  text-white
-  font-semibold
-  py-4 px-6
-  rounded-xl
-  border border-white/10
-  shadow-[0_4px_12px_rgba(0,0,0,0.4)]
-  hover:bg-gradient-to-b hover:from-white/10 hover:to-white/20
-  hover:text-white
-  hover:border-white/20
-  hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)]
-  transition-all duration-200
-  disabled:from-white/10 disabled:to-white/10
-  disabled:text-white/40
-  disabled:shadow-none
-  cursor-pointer disabled:cursor-not-allowed
-"
+        w-full
+        bg-gradient-to-b from-neutral-900 to-black
+        text-white
+        font-semibold
+        py-4 px-6
+        rounded-xl
+        border border-white/10
+        shadow-[0_4px_12px_rgba(0,0,0,0.4)]
+        hover:bg-gradient-to-b hover:from-white/10 hover:to-white/20
+        hover:text-white
+        hover:border-white/20
+        hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)]
+        transition-all duration-200
+        disabled:from-white/10 disabled:to-white/10
+        disabled:text-white/40
+        disabled:shadow-none
+        cursor-pointer disabled:cursor-not-allowed
+      "
       >
         <div className="flex items-center justify-center space-x-2">
           {anyApprovalLoading && (
@@ -138,7 +125,6 @@ export function SeparateActionButtons({
         </div>
       </button> */}
 
-      {/* Enhanced Success notification with proper transaction hash */}
       {poolCreatedSuccessfully && (createPoolTxHash || txHash) && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl">
           <div className="flex items-center">
@@ -162,9 +148,6 @@ export function SeparateActionButtons({
           </div>
         </div>
       )}
-
-      {/* Add Liquidity Button - Only show after pool is created */}
-      {/* You can add this later if needed */}
     </div>
   );
 }
