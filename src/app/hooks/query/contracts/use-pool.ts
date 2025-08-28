@@ -11,22 +11,22 @@ import { config } from "../../../../config/reown";
 export const DEX_AGGREGATORS = {
   Uniswap: {
     name: "Uniswap",
-    address: "0xAF3097d87b080F681d8F134FBc649d87A5F84500" as `0x${string}`,
+    address: "0x50D1672685E594B27F298Ac5bFACa4F3488AAA9c" as `0x${string}`,
     logo: "/images/logo/uniLogo.svg.png",
   },
   OneInch: {
     name: "1inch",
-    address: "0x9Fc1bBfa84B9041dd520BB533bBc2F8845537bBE" as `0x${string}`,
+    address: "0xA9b3eD890229E575863514ef8464C0e6a771Bc58" as `0x${string}`,
     logo: "/images/logo/1inchLogo.png",
   },
   Curve: {
     name: "Curve",
-    address: "0x0c144C1CA973E36B499d216da6001D3822B15b57" as `0x${string}`,
+    address: "0x03a6FE06D6C0C7c9726Ecd079cD9283A37b4c178" as `0x${string}`,
     logo: "/images/logo/curveLogo.png",
   },
   Balancer: {
     name: "Balancer",
-    address: "0xacC58C9D66c849B7877B857ce00212DD721BCab9" as `0x${string}`,
+    address: "0x2B778181dAB6Db356b00931a6c1833E1450f9655" as `0x${string}`,
     logo: "/images/logo/balancerLogo.png",
   },
 } as const;
@@ -42,70 +42,70 @@ export const POOL_TOKENS = {
   USDT: {
     name: "Tether USD",
     symbol: "USDT",
-    address: "0xEc3a35b973e9cb9e735123a6e4Ba1b3D237A9F7F" as `0x${string}`,
+    address: "0xb13aF633516fe0d21BeB466C95fc34C3917BaAFb" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/usdtLogo.png",
   },
   WBTC: {
     name: "Wrapped Bitcoin",
     symbol: "WBTC",
-    address: "0xBBc467639fbEeDF5ec1eDFfC7Ed22b4666Cdd4bA" as `0x${string}`,
+    address: "0x395eAc2CE4fFFcd578652D689A0eeCC608649200" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/wbtcLogo.png",
   },
   WETH: {
     name: "Wrapped Ethereum",
     symbol: "WETH",
-    address: "0x0e07bce15e5Ae4729eE24b6294Aef7bcB6c2a260" as `0x${string}`,
+    address: "0x931753b7A1141d23066fb7a0785ab5c2c1522F43" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/ethLogo.png",
   },
   WSONIC: {
     name: "Wrapped Sonic",
     symbol: "WSONIC",
-    address: "0x6e943f6BFb751512C68d7fB32dB4C3A51011656a" as `0x${string}`,
+    address: "0xb13aF633516fe0d21BeB466C95fc34C3917BaAFb" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/sonicLogo.png",
   },
   PEPE: {
     name: "Pepe",
     symbol: "PEPE",
-    address: "0x6EB23CA35D4F467d0d2c326B1E23C8BFDF0688B4" as `0x${string}`,
+    address: "0xeC4671DdD18f88eF7076124895cf42E067f3D4C5" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/pepeLogo.png",
   },
   PENGU: {
     name: "Pudgy Penguins",
     symbol: "PENGU",
-    address: "0x894a84F584D4b84697854Ba0a895Eb122e8791A9" as `0x${string}`,
+    address: "0x2b026284561AF82CC015e61d2ecB5b7653f36190" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/penguLogo.png",
   },
   POLLY: {
     name: "Polly",
     symbol: "POLLY",
-    address: "0xFD9bd8cfc9f6326A1496f240E83ff6717f960E20" as `0x${string}`,
+    address: "0xa83A7118481D3C5A2DDa8ac5F34c8b690Cb0a242" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/pollyLogo.jpg",
   },
   DARKPENGU: {
     name: "Dark Pengu",
     symbol: "DPENGU",
-    address: "0x7DE89E03157F4866Ff5A4F04d3297e88C54bbdb8" as `0x${string}`,
+    address: "0x2b0b61AE71d390E8874cE405f05291DD405407ED" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/darkPenguLogo.png",
   },
   GOONER: {
     name: "PURGY PENGOON",
     symbol: "GOONER",
-    address: "0x92EeEd76021665B8D926069ecd9b5986c6c779fb" as `0x${string}`,
+    address: "0x7cDaE08eFA988318feE67342a9CD06449D7651dB" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/goonerLogo.png",
   },
   ABSTER: {
     name: "Abster",
     symbol: "ABSTER",
-    address: "0xa989FAf5595228A42C701590515152c2aE0eaC39" as `0x${string}`,
+    address: "0xc7251A2D1bcCF362F6D333977B2817710Aa71707" as `0x${string}`,
     decimals: 18,
     logo: "/images/logoCoin/absterLogo.jpg",
   },
@@ -113,17 +113,17 @@ export const POOL_TOKENS = {
 
 export const EXISTING_POOLS = {
   "WBTC/USDT":
-    "0x083828c23a4a388c8cf5eaab6c3482f851cb59a931f33986a35de3c918cd6571",
+    "0xa2ccb2ebe696ef0f55e167981bfeaad4c2b1ea89e8d2e4587c156bbbb76ac179",
   "WETH/USDC":
-    "0x097dab714135bb77d763a2c46940e92d30215d4b519a1606108abcbb262a655c",
+    "0x82aad9f7e0caad402621ced7927878763830bbcae5e05f1ee5c6f4f9c1756ac7",
   "PEPE/USDT":
-    "0xe13a819a2714c9c4dcc864a30ddb2de4ed766a3b7f8416cd0c28308e08fc7789",
+    "0x40c9d8c057660d4d4ed27d2fb020eb0a8cd165ebd088b1d9ae4170be499adb53",
   "WSONIC/PENGU":
-    "0x88e82999197922da97431214fce800bf37c8ae015e5174e31c934d11f100ac7e",
+    "0x9e4f549d4d845fe1cfa3fcfc16f002af3e0312233c6f63a4b5fd1cc0193bb719",
   "WETH/WSONIC":
-    "0x14e1dc0dd908a6219a9a6040fe08acf9d81552a0c3ee745576368e3588a6e197",
+    "0xba6ca351bb6feff4fff5031c7375c8402a404e82bc0d9bed27ed8dce594182cf",
   "WSONIC/PEPE":
-    "0x50d6b263f568e9cd347bab3cbbca27eff5d1754bd2347a595abb6d33df7b96f2",
+    "0x0ff135a26b5398efd3e2249cff88214d219cd8d224b917af6984bbc91487bdcb",
 } as const;
 
 const MULTIPOOL_ABI = [

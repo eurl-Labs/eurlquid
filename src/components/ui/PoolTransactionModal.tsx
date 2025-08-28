@@ -404,7 +404,7 @@ export function PoolTransactionModal({
                               {txHash.slice(0, 12)}...{txHash.slice(-8)}
                             </code>
                             <a
-                              href={`https://testnet.sonicscan.org/tx/${txHash}`}
+                              href={`https://sonicscan.org/tx/${txHash}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-1 hover:bg-white/5 rounded transition-colors"

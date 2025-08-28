@@ -1,21 +1,11 @@
 // DEX Aggregator Smart Contract ABIs for Sonic Blaze Testnet
 // Contract Addresses:
-// - UNISWAP: 0xAF3097d87b080F681d8F134FBc649d87A5F84500
-// - OneInch: 0x9Fc1bBfa84B9041dd520BB533bBc2F8845537bBE
-// - Curve: 0x0c144C1CA973E36B499d216da6001D3822B15b57
-// - Balancer: 0xacC58C9D66c849B7877B857ce00212DD721BCab9
+// - UNISWAP: 0x50D1672685E594B27F298Ac5bFACa4F3488AAA9c
+// - OneInch: 0xA9b3eD890229E575863514ef8464C0e6a771Bc58
+// - Curve: 0x03a6FE06D6C0C7c9726Ecd079cD9283A37b4c178
+// - Balancer: 0x2B778181dAB6Db356b00931a6c1833E1450f9655
 
 export const SWAP_ABI = [
-  { inputs: [], name: "InsufficientAmount", type: "error" },
-  { inputs: [], name: "InsufficientLiquidity", type: "error" },
-  { inputs: [], name: "InsufficientReserves", type: "error" },
-  { inputs: [], name: "InvalidToken", type: "error" },
-  { inputs: [], name: "PoolAlreadyExists", type: "error" },
-  { inputs: [], name: "PoolNotExists", type: "error" },
-  { inputs: [], name: "SameToken", type: "error" },
-  { inputs: [], name: "SlippageTooHigh", type: "error" },
-  { inputs: [], name: "TransferFailed", type: "error" },
-  { inputs: [], name: "ZeroAddress", type: "error" },
   {
     anonymous: false,
     inputs: [
@@ -24,12 +14,6 @@ export const SWAP_ABI = [
         internalType: "bytes32",
         name: "poolId",
         type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "provider",
-        type: "address",
       },
       {
         indexed: false,
@@ -41,12 +25,6 @@ export const SWAP_ABI = [
         indexed: false,
         internalType: "uint256",
         name: "amountB",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "liquidity",
         type: "uint256",
       },
     ],
@@ -64,12 +42,37 @@ export const SWAP_ABI = [
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "amountA",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amountB",
+        type: "uint256",
+      },
+    ],
+    name: "LiquidityRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "poolId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
         internalType: "address",
         name: "tokenA",
         type: "address",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "tokenB",
         type: "address",
@@ -87,16 +90,17 @@ export const SWAP_ABI = [
         name: "poolId",
         type: "bytes32",
       },
+      { indexed: true, internalType: "address", name: "user", type: "address" },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
-        name: "trader",
+        name: "tokenIn",
         type: "address",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "tokenIn",
+        name: "tokenOut",
         type: "address",
       },
       {
@@ -112,8 +116,22 @@ export const SWAP_ABI = [
         type: "uint256",
       },
     ],
-    name: "Swap",
+    name: "Swapped",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "FEE_DENOMINATOR",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "SWAP_FEE",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
@@ -122,7 +140,7 @@ export const SWAP_ABI = [
       { internalType: "uint256", name: "amountB", type: "uint256" },
     ],
     name: "addLiquidity",
-    outputs: [{ internalType: "uint256", name: "liquidity", type: "uint256" }],
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -137,19 +155,9 @@ export const SWAP_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "bytes32", name: "poolId", type: "bytes32" },
-      { internalType: "address", name: "user", type: "address" },
-    ],
-    name: "getLiquidityBalance",
-    outputs: [{ internalType: "uint256", name: "balance", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "getPoolCount",
-    outputs: [{ internalType: "uint256", name: "count", type: "uint256" }],
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -159,7 +167,7 @@ export const SWAP_ABI = [
       { internalType: "address", name: "tokenB", type: "address" },
     ],
     name: "getPoolId",
-    outputs: [{ internalType: "bytes32", name: "poolId", type: "bytes32" }],
+    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
     stateMutability: "pure",
     type: "function",
   },
@@ -185,34 +193,26 @@ export const SWAP_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "bytes32", name: "", type: "bytes32" },
-      { internalType: "address", name: "", type: "address" },
-    ],
-    name: "liquidityBalances",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    name: "poolIds",
-    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
     name: "pools",
     outputs: [
-      { internalType: "contract IERC20", name: "tokenA", type: "address" },
-      { internalType: "contract IERC20", name: "tokenB", type: "address" },
+      { internalType: "address", name: "tokenA", type: "address" },
+      { internalType: "address", name: "tokenB", type: "address" },
       { internalType: "uint256", name: "reserveA", type: "uint256" },
       { internalType: "uint256", name: "reserveB", type: "uint256" },
-      { internalType: "uint256", name: "totalSupply", type: "uint256" },
-      { internalType: "bool", name: "exists", type: "bool" },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes32", name: "poolId", type: "bytes32" },
+      { internalType: "uint256", name: "amountA", type: "uint256" },
+      { internalType: "uint256", name: "amountB", type: "uint256" },
+    ],
+    name: "removeLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -230,11 +230,11 @@ export const SWAP_ABI = [
 ] as const;
 
 export const DEX_CONTRACTS = {
-  MAIN_POOL: "0xAF3097d87b080F681d8F134FBc649d87A5F84500",
-  UNISWAP: "0xAF3097d87b080F681d8F134FBc649d87A5F84500",
-  ONEINCH: "0x9Fc1bBfa84B9041dd520BB533bBc2F8845537bBE",
-  CURVE: "0x0c144C1CA973E36B499d216da6001D3822B15b57",
-  BALANCER: "0xacC58C9D66c849B7877B857ce00212DD721BCab9",
+  MAIN_POOL: "0x50D1672685E594B27F298Ac5bFACa4F3488AAA9c",
+  UNISWAP: "0x50D1672685E594B27F298Ac5bFACa4F3488AAA9c",
+  ONEINCH: "0xA9b3eD890229E575863514ef8464C0e6a771Bc58",
+  CURVE: "0x03a6FE06D6C0C7c9726Ecd079cD9283A37b4c178",
+  BALANCER: "0x2B778181dAB6Db356b00931a6c1833E1450f9655",
 } as const;
 
 export const DEX_NAME_TO_ADDRESS: Record<string, string> = {

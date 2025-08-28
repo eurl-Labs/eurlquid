@@ -11,42 +11,42 @@ export const AVAILABLE_POOLS: PoolConfig[] = [
   {
     name: "WBTC/USDT",
     poolId:
-      "0x083828c23a4a388c8cf5eaab6c3482f851cb59a931f33986a35de3c918cd6571",
+      "0xa2ccb2ebe696ef0f55e167981bfeaad4c2b1ea89e8d2e4587c156bbbb76ac179",
     tokenA: TOKEN_ADDRESSES.WBTC,
     tokenB: TOKEN_ADDRESSES.USDT,
   },
   {
     name: "WETH/USDC",
     poolId:
-      "0x097dab714135bb77d763a2c46940e92d30215d4b519a1606108abcbb262a655c",
+      "0x82aad9f7e0caad402621ced7927878763830bbcae5e05f1ee5c6f4f9c1756ac7",
     tokenA: TOKEN_ADDRESSES.WETH,
     tokenB: TOKEN_ADDRESSES.USDC,
   },
   {
     name: "PEPE/USDT",
     poolId:
-      "0xe13a819a2714c9c4dcc864a30ddb2de4ed766a3b7f8416cd0c28308e08fc7789",
+      "0x40c9d8c057660d4d4ed27d2fb020eb0a8cd165ebd088b1d9ae4170be499adb53",
     tokenA: TOKEN_ADDRESSES.PEPE,
     tokenB: TOKEN_ADDRESSES.USDT,
   },
   {
     name: "WSONIC/PENGU",
     poolId:
-      "0x88e82999197922da97431214fce800bf37c8ae015e5174e31c934d11f100ac7e",
+      "0x9e4f549d4d845fe1cfa3fcfc16f002af3e0312233c6f63a4b5fd1cc0193bb719",
     tokenA: TOKEN_ADDRESSES.WSONIC,
     tokenB: TOKEN_ADDRESSES.PENGU,
   },
   {
     name: "WETH/WSONIC",
     poolId:
-      "0x14e1dc0dd908a6219a9a6040fe08acf9d81552a0c3ee745576368e3588a6e197",
+      "0xba6ca351bb6feff4fff5031c7375c8402a404e82bc0d9bed27ed8dce594182cf",
     tokenA: TOKEN_ADDRESSES.WETH,
     tokenB: TOKEN_ADDRESSES.WSONIC,
   },
   {
     name: "WSONIC/PEPE",
     poolId:
-      "0x50d6b263f568e9cd347bab3cbbca27eff5d1754bd2347a595abb6d33df7b96f2",
+      "0x0ff135a26b5398efd3e2249cff88214d219cd8d224b917af6984bbc91487bdcb",
     tokenA: TOKEN_ADDRESSES.WSONIC,
     tokenB: TOKEN_ADDRESSES.PEPE,
   },

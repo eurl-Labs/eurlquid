@@ -68,7 +68,7 @@ export function TransactionStatus({
             type="button"
             onClick={() =>
               window.open(
-                `https://testnet.sonicscan.org/tx/${txHash}`,
+                `https://sonicscan.org/tx/${txHash}`,
                 "_blank"
               )
             }

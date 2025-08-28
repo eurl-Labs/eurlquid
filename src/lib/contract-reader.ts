@@ -1,10 +1,10 @@
 import { createPublicClient, http } from "viem";
-import { sonicBlazeTestnet } from "@/config/wagmi";
+import { sonicMainnet } from "@/config/wagmi";
 import { SWAP_ABI, getDexContractAddress } from "@/contracts/abi/swap-abi";
 
 export const publicClient = createPublicClient({
-  chain: sonicBlazeTestnet,
-  transport: http("https://rpc.blaze.soniclabs.com"),
+  chain: sonicMainnet,
+  transport: http("https://rpc.soniclabs.com"),
 });
 
 export async function getPoolIdFromContract(
@@ -53,7 +53,7 @@ export async function validatePool(
     });
 
     const [tokenA, tokenB, reserveA, reserveB, totalSupply, exists] =
-      poolData as [string, string, bigint, bigint, bigint, boolean];
+      poolData as unknown as [string, string, bigint, bigint, bigint, boolean];
 
     return {
       exists,

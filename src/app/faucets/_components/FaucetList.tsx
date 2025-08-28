@@ -198,7 +198,7 @@ export function FaucetList({
                       onClick={(e) => {
                         e.stopPropagation();
                         window.open(
-                          `https://testnet.sonicscan.org/address/${token.address}`,
+                          `https://sonicscan.org/address/${token.address}`,
                           "_blank"
                         );
                       }}

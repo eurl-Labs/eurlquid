@@ -28,7 +28,7 @@ export function SwapHelpModal({ isOpen, onClose }: SwapHelpModalProps) {
       details: [
         "Click the 'Connect Wallet' button in the top right",
         "Choose your preferred wallet (MetaMask, WalletConnect, etc.)",
-        "Make sure you're connected to Sonic Blaze Testnet",
+        "Make sure you're connected to Sonic Mainnet",
         "Your wallet address will appear once connected",
       ],
     },

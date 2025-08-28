@@ -10,9 +10,9 @@ import {
 import { defineChain } from 'viem/chains/utils';
 import { http } from 'wagmi';
 
-export const sonicBlazeTestnet = defineChain({
+export const sonicMainnet = defineChain({
   id: 57054,
-  name: 'Sonic Blaze Testnet',
+  name: 'Sonic',
   nativeCurrency: {
     decimals: 18,
     name: 'Sonic',
@@ -20,16 +20,16 @@ export const sonicBlazeTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.blaze.soniclabs.com'],
+      http: ['https://rpc.soniclabs.com'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Sonic Explorer',
-      url: 'https://explorer.blaze.soniclabs.com',
+      url: 'https://sonicscan.org',
     },
   },
-  testnet: true,
+  testnet: false,
 });
 
 const getWalletConnectProjectId = () => {
@@ -44,7 +44,7 @@ const getWalletConnectProjectId = () => {
 export const config = getDefaultConfig({
   appName: 'Eurlquid',
   projectId: getWalletConnectProjectId(),
-  chains: [mainnet, arbitrum, base, sonicBlazeTestnet],
+  chains: [mainnet, arbitrum, base, sonicMainnet],
   wallets: [
     {
       groupName: 'Popular',
@@ -59,7 +59,7 @@ export const config = getDefaultConfig({
     [mainnet.id]: http(),
     [arbitrum.id]: http(),
     [base.id]: http(),
-    [sonicBlazeTestnet.id]: http('https://rpc.blaze.soniclabs.com', {
+    [sonicMainnet.id]: http('https://rpc.soniclabs.com', {
       timeout: 10_000,
       retryCount: 3,
       retryDelay: 1000,

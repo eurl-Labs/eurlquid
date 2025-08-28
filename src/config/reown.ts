@@ -2,9 +2,9 @@ import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { defineChain } from "viem";
 
-export const sonicBlazeTestnet = defineChain({
-  id: 57054,
-  name: "Sonic Blaze Testnet",
+export const sonicMainnet = defineChain({
+  id: 146,
+  name: "Sonic Mainnet",
   nativeCurrency: {
     decimals: 18,
     name: "Sonic",
@@ -12,13 +12,13 @@ export const sonicBlazeTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ["https://rpc.blaze.soniclabs.com"],
+      http: ["https://rpc.soniclabs.com"],
     },
   },
   blockExplorers: {
     default: {
       name: "Sonic Explorer",
-      url: "https://explorer.blaze.soniclabs.com",
+      url: "https://sonicscan.org/",
     },
   },
   testnet: true,
@@ -38,7 +38,7 @@ const getWalletConnectProjectId = () => {
 const projectId = getWalletConnectProjectId();
 
 const wagmiAdapter = new WagmiAdapter({
-  networks: [sonicBlazeTestnet],
+  networks: [sonicMainnet],
   projectId,
   ssr: true,
 });
@@ -53,8 +53,8 @@ const metadata = {
 export const modal = createAppKit({
   adapters: [wagmiAdapter],
   projectId,
-  networks: [sonicBlazeTestnet],
-  defaultNetwork: sonicBlazeTestnet,
+  networks: [sonicMainnet],
+  defaultNetwork: sonicMainnet,
   metadata,
   themeMode: "dark",
   themeVariables: {

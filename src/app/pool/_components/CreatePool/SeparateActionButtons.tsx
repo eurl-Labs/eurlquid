@@ -133,7 +133,7 @@ export function SeparateActionButtons({
               <div className="text-sm mt-1">
                 Transaction:
                 <a
-                  href={`https://testnet.sonicscan.org/tx/${
+                  href={`https://sonicscan.org/tx/${
                     createPoolTxHash || txHash
                   }`}
                   target="_blank"

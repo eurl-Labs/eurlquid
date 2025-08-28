@@ -114,11 +114,12 @@ export function FaucetCard({
       isSuccess &&
       selectedToken &&
       !isTokenOnCooldown(selectedToken) &&
-      !claimInitiatedRef.current
+      !claimInitiatedRef.current &&
+      !txHash
     ) {
       reset();
     }
-  }, [selectedToken, isSuccess, isTokenOnCooldown, reset]);
+  }, [selectedToken, isSuccess, isTokenOnCooldown, reset, txHash]);
 
   return (
     <div className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl">
@@ -155,7 +156,7 @@ export function FaucetCard({
                 </div>
               </div>
               <Link
-                href={`https://testnet.sonicscan.org/address/${address}`}
+                href={`https://sonicscan.org/address/${address}`}
                 target="_blank"
               >
                 <ExternalLink className="w-4 h-4 cursor-pointer" />
@@ -291,7 +292,7 @@ export function FaucetCard({
                 <button
                   onClick={() =>
                     window.open(
-                      `https://testnet.sonicscan.org/tx/${txHash}`,
+                      `https://sonicscan.org/tx/${txHash}`,
                       "_blank"
                     )
                   }

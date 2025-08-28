@@ -4,7 +4,7 @@ const baseTokens = [
   {
     symbol: "USDT",
     name: "Tether USD",
-    address: "0xEc3a35b973e9cb9e735123a6e4Ba1b3D237A9F7F",
+    address: "0xb13aF633516fe0d21BeB466C95fc34C3917BaAFb",
     logo: "/images/logoCoin/usdtLogo.png",
   },
   {
@@ -16,55 +16,55 @@ const baseTokens = [
   {
     symbol: "WBTC",
     name: "Wrapped Bitcoin",
-    address: "0xBBc467639fbEeDF5ec1eDFfC7Ed22b4666Cdd4bA",
+    address: "0x395eAc2CE4fFFcd578652D689A0eeCC608649200",
     logo: "/images/logoCoin/wbtcLogo.png",
   },
   {
     symbol: "WETH",
     name: "Wrapped Ethereum",
-    address: "0x0e07bce15e5Ae4729eE24b6294Aef7bcB6c2a260",
+    address: "0x931753b7A1141d23066fb7a0785ab5c2c1522F43",
     logo: "/images/logoCoin/ethLogo.png",
   },
   {
     symbol: "WSONIC",
     name: "Wrapped Sonic",
-    address: "0x6e943f6BFb751512C68d7fB32dB4C3A51011656a",
+    address: "0xEc3a35b973e9cb9e735123a6e4Ba1b3D237A9F7F",
     logo: "/images/logoCoin/sonicLogo.png",
   },
   {
     symbol: "PEPE",
     name: "Pepe",
-    address: "0x6EB23CA35D4F467d0d2c326B1E23C8BFDF0688B4",
+    address: "0xeC4671DdD18f88eF7076124895cf42E067f3D4C5",
     logo: "/images/logoCoin/pepeLogo.png",
   },
   {
     symbol: "PENGU",
     name: "Pengu",
-    address: "0x894a84F584D4b84697854Ba0a895Eb122e8791A9",
+    address: "0x2b026284561AF82CC015e61d2ecB5b7653f36190",
     logo: "/images/logoCoin/penguLogo.png",
   },
   {
     symbol: "DPENGU",
     name: "Dark Pengu",
-    address: "0x7DE89E03157F4866Ff5A4F04d3297e88C54bbdb8",
+    address: "0x2b0b61AE71d390E8874cE405f05291DD405407ED",
     logo: "/images/logoCoin/darkPenguLogo.png",
   },
   {
     symbol: "GOONER",
     name: "Gooner",
-    address: "0x92EeEd76021665B8D926069ecd9b5986c6c779fb",
+    address: "0x7cDaE08eFA988318feE67342a9CD06449D7651dB",
     logo: "/images/logoCoin/goonerLogo.png",
   },
   {
     symbol: "ABSTER",
     name: "Abster",
-    address: "0xa989FAf5595228A42C701590515152c2aE0eaC39",
+    address: "0xc7251A2D1bcCF362F6D333977B2817710Aa71707",
     logo: "/images/logoCoin/absterLogo.png",
   },
   {
     symbol: "POLLY",
     name: "Polly",
-    address: "0xFD9bd8cfc9f6326A1496f240E83ff6717f960E20",
+    address: "0xa83A7118481D3C5A2DDa8ac5F34c8b690Cb0a242",
     logo: "/images/logoCoin/pollyLogo.jpg",
   },
 ];

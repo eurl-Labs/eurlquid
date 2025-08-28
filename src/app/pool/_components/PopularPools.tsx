@@ -52,7 +52,7 @@ export function PopularPools() {
   };
 
   const openTransaction = (txHash: string) => {
-    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank");
+    window.open(`https://sonicscan.org/tx/${txHash}`, "_blank");
   };
 
   const calculateAPR = (pool: Pool) => {

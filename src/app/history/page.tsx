@@ -56,7 +56,7 @@ export default function HistoryPage() {
   };
 
   const openTransaction = (txHash: string) => {
-    window.open(`https://testnet.sonicscan.org/tx/${txHash}`, "_blank");
+    window.open(`https://sonicscan.org/tx/${txHash}`, "_blank");
   };
 
   const getTokenDisplay = (tokenAddress: string) => {
@@ -296,7 +296,7 @@ export default function HistoryPage() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80 hover:underline">
                           <Link
-                            href={`https://testnet.sonicscan.org/block/${swap.block_number}`}
+                            href={`https://sonicscan.org/block/${swap.block_number}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

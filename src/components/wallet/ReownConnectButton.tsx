@@ -7,7 +7,7 @@ import {
 } from "@reown/appkit/react";
 import { Wallet } from "lucide-react";
 import Image from "next/image";
-import { sonicBlazeTestnet } from "@/config/reown";
+import { sonicMainnet } from "@/config/reown";
 
 export function ReownConnectButton() {
   const { open } = useAppKit();
@@ -18,7 +18,7 @@ export function ReownConnectButton() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  const isWrongNetwork = chainId && chainId !== sonicBlazeTestnet.id;
+  const isWrongNetwork = chainId && chainId !== sonicMainnet.id;
 
   if (!isConnected) {
     return (
@@ -52,7 +52,7 @@ export function ReownConnectButton() {
         type="button"
         className="group relative flex items-center gap-2 px-0.5 md:px-4 py-2 bg-black/20 backdrop-blur-sm border border-white/20 text-white font-medium text-sm rounded-lg hover:bg-black/30 hover:border-white/30 transition-all duration-300"
       >
-        {chainId === sonicBlazeTestnet.id ? (
+        {chainId === sonicMainnet.id ? (
           <Image
             src="/images/logoCoin/sonicLogo.png"
             alt="Sonic logo"
@@ -70,7 +70,7 @@ export function ReownConnectButton() {
             }}
           />
         )}
-        {chainId === sonicBlazeTestnet.id ? "Sonic Blaze" : "Unknown Network"}
+        {chainId === sonicMainnet.id ? "Sonic Mainnet" : "Unknown Network"}
       </button>
 
       <button

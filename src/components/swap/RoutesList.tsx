@@ -142,7 +142,7 @@ export function useSmartSwapExecution(
             label: "View Details",
             onClick: () => {
               window.open(
-                `https://testnet.sonicscan.org/tx/${result.hash}`,
+                `https://sonicscan.org/tx/${result.hash}`,
                 "_blank"
               );
             },
@@ -239,7 +239,7 @@ export function RoutesList({
             label: "View on Explorer",
             onClick: () =>
               window.open(
-                `https://testnet.sonicscan.org/tx/${result.hash}`,
+                `https://sonicscan.org/tx/${result.hash}`,
                 "_blank"
               ),
           },
